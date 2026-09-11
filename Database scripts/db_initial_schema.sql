@@ -6,6 +6,17 @@ USE rental_management;
 -- Application users
 -- =============================================================================
 
+-- BANG: users
+-- Du lieu luu tru:
+--   Tai khoan dang nhap cua chu tro va nguoi thue, gom so dien thoai, email,
+--   mat khau da bam, ho ten hien thi, anh dai dien, vai tro va trang thai.
+-- Nghiep vu:
+--   Phuc vu dang ky, dang nhap, dang xuat, doi mat khau, cap nhat tai khoan
+--   va phan biet quyen landlord/tenant. Day la danh tinh xac thuc, khong phai
+--   ho so phap ly cua nguoi thue; ho so do duoc luu rieng trong tenants.
+-- Quan he:
+--   Mot user vai tro tenant co the lien ket toi toi da mot tenants.user_id.
+--   Nhieu bang su dung user lam nguoi tao, nguoi ghi nhan hoac nguoi xu ly.
 CREATE TABLE users (
   id BINARY(16) NOT NULL,
   phone VARCHAR(20) NOT NULL,
@@ -27,6 +38,16 @@ CREATE TABLE users (
 -- Property inventory
 -- =============================================================================
 
+-- BANG: properties
+-- Du lieu luu tru:
+--   Danh sach cac khu/dia chi nha tro do mot chu tro quan ly, bao gom ma khu,
+--   ten, dia chi hien thi, don vi hanh chinh, toa do va trang thai hoat dong.
+-- Nghiep vu:
+--   Cho phep mot chu tro quan ly nhieu dia chi va loc phong, dich vu, doanh thu,
+--   cong no theo tung khu. deleted_at dung de xoa mem va giu du lieu lich su.
+-- Quan he:
+--   Mot property co nhieu rooms va services; announcement cung co the nham
+--   truc tiep den toan bo nguoi thue cua mot property.
 CREATE TABLE properties (
   id BINARY(16) NOT NULL,
   code VARCHAR(50) NOT NULL,
@@ -56,6 +77,16 @@ CREATE TABLE properties (
   )
 ) ENGINE = InnoDB;
 
+-- BANG: rooms
+-- Du lieu luu tru:
+--   Thong tin tung phong: khu tro, ma phong, ten, tang, dien tich, suc chua,
+--   gia thue/goi y tien coc, mo ta va trang thai van hanh.
+-- Nghiep vu:
+--   Ho tro them, sua, xem va xoa mem phong. Trang thai phong dang duoc thue
+--   khong luu truc tiep o day ma duoc suy ra tu rental_contracts dang active.
+-- Quan he:
+--   Moi room thuoc mot property; mot room co nhieu hop dong theo thoi gian,
+--   cong to va yeu cau sua chua. Ma phong chi duy nhat trong cung mot property.
 CREATE TABLE rooms (
   id BINARY(16) NOT NULL,
   property_id BINARY(16) NOT NULL,
@@ -84,6 +115,17 @@ CREATE TABLE rooms (
 -- Tenant profiles and onboarding
 -- =============================================================================
 
+-- BANG: tenants
+-- Du lieu luu tru:
+--   Ho so nghiep vu/phap ly cua nguoi thue: ho ten, lien lac, ngay sinh, CCCD
+--   hoac ho chieu, dia chi thuong tru, lien he khan cap va ghi chu.
+-- Nghiep vu:
+--   Chu tro co the tao ho so truoc khi nguoi thue dang ky tai khoan. user_id
+--   de NULL den khi dang ky bang ma moi. So giay to duoc ma hoa; hash duoc dung
+--   de phat hien trung lap ma khong can tim tren du lieu ro.
+-- Quan he:
+--   Co the lien ket 0..1 user; tham gia nhieu hop dong qua contract_tenants;
+--   co the la nguoi thanh toan, nguoi bao sua chua va nguoi nhan thong bao.
 CREATE TABLE tenants (
   id BINARY(16) NOT NULL,
   user_id BINARY(16) NULL,
@@ -111,6 +153,17 @@ CREATE TABLE tenants (
   CONSTRAINT fk_tenants_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE RESTRICT
 ) ENGINE = InnoDB;
 
+-- BANG: tenant_invitations
+-- Du lieu luu tru:
+--   Ma moi dang ky da bam, tenant duoc moi, so dien thoai tai thoi diem moi,
+--   thoi han, thoi diem su dung/thu hoi, nguoi tao va user da su dung ma.
+-- Nghiep vu:
+--   Chi cho phep nguoi co ma moi hop le va so dien thoai khop ho so hoan tat
+--   dang ky. Khong luu ma moi dang ro; cac moc thoi gian cho phep suy ra trang
+--   thai active, expired, used hoac revoked va giu duoc lich su cap ma.
+-- Quan he:
+--   Moi invitation thuoc mot tenant, duoc tao boi landlord user va co the duoc
+--   su dung boi mot tenant user sau khi dang ky thanh cong.
 CREATE TABLE tenant_invitations (
   id BINARY(16) NOT NULL,
   tenant_id BINARY(16) NOT NULL,
@@ -135,6 +188,17 @@ CREATE TABLE tenant_invitations (
 -- Contracts and services
 -- =============================================================================
 
+-- BANG: rental_contracts
+-- Du lieu luu tru:
+--   Hop dong thue cua mot phong: ma hop dong, ngay bat dau/ket thuc, ngay ky,
+--   tien phong, tien coc, ngay lap hoa don, han thanh toan, dieu khoan, tai lieu,
+--   trang thai va thong tin cham dut.
+-- Nghiep vu:
+--   Quan ly vong doi draft -> active -> expired/terminated/cancelled, lam co so
+--   gan nguoi thue, ap dung dich vu, lap hoa don va theo doi hop dong sap het han.
+-- Quan he:
+--   Moi contract thuoc mot room va duoc tao boi mot user; co nhieu occupants,
+--   lan gia han, dich vu, hoa don va yeu cau sua chua.
 CREATE TABLE rental_contracts (
   id BINARY(16) NOT NULL,
   room_id BINARY(16) NOT NULL,
@@ -177,6 +241,16 @@ CREATE TABLE rental_contracts (
   CONSTRAINT ck_contracts_billing_day CHECK (billing_day BETWEEN 1 AND 28)
 ) ENGINE = InnoDB;
 
+-- BANG: contract_tenants
+-- Du lieu luu tru:
+--   Thanh vien tham gia hop dong, vai tro nguoi dai dien, ngay vao/o ra va
+--   trang thai dang o hay da chuyen di.
+-- Nghiep vu:
+--   Thuc hien viec gan mot hoac nhieu nguoi thue vao phong thong qua hop dong,
+--   dong thoi giu lich su cu tru cua tung nguoi thay vi gan tenant vao room.
+-- Quan he:
+--   Bang trung gian nhieu-nhieu giua rental_contracts va tenants; mot tenant
+--   chi xuat hien mot lan trong cung mot contract.
 CREATE TABLE contract_tenants (
   id BINARY(16) NOT NULL,
   contract_id BINARY(16) NOT NULL,
@@ -197,6 +271,15 @@ CREATE TABLE contract_tenants (
   )
 ) ENGINE = InnoDB;
 
+-- BANG: contract_extensions
+-- Du lieu luu tru:
+--   Lich su moi lan gia han gom ngay ket thuc cu, ngay ket thuc moi, ghi chu,
+--   nguoi thuc hien va thoi diem tao.
+-- Nghiep vu:
+--   Cho phep cap nhat end_date hien tai cua hop dong nhung van truy vet duoc
+--   tat ca lan gia han; new_end_date bat buoc lon hon old_end_date.
+-- Quan he:
+--   Nhieu extension thuoc mot rental_contract va duoc tao boi mot user.
 CREATE TABLE contract_extensions (
   id BINARY(16) NOT NULL,
   contract_id BINARY(16) NOT NULL,
@@ -212,6 +295,16 @@ CREATE TABLE contract_extensions (
   CONSTRAINT ck_extensions_dates CHECK (new_end_date > old_end_date)
 ) ENGINE = InnoDB;
 
+-- BANG: services
+-- Du lieu luu tru:
+--   Danh muc dich vu cua tung khu tro nhu dien, nuoc, WiFi, rac, gui xe,
+--   ve sinh; gom cach tinh, don vi, don gia mac dinh va trang thai ap dung.
+-- Nghiep vu:
+--   Cau hinh cac khoan phi theo tung property. calculation_method quy dinh
+--   tinh theo cong to, co dinh, so nguoi, so xe hoac so luong tuy chinh.
+-- Quan he:
+--   Moi service thuoc mot property, co the duoc gan vao nhieu hop dong,
+--   gan voi meters va duoc tham chieu boi cac dong chi tiet hoa don.
 CREATE TABLE services (
   id BINARY(16) NOT NULL,
   property_id BINARY(16) NOT NULL,
@@ -246,6 +339,16 @@ CREATE TABLE services (
   CONSTRAINT ck_services_price CHECK (default_unit_price >= 0)
 ) ENGINE = InnoDB;
 
+-- BANG: contract_services
+-- Du lieu luu tru:
+--   Dich vu thuc te ap dung cho mot hop dong, so luong, don gia da thoa thuan,
+--   khoang ngay hieu luc va trang thai hien tai.
+-- Nghiep vu:
+--   Dong bang don gia thoa thuan rieng cho tung hop dong. Khi thay doi gia,
+--   dong cu duoc dong bang end_date va tao dong moi de khong mat lich su gia.
+-- Quan he:
+--   Lien ket rental_contracts voi services; mot dich vu co the co nhieu giai
+--   doan gia trong cung hop dong nhung khong trung contract/service/start_date.
 CREATE TABLE contract_services (
   id BINARY(16) NOT NULL,
   contract_id BINARY(16) NOT NULL,
@@ -276,6 +379,16 @@ CREATE TABLE contract_services (
 -- Metering and billing
 -- =============================================================================
 
+-- BANG: meters
+-- Du lieu luu tru:
+--   Cong to dien/nuoc gan voi phong: dich vu do, so serial, ngay lap, chi so
+--   ban dau, ngay thao va trang thai active/replaced/broken/inactive.
+-- Nghiep vu:
+--   Quan ly vong doi cong to. Khi thay cong to, dong cu duoc danh dau replaced
+--   va tao dong moi voi initial_value rieng de lich su chi so khong bi dut gay.
+-- Quan he:
+--   Moi meter thuoc mot room va mot service co cach tinh metered; co nhieu
+--   meter_readings theo thoi gian.
 CREATE TABLE meters (
   id BINARY(16) NOT NULL,
   room_id BINARY(16) NOT NULL,
@@ -301,6 +414,16 @@ CREATE TABLE meters (
   )
 ) ENGINE = InnoDB;
 
+-- BANG: meter_readings
+-- Du lieu luu tru:
+--   Tung lan chot chi so cong to: thoi diem, gia tri, anh bang chung, nguoi ghi
+--   nhan, ghi chu va thoi diem tao ban ghi.
+-- Nghiep vu:
+--   Luu lich su dien/nuoc. Luong tieu thu duoc tinh bang chi so hien tai tru
+--   chi so lien truoc (hoac initial_value), tranh luu lap previous/current.
+-- Quan he:
+--   Nhieu reading thuoc mot meter; invoice_items co the tham chieu reading dau
+--   va reading cuoi de giai thich khoan tien dien/nuoc.
 CREATE TABLE meter_readings (
   id BINARY(16) NOT NULL,
   meter_id BINARY(16) NOT NULL,
@@ -318,6 +441,15 @@ CREATE TABLE meter_readings (
   CONSTRAINT ck_readings_value CHECK (reading_value >= 0)
 ) ENGINE = InnoDB;
 
+-- BANG: invoices
+-- Du lieu luu tru:
+--   Hoa don cua mot hop dong theo ky: so hoa don, tu ngay/den ngay, ngay phat
+--   hanh, han thanh toan, tam tinh, giam gia, thue, tong tien va trang thai.
+-- Nghiep vu:
+--   Moi hop dong chi co mot hoa don cho cung mot ky. draft co the chinh sua;
+--   issued la chung tu da phat hanh; cancelled giu lich su hoa don bi huy.
+-- Quan he:
+--   Moi invoice thuoc mot rental_contract, co nhieu invoice_items va payments.
 CREATE TABLE invoices (
   id BINARY(16) NOT NULL,
   contract_id BINARY(16) NOT NULL,
@@ -346,6 +478,17 @@ CREATE TABLE invoices (
   CONSTRAINT ck_invoices_total CHECK (total_amount >= 0)
 ) ENGINE = InnoDB;
 
+-- BANG: invoice_items
+-- Du lieu luu tru:
+--   Chi tiet tung khoan tren hoa don: tien phong, dich vu, dien, nuoc, giam gia,
+--   thue/dieu chinh; gom mo ta, so luong, don vi, don gia, thanh tien va JSON
+--   mo ta cach tinh. Co the luu hai chi so cong to nguon.
+-- Nghiep vu:
+--   La snapshot tai chinh tai luc lap hoa don. Du lieu van giu nguyen khi ten,
+--   don gia dich vu hay hop dong thay doi ve sau.
+-- Quan he:
+--   Moi item thuoc mot invoice; tuy loai co the tham chieu service va cap
+--   meter_readings bat dau/ket thuc.
 CREATE TABLE invoice_items (
   id BINARY(16) NOT NULL,
   invoice_id BINARY(16) NOT NULL,
@@ -377,6 +520,16 @@ CREATE TABLE invoice_items (
   CONSTRAINT fk_items_reading_to FOREIGN KEY (meter_reading_to_id) REFERENCES meter_readings (id) ON DELETE RESTRICT
 ) ENGINE = InnoDB;
 
+-- BANG: payments
+-- Du lieu luu tru:
+--   Giao dich thanh toan: hoa don, nguoi tra, so tien, phuong thuc, ma tham
+--   chieu, thoi diem tra, trang thai, nguoi nhan, anh minh chung va ghi chu.
+-- Nghiep vu:
+--   Moi payment chi thanh toan cho mot invoice; mot invoice co the duoc tra
+--   nhieu lan de ho tro thanh toan mot phan. Chi payment confirmed duoc tinh
+--   vao doanh thu va so tien da thanh toan; cancelled/refunded van giu lich su.
+-- Quan he:
+--   Thuoc bat buoc mot invoice; co the ghi nhan payer tenant va receiver user.
 CREATE TABLE payments (
   id BINARY(16) NOT NULL,
   invoice_id BINARY(16) NOT NULL,
@@ -405,6 +558,15 @@ CREATE TABLE payments (
 -- Maintenance and announcements
 -- =============================================================================
 
+-- BANG: maintenance_requests
+-- Du lieu luu tru:
+--   Yeu cau sua chua cua phong: hop dong va tenant bao loi, tieu de, mo ta,
+--   muc uu tien, trang thai, nguoi duoc giao va cac moc thoi gian xu ly.
+-- Nghiep vu:
+--   Ho tro gui, tiep nhan, xu ly, cho doi, hoan thanh, huy, tu choi va xac nhan
+--   hoan thanh. Cot status luu trang thai hien tai de hien thi danh sach nhanh.
+-- Quan he:
+--   Thuoc mot room, co the gan contract/tenant/assignee; co nhieu event va file.
 CREATE TABLE maintenance_requests (
   id BINARY(16) NOT NULL,
   room_id BINARY(16) NOT NULL,
@@ -438,6 +600,15 @@ CREATE TABLE maintenance_requests (
   CONSTRAINT fk_maintenance_assignee FOREIGN KEY (assigned_to_user_id) REFERENCES users (id) ON DELETE RESTRICT
 ) ENGINE = InnoDB;
 
+-- BANG: maintenance_request_events
+-- Du lieu luu tru:
+--   Nhat ky bat bien cua yeu cau sua chua: loai su kien, trang thai truoc/sau,
+--   ghi chu, nguoi thuc hien va thoi diem.
+-- Nghiep vu:
+--   Bao toan lich su xu ly thay vi chi ghi de status trong maintenance_requests;
+--   ho tro chu tro va nguoi thue xem dien bien va ghi chu cua tung buoc.
+-- Quan he:
+--   Nhieu event thuoc mot maintenance_request va moi event co mot actor user.
 CREATE TABLE maintenance_request_events (
   id BINARY(16) NOT NULL,
   request_id BINARY(16) NOT NULL,
@@ -463,6 +634,15 @@ CREATE TABLE maintenance_request_events (
   CONSTRAINT fk_maintenance_events_actor FOREIGN KEY (actor_user_id) REFERENCES users (id) ON DELETE RESTRICT
 ) ENGINE = InnoDB;
 
+-- BANG: maintenance_attachments
+-- Du lieu luu tru:
+--   Tep dinh kem cua yeu cau sua chua, gom URL tep, loai image/video/document,
+--   nguoi tai len va thoi diem tai.
+-- Nghiep vu:
+--   Luu anh hien trang, video loi hoac tai lieu xu ly. Database chi luu URL,
+--   khong luu truc tiep noi dung nhi phan de tranh phinh kich thuoc.
+-- Quan he:
+--   Nhieu attachment thuoc mot maintenance_request va mot uploader user.
 CREATE TABLE maintenance_attachments (
   id BINARY(16) NOT NULL,
   request_id BINARY(16) NOT NULL,
@@ -476,6 +656,17 @@ CREATE TABLE maintenance_attachments (
   CONSTRAINT fk_maintenance_attachments_uploader FOREIGN KEY (uploaded_by_user_id) REFERENCES users (id) ON DELETE RESTRICT
 ) ENGINE = InnoDB;
 
+-- BANG: announcements
+-- Du lieu luu tru:
+--   Noi dung thong bao, pham vi nguoi nhan, doi tuong property/room/contract
+--   neu co, trang thai draft/scheduled/sending/sent/cancelled va lich gui.
+-- Nghiep vu:
+--   Chu tro tao va gui thong bao den tat ca, mot khu, mot phong, mot hop dong
+--   hoac danh sach tenant chon rieng. CHECK dam bao moi target_type chi su dung
+--   dung mot loai khoa ngoai muc tieu.
+-- Quan he:
+--   Co the tham chieu property, room hoac contract; do mot user tao va co nhieu
+--   announcement_recipients sau khi danh sach nguoi nhan duoc chot.
 CREATE TABLE announcements (
   id BINARY(16) NOT NULL,
   title VARCHAR(200) NOT NULL,
@@ -536,6 +727,16 @@ CREATE TABLE announcements (
   )
 ) ENGINE = InnoDB;
 
+-- BANG: announcement_recipients
+-- Du lieu luu tru:
+--   Snapshot tung nguoi nhan cua thong bao, tai khoan lien ket, trang thai gui,
+--   thoi diem gui/nhan/doc va ly do that bai.
+-- Nghiep vu:
+--   Theo doi lich su gui va danh dau da doc rieng cho tung tenant. Snapshot
+--   khong thay doi neu tenant chuyen phong sau khi thong bao da duoc gui.
+-- Quan he:
+--   Moi dong lien ket mot announcement voi mot tenant va user tuy chon; mot
+--   tenant chi co mot dong nhan trong cung mot announcement.
 CREATE TABLE announcement_recipients (
   id BINARY(16) NOT NULL,
   announcement_id BINARY(16) NOT NULL,
