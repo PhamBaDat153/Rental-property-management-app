@@ -3,35 +3,81 @@ CREATE DATABASE IF NOT EXISTS rental_management CHARACTER SET utf8mb4 COLLATE ut
 USE rental_management;
 
 -- =============================================================================
--- Application users
+-- Application users and authorization
 -- =============================================================================
+
+-- BANG: roles
+-- Du lieu luu tru:
+--   Danh muc vai tro co the gan cho tai khoan, gom ten duy nhat va mo ta.
+-- Nghiep vu:
+--   Cho phep mot tai khoan co nhieu vai tro ma khong gioi han boi enum trong users.
+-- Quan he:
+--   Mot role co the duoc gan cho nhieu users thong qua user_roles.
+CREATE TABLE roles (
+  id BINARY(16) NOT NULL,
+  name VARCHAR(50) NOT NULL,
+  description VARCHAR(255) NULL,
+  created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_roles_name (name)
+) ENGINE = InnoDB;
 
 -- BANG: users
 -- Du lieu luu tru:
 --   Tai khoan dang nhap cua chu tro va nguoi thue, gom so dien thoai, email,
---   mat khau da bam, ho ten hien thi, anh dai dien, vai tro va trang thai.
+--   mat khau da bam (neu co), Google provider ID (neu co), ho ten hien thi,
+--   anh dai dien va trang thai.
 -- Nghiep vu:
---   Phuc vu dang ky, dang nhap, dang xuat, doi mat khau, cap nhat tai khoan
---   va phan biet quyen landlord/tenant. Day la danh tinh xac thuc, khong phai
---   ho so phap ly cua nguoi thue; ho so do duoc luu rieng trong tenants.
+--   Ho tro hai cach dang nhap: tai khoan/mat khau va Google OAuth. Mot user
+--   co the dung ca hai cach khi co password_hash va lien ket Google. Tai khoan
+--   Google-only co password_hash NULL; tai khoan password-only co provider NULL.
+--   Day la danh tinh xac thuc, khong phai ho so phap ly cua nguoi thue; ho so
+--   do duoc luu rieng trong tenants.
 -- Quan he:
---   Mot user vai tro tenant co the lien ket toi toi da mot tenants.user_id.
+--   Mot user co nhieu roles qua user_roles va co the lien ket toi da mot tenants.user_id.
 --   Nhieu bang su dung user lam nguoi tao, nguoi ghi nhan hoac nguoi xu ly.
 CREATE TABLE users (
   id BINARY(16) NOT NULL,
   phone VARCHAR(20) NOT NULL,
   email VARCHAR(255) NULL,
-  password_hash VARCHAR(255) NOT NULL,
+  password_hash VARCHAR(255) NULL,
+  auth_provider ENUM('google') NULL,
+  auth_provider_id VARCHAR(255) NULL,
   full_name VARCHAR(150) NOT NULL,
   avatar_url VARCHAR(500) NULL,
-  role ENUM('landlord', 'tenant') NOT NULL,
   status ENUM('active', 'locked', 'disabled') NOT NULL DEFAULT 'active',
   last_login_at DATETIME(3) NULL,
   created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
   PRIMARY KEY (id),
   UNIQUE KEY uq_users_phone (phone),
-  UNIQUE KEY uq_users_email (email)
+  UNIQUE KEY uq_users_email (email),
+  UNIQUE KEY uq_users_auth_provider (auth_provider, auth_provider_id),
+  CONSTRAINT ck_users_authentication_method CHECK (
+    password_hash IS NOT NULL
+    OR (auth_provider IS NOT NULL AND auth_provider_id IS NOT NULL)
+  ),
+  CONSTRAINT ck_users_auth_provider_pair CHECK (
+    (auth_provider IS NULL AND auth_provider_id IS NULL)
+    OR (auth_provider IS NOT NULL AND auth_provider_id IS NOT NULL)
+  )
+) ENGINE = InnoDB;
+
+-- BANG: user_roles
+-- Du lieu luu tru:
+--   Cac vai tro duoc gan cho tung tai khoan va thoi diem tao lien ket.
+-- Nghiep vu:
+--   Bieu dien quan he nhieu-nhieu giua users va roles.
+-- Quan he:
+--   Moi dong lien ket mot user voi mot role; ca hai phai ton tai truoc khi gan.
+CREATE TABLE user_roles (
+  user_id BINARY(16) NOT NULL,
+  role_id BINARY(16) NOT NULL,
+  created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (user_id, role_id),
+  KEY ix_user_roles_role (role_id),
+  CONSTRAINT fk_user_roles_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE RESTRICT,
+  CONSTRAINT fk_user_roles_role FOREIGN KEY (role_id) REFERENCES roles (id) ON DELETE RESTRICT
 ) ENGINE = InnoDB;
 
 -- =============================================================================
