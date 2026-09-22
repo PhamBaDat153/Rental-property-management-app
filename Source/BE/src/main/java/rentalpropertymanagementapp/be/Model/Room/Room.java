@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import rentalpropertymanagementapp.be.Model.ENUM.AvalibleStatus;
 import rentalpropertymanagementapp.be.Model.Property;
+import rentalpropertymanagementapp.be.Model.Tenant.Tenant;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
@@ -79,6 +80,9 @@ public class Room {
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<RoomImage> roomImages = new LinkedHashSet<>();
+
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Tenant> tenants = new LinkedHashSet<>();
 
 
     @PrePersist

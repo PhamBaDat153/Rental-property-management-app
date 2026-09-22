@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import rentalpropertymanagementapp.be.Model.ENUM.AuthProvider;
 import rentalpropertymanagementapp.be.Model.ENUM.GeneralStatus;
+import rentalpropertymanagementapp.be.Model.Tenant.Tenant;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
@@ -74,6 +75,9 @@ public class User {
             joinColumns = @JoinColumn(name = "user_user_id"),
             inverseJoinColumns = @JoinColumn(name = "roles_role_id"))
     private Set<Role> roles = new LinkedHashSet<>();
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Tenant tenant;
 
     @PrePersist
     public void prePersist() {
