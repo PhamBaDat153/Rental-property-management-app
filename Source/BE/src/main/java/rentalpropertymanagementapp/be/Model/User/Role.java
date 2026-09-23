@@ -1,16 +1,17 @@
-package rentalpropertymanagementapp.be.Model;
+package rentalpropertymanagementapp.be.Model.User;
 
 import com.fasterxml.uuid.Generators;
 import jakarta.persistence.*;
 import lombok.*;
-import rentalpropertymanagementapp.be.Model.ENUM.GeneralStatus;
+import rentalpropertymanagementapp.be.Model.Enum.ActiveStatus;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table (name = "role",
+@Table(
+        name = "role",
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "uq_role_name",
@@ -20,8 +21,8 @@ import java.util.UUID;
 )
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Role {
 
@@ -32,19 +33,20 @@ public class Role {
     @Column(name = "role_name", nullable = false, length = 50)
     private String role_name;
 
-    @Column(name = "description", length = 500)
+    @Column(name = "description")
     private String description;
 
-    @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private GeneralStatus status;
+    @Column(name = "status", nullable = false)
+    private ActiveStatus status;
 
-    @ManyToMany(mappedBy = "roles", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @OneToMany(mappedBy = "role", cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, orphanRemoval = true)
     private Set<User> users = new LinkedHashSet<>();
 
     @PrePersist
     public void prePersist() {
-        role_id = Generators.timeBasedEpochGenerator().generate();
-        status = GeneralStatus.ACTIVE;
+        this.role_id = Generators.timeBasedEpochGenerator().generate();
+        status = ActiveStatus.ACTIVE;
     }
+
 }

@@ -1,0 +1,250 @@
+{
+  "communities": {
+    "0": [
+      "generators",
+      "localdate",
+      "localdatetime",
+      "lombok",
+      "persistence",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_enum_activestatus",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_enum_activestatus_activestatus",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_enum_activestatus_activestatus_active",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_enum_activestatus_activestatus_inactive",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_role",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_tenant",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_user",
+      "uuid"
+    ],
+    "1": [
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_tenant_java_allargsconstructor",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_tenant_java_builder",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_tenant_java_entity",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_tenant_java_getter",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_tenant_java_noargsconstructor",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_tenant_java_prepersist",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_tenant_java_preupdate",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_tenant_java_setter",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_tenant_java_table",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_tenant_tenant",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_tenant_tenant_prepersist",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_tenant_tenant_preupdate"
+    ],
+    "2": [
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_user_java_allargsconstructor",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_user_java_builder",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_user_java_entity",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_user_java_getter",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_user_java_noargsconstructor",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_user_java_prepersist",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_user_java_preupdate",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_user_java_setter",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_user_java_table",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_user_user",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_user_user_prepersist",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_user_user_preupdate"
+    ],
+    "3": [
+      "source_be_mvnw",
+      "source_be_mvnw__entry",
+      "source_be_mvnw_clean",
+      "source_be_mvnw_die",
+      "source_be_mvnw_exec_maven",
+      "source_be_mvnw_hash_string",
+      "source_be_mvnw_native_path",
+      "source_be_mvnw_set_java_home",
+      "source_be_mvnw_trim",
+      "source_be_mvnw_verbose"
+    ],
+    "4": [
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_role_java_allargsconstructor",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_role_java_builder",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_role_java_entity",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_role_java_getter",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_role_java_noargsconstructor",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_role_java_prepersist",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_role_java_setter",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_role_java_table",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_role_role",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_role_role_prepersist"
+    ],
+    "5": [
+      "bcryptpasswordencoder",
+      "org_springframework_context_annotation_bean",
+      "org_springframework_security_config_annotation_web_builders_httpsecurity",
+      "org_springframework_security_crypto_password_passwordencoder",
+      "org_springframework_security_web_securityfilterchain",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_configuration_securityconfig",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_configuration_securityconfig_securityconfig",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_configuration_securityconfig_securityconfig_passwordencoder",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_configuration_securityconfig_securityconfig_securityfilterchain"
+    ],
+    "6": [
+      "org_junit_jupiter_api_test",
+      "org_springframework_boot_test_context_springboottest",
+      "source_be_src_test_java_rentalpropertymanagementapp_be_beapplicationtests",
+      "source_be_src_test_java_rentalpropertymanagementapp_be_beapplicationtests_beapplicationtests",
+      "source_be_src_test_java_rentalpropertymanagementapp_be_beapplicationtests_beapplicationtests_contextloads"
+    ],
+    "7": [
+      "org_springframework_boot_autoconfigure_springbootapplication",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_beapplication",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_beapplication_beapplication",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_beapplication_beapplication_main",
+      "springapplication"
+    ],
+    "8": [
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_enum_gender",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_enum_gender_gender",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_enum_gender_gender_female",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_enum_gender_gender_male",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_enum_gender_gender_other"
+    ],
+    "9": [
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_enum_identitytype",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_enum_identitytype_identitytype",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_enum_identitytype_identitytype_id",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_enum_identitytype_identitytype_other",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_enum_identitytype_identitytype_passport"
+    ],
+    "10": [
+      "readme_document",
+      "readme_ite1221e_a03e_group_2_project",
+      "readme_rental_property_management_app"
+    ],
+    "11": [
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_room_room",
+      "source_be_src_main_java_rentalpropertymanagementapp_be_model_room_room_room"
+    ],
+    "12": [
+      "pkg_rentalpropertymanagementapp_be"
+    ]
+  },
+  "cohesion": {
+    "0": 0.2564102564102564,
+    "1": 0.16666666666666666,
+    "2": 0.16666666666666666,
+    "3": 0.37777777777777777,
+    "4": 0.2,
+    "5": 0.3611111111111111,
+    "6": 0.6,
+    "7": 0.5,
+    "8": 0.4,
+    "9": 0.4,
+    "10": 0.6666666666666666,
+    "11": 1.0,
+    "12": 1.0
+  },
+  "gods": [
+    {
+      "id": "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_user_user",
+      "label": "User",
+      "degree": 13
+    },
+    {
+      "id": "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_tenant_tenant",
+      "label": "Tenant",
+      "degree": 12
+    },
+    {
+      "id": "source_be_src_main_java_rentalpropertymanagementapp_be_model_user_role_role",
+      "label": "Role",
+      "degree": 11
+    },
+    {
+      "id": "source_be_src_main_java_rentalpropertymanagementapp_be_model_enum_activestatus_activestatus",
+      "label": "ActiveStatus",
+      "degree": 7
+    },
+    {
+      "id": "source_be_src_main_java_rentalpropertymanagementapp_be_model_enum_identitytype_identitytype",
+      "label": "IdentityType",
+      "degree": 6
+    },
+    {
+      "id": "source_be_src_main_java_rentalpropertymanagementapp_be_model_enum_gender_gender",
+      "label": "Gender",
+      "degree": 4
+    },
+    {
+      "id": "source_be_src_main_java_rentalpropertymanagementapp_be_configuration_securityconfig_securityconfig",
+      "label": "SecurityConfig",
+      "degree": 3
+    },
+    {
+      "id": "source_be_src_test_java_rentalpropertymanagementapp_be_beapplicationtests_beapplicationtests",
+      "label": "BeApplicationTests",
+      "degree": 3
+    },
+    {
+      "id": "source_be_src_main_java_rentalpropertymanagementapp_be_beapplication_beapplication",
+      "label": "BeApplication",
+      "degree": 3
+    },
+    {
+      "id": "source_be_src_main_java_rentalpropertymanagementapp_be_model_room_room_room",
+      "label": "Room",
+      "degree": 1
+    }
+  ],
+  "surprises": [
+    {
+      "source": "Role",
+      "target": "ActiveStatus",
+      "source_files": [
+        "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/User/Role.java",
+        "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Enum/ActiveStatus.java"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "User",
+      "target": "ActiveStatus",
+      "source_files": [
+        "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/User/User.java",
+        "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Enum/ActiveStatus.java"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "Tenant",
+      "target": "IdentityType",
+      "source_files": [
+        "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/User/Tenant.java",
+        "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Enum/IdentityType.java"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "User",
+      "target": "Tenant",
+      "source_files": [
+        "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/User/User.java",
+        "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/User/Tenant.java"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "User",
+      "target": "Role",
+      "source_files": [
+        "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/User/User.java",
+        "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/User/Role.java"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "bridges separate communities"
+    }
+  ],
+  "tokens": {
+    "input": 0,
+    "output": 0
+  }
+}

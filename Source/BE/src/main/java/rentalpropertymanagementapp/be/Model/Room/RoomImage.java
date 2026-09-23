@@ -3,7 +3,6 @@ package rentalpropertymanagementapp.be.Model.Room;
 import com.fasterxml.uuid.Generators;
 import jakarta.persistence.*;
 import lombok.*;
-import rentalpropertymanagementapp.be.Model.ENUM.AvalibleStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -29,20 +28,20 @@ public class RoomImage {
     @Column(name = "image_id", nullable = false)
     private UUID image_id;
 
-    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, optional = false)
-    @JoinColumn(name = "room_room_id", nullable = false)
+    @ManyToOne(cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH})
+    @JoinColumn(name = "room_id")
     private Room room;
 
     @Column(name = "image_url", nullable = false)
     private String image_url;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "created_at")
+    private LocalDateTime created_at;
 
     @PrePersist
     public void prePersist() {
-        createdAt = LocalDateTime.now();
-        image_id = Generators.timeBasedEpochGenerator().generate();
+        this.image_id = Generators.timeBasedGenerator().generate();
+        this.created_at = LocalDateTime.now();
     }
 
 }
