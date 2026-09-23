@@ -12,10 +12,10 @@
     "semantic_hash": "ab50dd89da7da2346b28003352eeeeeb"
   },
   "Source/BE/pom.xml": {
-    "mtime": 1790074343.888,
-    "seen": 1790139856.6045673,
-    "ast_hash": "d7f5a783ff3a739bc60d771397f75282",
-    "semantic_hash": "d7f5a783ff3a739bc60d771397f75282"
+    "mtime": 1790154262.569,
+    "seen": 1790156540.1093524,
+    "ast_hash": "090105031c20c1f31ec02eac8fdf88fc",
+    "semantic_hash": "090105031c20c1f31ec02eac8fdf88fc"
   },
   "Source/BE/src/main/java/rentalpropertymanagementapp/be/BeApplication.java": {
     "mtime": 1789107432.749,
@@ -24,14 +24,14 @@
     "semantic_hash": "f14ad6f53e37fa81ea48d29192b6b342"
   },
   "Source/BE/src/main/java/rentalpropertymanagementapp/be/Configuration/SecurityConfig.java": {
-    "mtime": 1790074633.028,
-    "seen": 1790139856.6045706,
-    "ast_hash": "26e6980de7633c4b277bef1b9b5c8d53",
-    "semantic_hash": "26e6980de7633c4b277bef1b9b5c8d53"
+    "mtime": 1790154087.145,
+    "seen": 1790156540.1100256,
+    "ast_hash": "8a273c1908598f0c320bc5b3d2653c25",
+    "semantic_hash": "8a273c1908598f0c320bc5b3d2653c25"
   },
   "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Enum/ActiveStatus.java": {
-    "mtime": 1790073377.382,
-    "seen": 1790139856.6045718,
+    "mtime": 1790142737.268,
+    "seen": 1790156540.110045,
     "ast_hash": "fcdd72781c0cf1e5ab981aec7b0d662e",
     "semantic_hash": "fcdd72781c0cf1e5ab981aec7b0d662e"
   },
@@ -48,22 +48,22 @@
     "semantic_hash": "0f982aa8d9269865d909064bb8a81ea4"
   },
   "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/User/Role.java": {
-    "mtime": 1790074696.254,
-    "seen": 1790139856.6045756,
-    "ast_hash": "b1a1afd42a59d2758853a3db18df69a1",
-    "semantic_hash": "b1a1afd42a59d2758853a3db18df69a1"
+    "mtime": 1790155721.884,
+    "seen": 1790156540.1114748,
+    "ast_hash": "2d6f36fffd9b654732fbc0e772e7fca2",
+    "semantic_hash": "2d6f36fffd9b654732fbc0e772e7fca2"
   },
   "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/User/Tenant.java": {
-    "mtime": 1790074696.247,
-    "seen": 1790139856.604577,
-    "ast_hash": "fcc25ba84453b07e826e9496857bf866",
-    "semantic_hash": "fcc25ba84453b07e826e9496857bf866"
+    "mtime": 1790149466.152298,
+    "seen": 1790156540.111477,
+    "ast_hash": "48e19172084dd0626ea81e189b23d31d",
+    "semantic_hash": "48e19172084dd0626ea81e189b23d31d"
   },
   "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/User/User.java": {
-    "mtime": 1790074696.209,
-    "seen": 1790139856.6045783,
-    "ast_hash": "3124288a94289e26c08a1786425730dd",
-    "semantic_hash": "3124288a94289e26c08a1786425730dd"
+    "mtime": 1790151859.803,
+    "seen": 1790156540.111479,
+    "ast_hash": "49034e0a513cf0d02e963d5b1e706843",
+    "semantic_hash": "49034e0a513cf0d02e963d5b1e706843"
   },
   "Source/BE/src/test/java/rentalpropertymanagementapp/be/BeApplicationTests.java": {
     "mtime": 1789107432.728,
@@ -78,9 +78,237 @@
     "semantic_hash": "bb902a896c9e667bb7fcb85b94e394af"
   },
   "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Room/Room.java": {
-    "mtime": 1790140014.611,
-    "seen": 1790141818.770545,
-    "ast_hash": "76fb8054b6d2a734501ae27e7a7499b6",
-    "semantic_hash": "76fb8054b6d2a734501ae27e7a7499b6"
+    "mtime": 1790151859.777,
+    "seen": 1790156540.1114657,
+    "ast_hash": "3fa79cdb71ab0b2a06818f6efc29d019",
+    "semantic_hash": "3fa79cdb71ab0b2a06818f6efc29d019"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Controller/RoleController.java": {
+    "mtime": 1790154368.462,
+    "seen": 1790156540.1100287,
+    "ast_hash": "3d16c44c21b02a0202564724dd83c3e4",
+    "semantic_hash": "3d16c44c21b02a0202564724dd83c3e4"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Controller/UserController.java": {
+    "mtime": 1790155444.267,
+    "seen": 1790156540.1100311,
+    "ast_hash": "72f071ca0022301613b13c9016115aab",
+    "semantic_hash": "72f071ca0022301613b13c9016115aab"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Announcement/Announcement.java": {
+    "mtime": 1790151648.253,
+    "seen": 1790156540.1100323,
+    "ast_hash": "3c2d99092426670df8c4d115bfcf635c",
+    "semantic_hash": "3c2d99092426670df8c4d115bfcf635c"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Announcement/UserAnnouncement.java": {
+    "mtime": 1790149848.6734812,
+    "seen": 1790156540.1100342,
+    "ast_hash": "00acfdb83f24eab9adaca3d054fbf915",
+    "semantic_hash": "00acfdb83f24eab9adaca3d054fbf915"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Announcement/UserAnnouncementId.java": {
+    "mtime": 1790151859.733,
+    "seen": 1790156540.1100357,
+    "ast_hash": "0d3fc62445c60f568c347ab4097ea0b6",
+    "semantic_hash": "0d3fc62445c60f568c347ab4097ea0b6"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Contract/ContractTenant.java": {
+    "mtime": 1790149066.4805539,
+    "seen": 1790156540.1100373,
+    "ast_hash": "97e63fb500daa6b6c896e9b07143cc68",
+    "semantic_hash": "97e63fb500daa6b6c896e9b07143cc68"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Contract/ContractTenantId.java": {
+    "mtime": 1790150716.378687,
+    "seen": 1790156540.110039,
+    "ast_hash": "7a1f7eb287a2f9e112c19bc2ade1a9d1",
+    "semantic_hash": "7a1f7eb287a2f9e112c19bc2ade1a9d1"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Contract/RentalContract.java": {
+    "mtime": 1790150835.4168048,
+    "seen": 1790156540.1100411,
+    "ast_hash": "9c7ff3e26ad277e0a5562c671f613986",
+    "semantic_hash": "9c7ff3e26ad277e0a5562c671f613986"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Enum/AnnouncementStatus.java": {
+    "mtime": 1790148461.1327293,
+    "seen": 1790156540.1100469,
+    "ast_hash": "d6dff14456e3f71555507f9b27a92cd5",
+    "semantic_hash": "d6dff14456e3f71555507f9b27a92cd5"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Enum/AvailableStatus.java": {
+    "mtime": 1790143103.306,
+    "seen": 1790156540.1100488,
+    "ast_hash": "bc09d10e5e40eeb8e79bc16cac4814b8",
+    "semantic_hash": "bc09d10e5e40eeb8e79bc16cac4814b8"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Enum/InvoiceStatus.java": {
+    "mtime": 1790148461.1371012,
+    "seen": 1790156540.111447,
+    "ast_hash": "ca571755f95a84380b4dbd2e47597dbe",
+    "semantic_hash": "ca571755f95a84380b4dbd2e47597dbe"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Enum/MaintenanceStatus.java": {
+    "mtime": 1790148461.1357522,
+    "seen": 1790156540.1114492,
+    "ast_hash": "3f61fd2ed8c5dfc2c4dc441494aa8658",
+    "semantic_hash": "3f61fd2ed8c5dfc2c4dc441494aa8658"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Enum/ReadStatus.java": {
+    "mtime": 1790148461.1347482,
+    "seen": 1790156540.1114511,
+    "ast_hash": "edb681ebe6d594c23ec32296645861d4",
+    "semantic_hash": "edb681ebe6d594c23ec32296645861d4"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Invoice/Invoice.java": {
+    "mtime": 1790149909.802083,
+    "seen": 1790156540.1114533,
+    "ast_hash": "4a36e2e44ff050feeba2065d001d7992",
+    "semantic_hash": "4a36e2e44ff050feeba2065d001d7992"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Invoice/InvoiceItem.java": {
+    "mtime": 1790150780.0500185,
+    "seen": 1790156540.111455,
+    "ast_hash": "825a926bdd713a4b2b9c319de7082e54",
+    "semantic_hash": "825a926bdd713a4b2b9c319de7082e54"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Maintenance/MaintenanceRequest.java": {
+    "mtime": 1790150780.0442295,
+    "seen": 1790156540.1114564,
+    "ast_hash": "1083966cd7134c9f4e0c8c474dcd60e4",
+    "semantic_hash": "1083966cd7134c9f4e0c8c474dcd60e4"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Maintenance/RequestImage.java": {
+    "mtime": 1790150780.0467527,
+    "seen": 1790156540.1114583,
+    "ast_hash": "8b9a27d5ed9e881fa1a4f1621fe566cc",
+    "semantic_hash": "8b9a27d5ed9e881fa1a4f1621fe566cc"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Meter/Meter.java": {
+    "mtime": 1790150098.5151079,
+    "seen": 1790156540.1114597,
+    "ast_hash": "63bbcf9c924e41876dbbe5c44d32e3be",
+    "semantic_hash": "63bbcf9c924e41876dbbe5c44d32e3be"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Meter/MeterReading.java": {
+    "mtime": 1790150098.5176213,
+    "seen": 1790156540.1114614,
+    "ast_hash": "0b09b0d1835c8e02ef9efee819d187e5",
+    "semantic_hash": "0b09b0d1835c8e02ef9efee819d187e5"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Room/Location.java": {
+    "mtime": 1790151859.824,
+    "seen": 1790156540.1114633,
+    "ast_hash": "1dd479bcf9903d20b1a521821373df5c",
+    "semantic_hash": "1dd479bcf9903d20b1a521821373df5c"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Room/RoomImage.java": {
+    "mtime": 1790149113.664446,
+    "seen": 1790156540.1114678,
+    "ast_hash": "66137899818159ef6dac10db02817295",
+    "semantic_hash": "66137899818159ef6dac10db02817295"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Service/RoomService.java": {
+    "mtime": 1790150716.3776798,
+    "seen": 1790156540.1114693,
+    "ast_hash": "04df5ddbf634c8184eb5818ba65af38f",
+    "semantic_hash": "04df5ddbf634c8184eb5818ba65af38f"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Service/RoomServiceId.java": {
+    "mtime": 1790150716.380114,
+    "seen": 1790156540.1114712,
+    "ast_hash": "dbe4e0176cc02ab08a21274e468cae5c",
+    "semantic_hash": "dbe4e0176cc02ab08a21274e468cae5c"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Model/Service/Service.java": {
+    "mtime": 1790150716.3751347,
+    "seen": 1790156540.1114728,
+    "ast_hash": "93370cb4e193ccb97da6e38e1efe9505",
+    "semantic_hash": "93370cb4e193ccb97da6e38e1efe9505"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Repository/RoleRepository.java": {
+    "mtime": 1790152203.241,
+    "seen": 1790156540.1114805,
+    "ast_hash": "3281cc5f4cab36a8e1289c35ff2435da",
+    "semantic_hash": "3281cc5f4cab36a8e1289c35ff2435da"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Repository/TenantRepository.java": {
+    "mtime": 1790152203.148,
+    "seen": 1790156540.1114824,
+    "ast_hash": "8a2c567df24c51848c7d5dd4f8b51cba",
+    "semantic_hash": "8a2c567df24c51848c7d5dd4f8b51cba"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Repository/UserRepository.java": {
+    "mtime": 1790152203.201,
+    "seen": 1790156540.1114838,
+    "ast_hash": "340c243d69d8cf6697f6b5a6568b57dd",
+    "semantic_hash": "340c243d69d8cf6697f6b5a6568b57dd"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Service/RoleService.java": {
+    "mtime": 1790155444.208,
+    "seen": 1790156540.1114855,
+    "ast_hash": "385c2f945ef6e7dc839d2906375edbd4",
+    "semantic_hash": "385c2f945ef6e7dc839d2906375edbd4"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Service/RoleServiceImplement.java": {
+    "mtime": 1790154368.48,
+    "seen": 1790156540.111487,
+    "ast_hash": "e93b00107e4af0312e3b976d41aa78f8",
+    "semantic_hash": "e93b00107e4af0312e3b976d41aa78f8"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Service/UserService.java": {
+    "mtime": 1790155444.244,
+    "seen": 1790156540.1114902,
+    "ast_hash": "44cd76a7d81c905b9de5244366cc4ab1",
+    "semantic_hash": "44cd76a7d81c905b9de5244366cc4ab1"
+  },
+  "Source/BE/src/main/java/rentalpropertymanagementapp/be/Service/UserServiceImplement.java": {
+    "mtime": 1790155444.275,
+    "seen": 1790156540.1114917,
+    "ast_hash": "4073c94bc58875ebaa21a91f80d45473",
+    "semantic_hash": "4073c94bc58875ebaa21a91f80d45473"
+  },
+  "Source/Rentaly_Management/app/build.gradle.kts": {
+    "mtime": 1790156133.289333,
+    "seen": 1790156540.1120834,
+    "ast_hash": "6ca537e4716822aa3b117d983b7aada6",
+    "semantic_hash": "6ca537e4716822aa3b117d983b7aada6"
+  },
+  "Source/Rentaly_Management/app/src/androidTest/java/com/android_dev/rentaly_management/ExampleInstrumentedTest.java": {
+    "mtime": 1790156131.9841464,
+    "seen": 1790156540.1120865,
+    "ast_hash": "bf72dc18c083aa6db94b9b1dc0135db2",
+    "semantic_hash": "bf72dc18c083aa6db94b9b1dc0135db2"
+  },
+  "Source/Rentaly_Management/app/src/main/java/com/android_dev/rentaly_management/MainActivity.java": {
+    "mtime": 1790156133.0997138,
+    "seen": 1790156540.1120892,
+    "ast_hash": "df73f95b3bbd309f186db109131767d7",
+    "semantic_hash": "df73f95b3bbd309f186db109131767d7"
+  },
+  "Source/Rentaly_Management/app/src/test/java/com/android_dev/rentaly_management/ExampleUnitTest.java": {
+    "mtime": 1790156131.8773043,
+    "seen": 1790156540.1120908,
+    "ast_hash": "642c81dbd270d34e39178fe1d83d33a0",
+    "semantic_hash": "642c81dbd270d34e39178fe1d83d33a0"
+  },
+  "Source/Rentaly_Management/build.gradle.kts": {
+    "mtime": 1790156131.4155889,
+    "seen": 1790156540.1120927,
+    "ast_hash": "0d150a90316a3fb424b44e4319a9fed2",
+    "semantic_hash": "0d150a90316a3fb424b44e4319a9fed2"
+  },
+  "Source/Rentaly_Management/gradlew": {
+    "mtime": 1790156129.089182,
+    "seen": 1790156540.1120942,
+    "ast_hash": "266606e78242737ef3da02a80ea0564d",
+    "semantic_hash": "266606e78242737ef3da02a80ea0564d"
+  },
+  "Source/Rentaly_Management/settings.gradle.kts": {
+    "mtime": 1790156131.0965898,
+    "seen": 1790156540.1120956,
+    "ast_hash": "8d0f66b4abbb588ea2634183b069d26f",
+    "semantic_hash": "8d0f66b4abbb588ea2634183b069d26f"
   }
 }

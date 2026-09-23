@@ -40,9 +40,6 @@ public class Role {
     @Column(name = "status", nullable = false)
     private ActiveStatus status;
 
-    @OneToMany(mappedBy = "role", cascade = {CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, orphanRemoval = true)
-    private Set<User> users = new LinkedHashSet<>();
-
     @PrePersist
     public void prePersist() {
         this.role_id = Generators.timeBasedEpochGenerator().generate();
