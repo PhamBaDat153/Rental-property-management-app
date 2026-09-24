@@ -1,5 +1,6 @@
 package com.android_dev.rentaly_management;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
@@ -12,6 +13,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.android_dev.rentaly_management.Apis.ApiClient;
+import com.android_dev.rentaly_management.DTO.User;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -57,28 +59,45 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         setLoginEnabled(false);
-        ApiClient.api.login(username, password, "Manage").enqueue(new Callback<Boolean>() {
-            @Override
-            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
-                setLoginEnabled(true);
-                if (response.isSuccessful() && Boolean.TRUE.equals(response.body())) {
-                    startActivity(new android.content.Intent(LoginActivity.this, HomeActivity.class));
-                    finish();
-                } else {
-                    Toast.makeText(LoginActivity.this,
-                            "Tên đăng nhập hoặc mật khẩu không đúng",
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
+        ApiClient.api.login(username, password, "Manage")
+                .enqueue(new Callback<User>() {
+                    @Override
+                    public void onResponse(Call<User> call, Response<User> response) {
+                        setLoginEnabled(true);
 
-            @Override
-            public void onFailure(Call<Boolean> call, Throwable throwable) {
-                setLoginEnabled(true);
-                Toast.makeText(LoginActivity.this,
-                        "Không thể kết nối đến máy chủ",
-                        Toast.LENGTH_LONG).show();
-            }
-        });
+                        if (response.isSuccessful() && response.body() != null) {
+                            User loggedUser = response.body();
+
+                            Intent intent = new Intent(
+                                    LoginActivity.this,
+                                    HomeActivity.class
+                            );
+                            intent.putExtra("user_name", loggedUser.getUser_name());
+                            if (loggedUser.getUser_id() != null) {
+                                intent.putExtra("user_id", loggedUser.getUser_id().toString());
+                            }
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            Toast.makeText(
+                                    LoginActivity.this,
+                                    "Tên đăng nhập hoặc mật khẩu không đúng",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<User> call, Throwable throwable) {
+                        setLoginEnabled(true);
+
+                        Toast.makeText(
+                                LoginActivity.this,
+                                "Không thể kết nối đến máy chủ",
+                                Toast.LENGTH_LONG
+                        ).show();
+                    }
+                });
     }
 
     private void setLoginEnabled(boolean enabled) {

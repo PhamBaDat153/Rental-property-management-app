@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/navigation_bar"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.android_dev.rentaly_management.ScreenFragment"
+        android:label="Trang chủ">
+        <argument android:name="screen_title" android:defaultValue="Trang chủ" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/propertiesFragment"
+        android:name="com.android_dev.rentaly_management.ScreenFragment"
+        android:label="Phòng trọ">
+        <argument android:name="screen_title" android:defaultValue="Phòng trọ" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/contractsFragment"
+        android:name="com.android_dev.rentaly_management.ScreenFragment"
+        android:label="Hợp đồng">
+        <argument android:name="screen_title" android:defaultValue="Hợp đồng" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.android_dev.rentaly_management.ScreenFragment"
+        android:label="Cá nhân">
+        <argument android:name="screen_title" android:defaultValue="Cá nhân" />
+    </fragment>
+
+</navigation>

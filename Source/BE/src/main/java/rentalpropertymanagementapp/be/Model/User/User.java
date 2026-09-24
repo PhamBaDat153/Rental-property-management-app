@@ -1,6 +1,7 @@
 package rentalpropertymanagementapp.be.Model.User;
 
 import com.fasterxml.uuid.Generators;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import rentalpropertymanagementapp.be.Model.Enum.ActiveStatus;
@@ -43,11 +44,11 @@ public class User {
     @Column(name = "user_id", nullable = false)
     private UUID user_id;
 
-
     @Column(name = "user_name", nullable = false, length = 100)
     private String user_name;
 
     @Column(name = "password_hash")
+    @JsonIgnore
     private String password_hash;
 
     @Enumerated(EnumType.STRING)

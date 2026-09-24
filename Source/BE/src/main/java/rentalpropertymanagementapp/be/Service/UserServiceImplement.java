@@ -10,6 +10,7 @@ import rentalpropertymanagementapp.be.Model.User.User;
 import rentalpropertymanagementapp.be.Repository.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImplement implements UserService {
@@ -29,17 +30,21 @@ public class UserServiceImplement implements UserService {
     }
 
     @Override
-    public Boolean authenticate(String username, String password, LoginType loginType) {
+    public Optional<User> authenticate(String username, String password, LoginType loginType) {
         if (username == null || password == null || loginType == null) {
-            return false;
+            return Optional.empty();
         }
 
         User user = userRepository.findByUser_nameLike(username);
-        return user != null
-                && user.getStatus() == ActiveStatus.ACTIVE
-                && user.getPassword_hash() != null
-                && passwordEncoder.matches(password, user.getPassword_hash())
-                && authorize(user, loginType);
+        if (user == null
+                || user.getStatus() != ActiveStatus.ACTIVE
+                || user.getPassword_hash() == null
+                || !passwordEncoder.matches(password, user.getPassword_hash())
+                || !authorize(user, loginType)) {
+            return Optional.empty();
+        }
+
+        return Optional.of(user);
     }
 
     @Override
