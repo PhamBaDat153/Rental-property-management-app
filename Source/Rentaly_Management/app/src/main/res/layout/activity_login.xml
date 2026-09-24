@@ -25,12 +25,10 @@
             android:padding="18dp">
 
             <ImageView
-                android:id="@+id/imageView3"
-                android:layout_width="150dp"
-                android:layout_height="75dp"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter"
-                app:srcCompat="@mipmap/rentaly_logo" />
+                android:id="@+id/imageView"
+                android:layout_width="match_parent"
+                android:layout_height="250px"
+                app:srcCompat="@mipmap/rentaly_logo_16_9" />
 
             <TextView
                 android:id="@+id/textView"
@@ -50,7 +48,7 @@
                 android:layout_height="38dp"
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/edittext_background"
-                android:hint="Nhập tài khoản.."
+                android:hint="Nhập tên đăng nhập.."
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
                 android:textSize="13sp"
