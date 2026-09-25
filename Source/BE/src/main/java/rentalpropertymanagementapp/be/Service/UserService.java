@@ -1,5 +1,6 @@
 package rentalpropertymanagementapp.be.Service;
 
+import rentalpropertymanagementapp.be.DTO.UserTenantResponse;
 import rentalpropertymanagementapp.be.Model.Enum.LoginType;
 import rentalpropertymanagementapp.be.Model.User.User;
 

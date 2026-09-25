@@ -55,8 +55,22 @@ public class UserDetailFragment extends Fragment {
                     return;
                 }
                 user = response.body();
-                ((TextView) view.findViewById(R.id.user_detail_title)).setText(user.displayName());
-                ((TextView) view.findViewById(R.id.user_detail_info)).setText(details(user));
+                setText(view, R.id.user_full_name, "Họ và tên: " + value(user.getFull_name()));
+                setText(view, R.id.user_date_of_birth, "Ngày sinh: " + value(user.getDate_of_birth()));
+                setText(view, R.id.user_phone, "Số điện thoại: " + value(user.getPhone()));
+                setText(view, R.id.user_email, "Email: " + value(user.getEmail()));
+                setText(view, R.id.user_address, "Địa chỉ: " + value(user.getPermanent_address()));
+                setText(view, R.id.user_identity_type, "Loại giấy tờ: " + value(user.getIdentityType()));
+                setText(view, R.id.user_identity_number, "Số giấy tờ: " + value(user.getIdentity_number()));
+                setText(view, R.id.user_identity_issued_date, "Ngày cấp: " + value(user.getIdentity_issued_date()));
+                setText(view, R.id.user_identity_issued_place, "Nơi cấp: " + value(user.getIdentity_issued_place()));
+                setText(view, R.id.user_emergency_name, "Họ tên: " + value(user.getEmergency_contact_name()));
+                setText(view, R.id.user_emergency_phone, "Số điện thoại: " + value(user.getEmergency_contact_phone()));
+                setText(view, R.id.user_note, "Ghi chú: " + value(user.getAdditional_note()));
+                String gender = user.getGender();
+                int genderId = "MALE".equalsIgnoreCase(gender) ? R.id.gender_male
+                        : "FEMALE".equalsIgnoreCase(gender) ? R.id.gender_female : R.id.gender_other;
+                ((RadioButton) view.findViewById(genderId)).setChecked(true);
                 ((RadioButton) view.findViewById("TENANT".equalsIgnoreCase(user.getRole())
                         ? R.id.role_tenant : R.id.role_landlord)).setChecked(true);
                 ((RadioButton) view.findViewById("ACTIVE".equalsIgnoreCase(user.getStatus())
@@ -118,6 +132,10 @@ public class UserDetailFragment extends Fragment {
                 + "\nEmail: " + value(user.getEmail())
                 + "\nĐịa chỉ: " + value(user.getPermanent_address())
                 + "\nGhi chú: " + value(user.getAdditional_note());
+    }
+
+    private void setText(View view, int id, String text) {
+        ((TextView) view.findViewById(id)).setText(text);
     }
 
     private void goBack() {

@@ -1,12 +1,13 @@
 package rentalpropertymanagementapp.be.Service;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import rentalpropertymanagementapp.be.DTO.UserCreateRequest;
 import rentalpropertymanagementapp.be.DTO.UserRoleUpdateRequest;
-import rentalpropertymanagementapp.be.DTO.UserUpdateRequest;
 import rentalpropertymanagementapp.be.DTO.UserTenantResponse;
+import rentalpropertymanagementapp.be.DTO.UserUpdateRequest;
 import rentalpropertymanagementapp.be.Exception.TenantHasContractException;
 import rentalpropertymanagementapp.be.Exception.UserNotFoundException;
 import rentalpropertymanagementapp.be.Model.Enum.ActiveStatus;
@@ -87,20 +88,6 @@ public class UserManagementService {
         return toResponse(userRepository.save(user));
     }
 
-    @Transactional
-    public UserTenantResponse update(UUID id, UserUpdateRequest request) {
-        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        Role role = roleRepository.findByRoleName(request.role().trim().toUpperCase());
-        if (role == null) throw new IllegalArgumentException("Role không tồn tại");
-        user.setRole(role);
-        try {
-            user.setStatus(ActiveStatus.valueOf(request.status().trim().toUpperCase()));
-        } catch (IllegalArgumentException exception) {
-            throw new IllegalArgumentException("Trạng thái không hợp lệ");
-        }
-        return toResponse(userRepository.save(user));
-    }
-
     private UserTenantResponse toResponse(User user) {
         Tenant t = user.getTenant();
         return new UserTenantResponse(user.getUser_id(), user.getUser_name(),
@@ -114,5 +101,23 @@ public class UserManagementService {
                 t == null ? null : t.getEmergency_contact_name(), t == null ? null : t.getEmergency_contact_phone(),
                 t == null ? null : t.getAdditional_note(), t == null ? null : t.getCreated_at(),
                 t == null ? null : t.getUpdated_at());
+    }
+
+    @Transactional
+    public UserTenantResponse update(UUID id, UserUpdateRequest request) {
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        Role role = roleRepository.findByRoleName(request.role().trim().toUpperCase());
+        if (role == null) throw new IllegalArgumentException("Role không tồn tại");
+
+        ActiveStatus status;
+        try {
+            status = ActiveStatus.valueOf(request.status().trim().toUpperCase());
+        } catch (IllegalArgumentException exception) {
+            throw new IllegalArgumentException("Trạng thái không hợp lệ");
+        }
+
+        user.setRole(role);
+        user.setStatus(status);
+        return toResponse(userRepository.save(user));
     }
 }
