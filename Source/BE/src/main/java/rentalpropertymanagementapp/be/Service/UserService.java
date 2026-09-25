@@ -10,4 +10,5 @@ public interface UserService {
     public List<User> getUsers();
     public Optional<User> authenticate(String username, String password, LoginType login_type);
     public Boolean authorize (User user,LoginType login_type);
+    public Void getUserByUsername(String username);
 }

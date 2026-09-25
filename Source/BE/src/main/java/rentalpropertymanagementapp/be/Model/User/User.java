@@ -18,6 +18,10 @@ import rentalpropertymanagementapp.be.Model.Maintenance.MaintenanceRequest;
         name = "user",
         uniqueConstraints = {
                 @UniqueConstraint(
+                        name = "uq_user_name",
+                        columnNames = "user_name"
+                ),
+                @UniqueConstraint(
                         name = "uq_user_tenant_id",
                         columnNames = "tenant_id"
                 )
@@ -87,6 +91,7 @@ public class User {
     @PrePersist
     public void prePersist() {
         this.created_at = LocalDateTime.now();
+        this.updated_at = LocalDateTime.now();
         this.user_id = Generators.timeBasedEpochGenerator().generate();
         if (status == null) status = ActiveStatus.ACTIVE;
     }

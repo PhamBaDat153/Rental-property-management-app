@@ -29,7 +29,7 @@ public class Tenant {
     @Column(name = "tenant_id", nullable = false)
     private UUID tenant_id;
 
-    @Column(name = "full_name", nullable = false)
+    @Column(name = "full_name")
     private String full_name;
 
     @Column(name = "date_of_birth")
@@ -84,6 +84,7 @@ public class Tenant {
     @PrePersist
     public void prePersist() {
         this.created_at = LocalDateTime.now();
+        this.updated_at = LocalDateTime.now();
         this.tenant_id = Generators.timeBasedEpochGenerator().generate();
     }
 

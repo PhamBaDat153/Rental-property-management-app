@@ -17,7 +17,7 @@
         android:icon="@drawable/tool_icon"
         android:title="" />
     <item
-        android:id="@+id/profileFragment"
+        android:id="@+id/profilesFragment"
         android:icon="@drawable/profile_icon"
         android:title="" />
 </menu>

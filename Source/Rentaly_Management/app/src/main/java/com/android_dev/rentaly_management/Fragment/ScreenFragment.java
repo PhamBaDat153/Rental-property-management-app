@@ -1,4 +1,4 @@
-package com.android_dev.rentaly_management;
+package com.android_dev.rentaly_management.Fragment;
 
 import android.os.Bundle;
 import android.view.Gravity;

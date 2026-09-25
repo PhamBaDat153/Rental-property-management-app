@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `role` (
 
 CREATE TABLE IF NOT EXISTS `tenant` (
     `tenant_id` BINARY(16) NOT NULL,
-    `full_name` VARCHAR(255) NOT NULL,
+    `full_name` VARCHAR(255) NULL,
     `date_of_birth` DATE NULL,
     `phone` VARCHAR(20) NULL,
     `email` VARCHAR(255) NULL,
@@ -56,6 +56,8 @@ CREATE TABLE IF NOT EXISTS `tenant` (
     KEY `idx_tenant_full_name` (`full_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+ALTER TABLE `tenant` MODIFY COLUMN `full_name` VARCHAR(255) NULL;
+
 -- ============================================================
 -- 3. USERS
 -- tenant_id is nullable because non-tenant users (e.g. LANDLORD)
@@ -74,6 +76,7 @@ CREATE TABLE IF NOT EXISTS `user` (
         ON UPDATE CURRENT_TIMESTAMP(3),
 
     PRIMARY KEY (`user_id`),
+    UNIQUE KEY `uq_user_name` (`user_name`),
     UNIQUE KEY `uq_user_tenant_id` (`tenant_id`),
     KEY `idx_user_role_id` (`role_id`),
     KEY `idx_user_status` (`status`),
