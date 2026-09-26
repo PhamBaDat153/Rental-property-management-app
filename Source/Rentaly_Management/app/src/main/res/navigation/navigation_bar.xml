@@ -13,7 +13,7 @@
 
     <fragment
         android:id="@+id/propertiesFragment"
-        android:name="com.android_dev.rentaly_management.Fragment.ScreenFragment"
+        android:name="com.android_dev.rentaly_management.Fragment.PropertiesFragment"
         android:label="Phòng trọ">
         <argument android:name="screen_title" android:defaultValue="Phòng trọ" />
     </fragment>
@@ -39,6 +39,20 @@
         <argument
             android:name="user_id"
             app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/locationDetailFragment"
+        android:name="com.android_dev.rentaly_management.Fragment.LocationDetailFragment"
+        android:label="Chi tiết địa điểm">
+        <argument android:name="location_id" app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/roomDetailFragment"
+        android:name="com.android_dev.rentaly_management.Fragment.RoomDetailFragment"
+        android:label="Chi tiết phòng">
+        <argument android:name="room_id" app:argType="string" />
     </fragment>
 
 </navigation>

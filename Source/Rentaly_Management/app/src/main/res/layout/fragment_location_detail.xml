@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/background" android:fillViewport="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+            <Button android:id="@+id/location_detail_back" android:layout_width="48dp" android:layout_height="48dp" android:backgroundTint="@color/primary" android:contentDescription="Quay lại" android:drawableStart="@drawable/back_icon" android:padding="8dp" android:text="" />
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="16dp" android:text="Thông tin địa điểm" android:textColor="@color/dark_navy" android:textSize="24sp" android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/user_detail_card"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:text="TÓM TẮT ĐỊA ĐIỂM"
+                android:textColor="@color/primary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Mã địa điểm"
+                android:textColor="@color/secondary" />
+
+            <EditText
+                android:id="@+id/location_detail_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/edittext_background"
+                android:hint="Mã địa điểm"
+                android:minHeight="48dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:textColor="@color/dark_navy"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tên đường"
+                android:textColor="@color/secondary" />
+
+            <EditText
+                android:id="@+id/location_detail_address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/edittext_background"
+                android:hint="Địa chỉ"
+                android:minHeight="48dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp" />
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/user_detail_card" android:orientation="vertical" android:padding="16dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="ĐỊA CHỈ HÀNH CHÍNH" android:textColor="@color/primary" android:textSize="14sp" android:textStyle="bold" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Tỉnh/Thành phố" android:textColor="@color/secondary" android:textSize="13sp" />
+            <Spinner android:id="@+id/location_detail_province" android:layout_width="match_parent" android:layout_height="48dp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Quận/Huyện" android:textColor="@color/secondary" android:textSize="13sp" />
+            <Spinner android:id="@+id/location_detail_district" android:layout_width="match_parent" android:layout_height="48dp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Phường/Xã" android:textColor="@color/secondary" android:textSize="13sp" />
+            <Spinner android:id="@+id/location_detail_ward" android:layout_width="match_parent" android:layout_height="48dp" />
+        </LinearLayout>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/user_detail_card" android:orientation="vertical" android:padding="16dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="QUẢN LÝ ĐỊA ĐIỂM" android:textColor="@color/primary" android:textSize="14sp" android:textStyle="bold" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Trạng thái" android:textColor="@color/secondary" android:textSize="13sp" />
+            <RadioGroup android:id="@+id/location_detail_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+                <RadioButton android:id="@+id/location_status_available" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Đang khả dụng" />
+                <RadioButton android:id="@+id/location_status_unavailable" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Không khả dụng" />
+            </RadioGroup>
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="Mô tả"
+                android:textColor="@color/secondary" />
+
+            <EditText
+                android:id="@+id/location_detail_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/edittext_background"
+                android:gravity="top"
+                android:inputType="textMultiLine"
+                android:minHeight="80dp"
+                android:paddingTop="5dp"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp" />
+        </LinearLayout>
+
+        <Button android:id="@+id/location_detail_save" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="16dp" android:backgroundTint="@color/primary" android:text="Lưu thay đổi" android:textColor="@color/white" android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/location_detail_delete"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="#F44336"
+            android:text="Xóa địa điểm"
+            android:textColor="@color/white" />
+    </LinearLayout>
+</ScrollView>

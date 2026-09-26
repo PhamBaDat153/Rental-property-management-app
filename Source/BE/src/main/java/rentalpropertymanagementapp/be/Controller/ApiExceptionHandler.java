@@ -5,14 +5,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.dao.DataIntegrityViolationException;
 import rentalpropertymanagementapp.be.Exception.TenantHasContractException;
 import rentalpropertymanagementapp.be.Exception.UserNotFoundException;
+import rentalpropertymanagementapp.be.Exception.ResourceNotFoundException;
+import rentalpropertymanagementapp.be.Exception.ResourceConflictException;
 
 import java.util.Map;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, String>> resourceNotFound(ResourceNotFoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", exception.getMessage()));
+    }
+
+    @ExceptionHandler(ResourceConflictException.class)
+    public ResponseEntity<Map<String, String>> resourceConflict(ResourceConflictException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", exception.getMessage()));
+    }
+
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<Map<String, String>> notFound(UserNotFoundException exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", exception.getMessage()));
@@ -35,5 +48,10 @@ public class ApiExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, String>> integrity(DataIntegrityViolationException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", "Dữ liệu đã tồn tại hoặc đang được sử dụng"));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, String>> malformed(HttpMessageNotReadableException exception) {
+        return ResponseEntity.badRequest().body(Map.of("message", "Request body is invalid"));
     }
 }

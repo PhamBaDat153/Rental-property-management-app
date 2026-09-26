@@ -33,11 +33,6 @@ import retrofit2.Response;
 import org.json.JSONObject;
 import java.io.IOException;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link UserManageFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class UserManageFragment extends Fragment {
     private final List<UserTenant> users = new ArrayList<>();
     private UserListAdapter adapter;
@@ -99,19 +94,17 @@ public class UserManageFragment extends Fragment {
     }
 
     private void showCreateDialog() {
-        EditText username = new EditText(requireContext());
-        username.setHint("Tên đăng nhập");
-        EditText password = new EditText(requireContext());
-        password.setHint("Mật khẩu");
-        android.widget.LinearLayout box = new android.widget.LinearLayout(requireContext());
-        box.setOrientation(android.widget.LinearLayout.VERTICAL);
-        box.setPadding(48, 8, 48, 0);
-        box.addView(username);
-        box.addView(password);
-        new AlertDialog.Builder(requireContext()).setTitle("Thêm người thuê").setView(box)
+        View form = getLayoutInflater().inflate(R.layout.dialog_create_user, null);
+        EditText username = form.findViewById(R.id.create_username);
+        EditText password = form.findViewById(R.id.create_password);
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setTitle("Thêm người thuê")
+                .setView(form)
                 .setNegativeButton("Hủy", null)
-                .setPositiveButton("Tạo", (dialog, which) -> createUser(username.getText().toString(), password.getText().toString()))
+                .setPositiveButton("Tạo", (ignored, which) -> createUser(username.getText().toString(), password.getText().toString()))
                 .show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.primary));
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.secondary));
     }
 
     private void createUser(String username, String password) {

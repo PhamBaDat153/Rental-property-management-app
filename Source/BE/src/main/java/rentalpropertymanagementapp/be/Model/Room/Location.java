@@ -3,7 +3,6 @@ package rentalpropertymanagementapp.be.Model.Room;
 import com.fasterxml.uuid.Generators;
 import jakarta.persistence.*;
 import lombok.*;
-import rentalpropertymanagementapp.be.Model.Enum.AnnouncementStatus;
 import rentalpropertymanagementapp.be.Model.Enum.AvailableStatus;
 
 import java.time.LocalDateTime;
@@ -53,6 +52,9 @@ public class Location {
     @Column(name = "province_name", nullable = false)
     private String province_name;
 
+    @Column(name = "description")
+    private String description;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private AvailableStatus status;
@@ -72,8 +74,9 @@ public class Location {
 
     @PrePersist
     public void prePersist() {
-        location_id = Generators.timeBasedEpochGenerator().generate();
-        created_at = LocalDateTime.now();
+        this.location_id = Generators.timeBasedEpochGenerator().generate();
+        this.created_at = LocalDateTime.now();
+        this.updated_at = LocalDateTime.now();
         if (status == null) status = AvailableStatus.AVAILABLE;
 
     }

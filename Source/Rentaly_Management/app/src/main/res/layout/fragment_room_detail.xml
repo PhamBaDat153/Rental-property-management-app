@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/background" android:fillViewport="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+            <Button android:id="@+id/room_detail_back" android:layout_width="48dp" android:layout_height="48dp" android:backgroundTint="@color/primary" android:contentDescription="Quay lại" android:drawableStart="@drawable/back_icon" android:padding="8dp" android:text="" />
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="16dp" android:text="Thông tin phòng" android:textColor="@color/dark_navy" android:textSize="24sp" android:textStyle="bold" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:background="@drawable/user_detail_card" android:orientation="vertical" android:padding="16dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="HÌNH ẢNH PHÒNG" android:textColor="@color/primary" android:textSize="14sp" android:textStyle="bold" />
+
+            <ViewFlipper
+                android:id="@+id/room_detail_slider"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:layout_marginTop="10dp"
+                android:autoStart="false"
+                android:background="@drawable/edittext_background" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center">
+
+                <Button
+                    android:id="@+id/room_detail_previous"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="50dp"
+                    android:backgroundTint="@color/secondary"
+                    android:contentDescription="Ảnh trước"
+                    android:text="‹" />
+
+                <Button
+                    android:id="@+id/room_detail_next"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="50dp"
+                    android:backgroundTint="@color/secondary"
+                    android:contentDescription="Ảnh sau"
+                    android:text="›" />
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/user_detail_card" android:orientation="vertical" android:padding="16dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="THÔNG TIN CƠ BẢN" android:textColor="@color/primary" android:textSize="14sp" android:textStyle="bold" />
+            <TextView android:id="@+id/room_detail_location" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:textColor="@color/secondary" />
+
+            <TextView
+                android:id="@+id/textview12"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Mã phòng"
+                android:textColor="@color/secondary" />
+
+            <EditText
+                android:id="@+id/room_detail_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/edittext_background"
+                android:hint="Mã phòng *"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp" />
+
+            <TextView
+                android:id="@+id/textview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Tên phòng"
+                android:textColor="@color/secondary" />
+
+            <EditText
+                android:id="@+id/room_detail_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/edittext_background"
+                android:hint="Tên phòng"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/user_detail_card" android:orientation="vertical" android:padding="16dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="THÔNG SỐ VÀ GIÁ" android:textColor="@color/primary" android:textSize="14sp" android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textview2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Phòng nằm ở tầng"
+                android:textColor="@color/secondary" />
+
+            <EditText
+                android:id="@+id/room_detail_floor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/edittext_background"
+                android:hint="Tầng"
+                android:inputType="number"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                tools:layout_marginTop="5dp" />
+
+            <TextView
+                android:id="@+id/textview4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Diện tích phòng"
+                android:textColor="@color/secondary" />
+
+            <EditText
+                android:id="@+id/room_detail_area"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Diện tích m2"
+                android:inputType="numberDecimal"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:background="@drawable/edittext_background"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"/>
+
+            <TextView
+                android:id="@+id/textview5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Số người tối đa phòng có thể chứa"
+                android:textColor="@color/secondary" />
+
+            <EditText
+                android:id="@+id/room_detail_occupants"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Số người tối đa *"
+                android:inputType="number"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:background="@drawable/edittext_background"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"/>
+
+            <TextView
+                android:id="@+id/textview6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Giá thuê mặc định"
+                android:textColor="@color/secondary" />
+
+            <EditText
+                android:id="@+id/room_detail_rent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/edittext_background"
+                android:hint="Giá thuê/tháng *"
+                android:inputType="numberDecimal"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/user_detail_card" android:orientation="vertical" android:padding="16dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="QUẢN LÝ PHÒNG" android:textColor="@color/primary" android:textSize="14sp" android:textStyle="bold" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Trạng thái" android:textColor="@color/secondary" />
+            <RadioGroup android:id="@+id/room_detail_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+                <RadioButton android:id="@+id/room_status_available" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Đang khả dụng" />
+                <RadioButton android:id="@+id/room_status_unavailable" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Không khả dụng" />
+            </RadioGroup>
+
+            <TextView
+                android:id="@+id/textview7"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Mô tả phòng"
+                android:textColor="@color/secondary" />
+
+            <EditText
+                android:id="@+id/room_detail_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
+                android:background="@drawable/edittext_background"
+                android:gravity="top"
+                android:hint="Mô tả"
+                android:inputType="textMultiLine"
+                android:minHeight="80dp"
+                android:paddingStart="12dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="12dp" />
+        </LinearLayout>
+        <Button android:id="@+id/room_detail_save" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="16dp" android:backgroundTint="@color/primary" android:text="Lưu thay đổi" android:textColor="@color/white" android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/room_detail_delete"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="#F44336"
+            android:text="Xóa phòng"
+            android:textColor="@color/white" />
+    </LinearLayout>
+</ScrollView>

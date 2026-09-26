@@ -100,6 +100,7 @@ public class Room {
             cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH},
             orphanRemoval = true
     )
+    @Builder.Default
     private Set<RoomImage> images = new LinkedHashSet<>();
 
     @OneToMany(
@@ -117,6 +118,7 @@ public class Room {
         this.room_id = Generators.timeBasedEpochGenerator().generate();
         if (status == null) this.status = AvailableStatus.AVAILABLE;
         this.created_at = LocalDateTime.now();
+        this.updated_at = LocalDateTime.now();
     }
 
     @PreUpdate

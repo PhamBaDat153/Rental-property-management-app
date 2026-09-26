@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="16dp" android:background="@color/background">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:text="Quản lý phòng trọ" android:textColor="@color/dark_navy" android:textSize="24sp" android:textStyle="bold" />
+        <Button android:id="@+id/resource_add" android:layout_width="wrap_content" android:layout_height="48dp"
+            android:minWidth="48dp" android:text="+" android:textSize="20sp" android:textColor="@color/white" android:backgroundTint="@color/primary"
+            android:contentDescription="Thêm tài nguyên" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:padding="4dp">
+
+        <Button
+            android:id="@+id/resource_locations"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/secondary"
+            android:text="Địa điểm"
+            tools:backgroundTint="@color/secondary" />
+
+        <Button
+            android:id="@+id/resource_rooms"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/secondary"
+            android:text="Phòng" />
+    </LinearLayout>
+    <EditText android:id="@+id/resource_search" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp"
+        android:minHeight="48dp" android:singleLine="true" android:hint="Tìm theo mã hoặc địa chỉ" android:inputType="text"
+        android:background="@drawable/user_detail_card" android:paddingStart="16dp" android:paddingEnd="16dp" />
+    <ProgressBar android:id="@+id/resource_loading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:visibility="gone" />
+    <TextView android:id="@+id/resource_empty" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="20dp" android:gravity="center" android:textColor="@color/secondary" android:visibility="gone" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="12dp" android:background="@drawable/user_detail_card" android:orientation="vertical" android:padding="16dp">
+        <TextView android:id="@+id/resource_list_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="DANH SÁCH ĐỊA ĐIỂM" android:textColor="@color/primary" android:textSize="14sp" android:textStyle="bold" />
+        <ListView android:id="@+id/resource_list" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="12dp" android:divider="@color/background" android:dividerHeight="8dp" android:footerDividersEnabled="false" android:headerDividersEnabled="false" />
+    </LinearLayout>
+</LinearLayout>

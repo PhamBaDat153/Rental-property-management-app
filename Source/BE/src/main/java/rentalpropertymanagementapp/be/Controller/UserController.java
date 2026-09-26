@@ -13,13 +13,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import rentalpropertymanagementapp.be.DTO.UserCreateRequest;
-import rentalpropertymanagementapp.be.DTO.UserRoleUpdateRequest;
 import rentalpropertymanagementapp.be.DTO.UserUpdateRequest;
 import rentalpropertymanagementapp.be.DTO.UserTenantResponse;
 import rentalpropertymanagementapp.be.Model.Enum.LoginType;
 import rentalpropertymanagementapp.be.Model.User.User;
 import rentalpropertymanagementapp.be.Service.UserService;
-import rentalpropertymanagementapp.be.Service.UserManagementService;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,51 +28,38 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
-    private final UserManagementService userManagementService;
 
-    public UserController(UserService userService, UserManagementService userManagementService) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.userManagementService = userManagementService;
-    }
-
-    @GetMapping
-    public ResponseEntity<List<User>> getUsers() {
-        return ResponseEntity.ok(userService.getUsers());
     }
 
     @GetMapping("/manage")
-    public ResponseEntity<List<UserTenantResponse>> listManagedUsers(
+    public ResponseEntity<List<UserTenantResponse>> getUsers(
             @RequestParam(required = false) String search) {
-        return ResponseEntity.ok(userManagementService.list(search));
+        return ResponseEntity.ok(userService.getUsers(search));
     }
 
     @GetMapping("/manage/{id}")
-    public ResponseEntity<UserTenantResponse> getManagedUser(@PathVariable UUID id) {
-        return ResponseEntity.ok(userManagementService.get(id));
+    public ResponseEntity<UserTenantResponse> getUserByID(@PathVariable UUID id) {
+        return ResponseEntity.ok(userService.getUserByID(id));
     }
 
     @PostMapping("/manage")
-    public ResponseEntity<UserTenantResponse> createManagedUser(
+    public ResponseEntity<UserTenantResponse> createUser(
             @Valid @RequestBody UserCreateRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userManagementService.create(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(request));
     }
 
     @DeleteMapping("/manage/{id}")
     public ResponseEntity<Void> deleteManagedUser(@PathVariable UUID id) {
-        userManagementService.delete(id);
+        userService.deleteUserById(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("/manage/{id}/role")
-    public ResponseEntity<UserTenantResponse> updateManagedUserRole(
-            @PathVariable UUID id, @Valid @RequestBody UserRoleUpdateRequest request) {
-        return ResponseEntity.ok(userManagementService.updateRole(id, request));
     }
 
     @PutMapping("/manage/{id}")
     public ResponseEntity<UserTenantResponse> updateManagedUser(
             @PathVariable UUID id, @Valid @RequestBody UserUpdateRequest request) {
-        return ResponseEntity.ok(userManagementService.update(id, request));
+        return ResponseEntity.ok(userService.updateUserByID(id, request));
     }
 
     @GetMapping("/login")
