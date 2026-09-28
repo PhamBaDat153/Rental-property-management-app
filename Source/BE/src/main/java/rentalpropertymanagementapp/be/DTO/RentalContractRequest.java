@@ -8,18 +8,22 @@ import rentalpropertymanagementapp.be.Model.Enum.ActiveStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record RentalContractRequest(
         @NotNull UUID room_id,
         @NotNull LocalDate start_date,
         LocalDate end_date,
+        LocalDateTime signed_at,
         @NotNull @DecimalMin("0.0") BigDecimal rent_amount,
         @NotNull @DecimalMin("0.0") BigDecimal deposit_required,
         @Min(1) @Max(31) Integer billing_day,
         @NotNull @Min(0) Integer payment_due_days,
         @NotNull ActiveStatus status,
         String terms,
-        String document_url
+        String document_url,
+        LocalDateTime terminated_at,
+        String termination_reason
 ) {
 }

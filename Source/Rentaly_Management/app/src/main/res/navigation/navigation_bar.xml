@@ -20,9 +20,13 @@
 
     <fragment
         android:id="@+id/contractsFragment"
-        android:name="com.android_dev.rentaly_management.Fragment.ScreenFragment"
+        android:name="com.android_dev.rentaly_management.Fragment.ContractsFragment"
         android:label="Hợp đồng">
         <argument android:name="screen_title" android:defaultValue="Hợp đồng" />
+    </fragment>
+
+    <fragment android:id="@+id/contractDetailFragment" android:name="com.android_dev.rentaly_management.Fragment.ContractDetailFragment" android:label="Chi tiết hợp đồng">
+        <argument android:name="contract_id" app:argType="string" />
     </fragment>
 
     <fragment

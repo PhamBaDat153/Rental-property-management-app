@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Nhập thông tin hợp đồng thuê" android:textColor="@color/secondary" android:textSize="14sp" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/user_detail_card" android:orientation="vertical" android:padding="16dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="THÔNG TIN PHÒNG VÀ THỜI HẠN" android:textColor="@color/primary" android:textSize="14sp" android:textStyle="bold" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Phòng *" android:textColor="@color/secondary" />
+            <Spinner android:id="@+id/contract_room" android:layout_width="match_parent" android:layout_height="48dp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Ngày bắt đầu *" android:textColor="@color/secondary" />
+            <EditText android:id="@+id/contract_start" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:hint="yyyy-MM-dd" android:inputType="date" android:background="@drawable/edittext_background" android:paddingStart="12dp" android:paddingEnd="12dp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Ngày kết thúc" android:textColor="@color/secondary" />
+            <EditText android:id="@+id/contract_end" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:hint="yyyy-MM-dd" android:inputType="date" android:background="@drawable/edittext_background" android:paddingStart="12dp" android:paddingEnd="12dp" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/user_detail_card" android:orientation="vertical" android:padding="16dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="TÀI CHÍNH VÀ THANH TOÁN" android:textColor="@color/primary" android:textSize="14sp" android:textStyle="bold" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Giá thuê mỗi tháng *" android:textColor="@color/secondary" />
+            <EditText android:id="@+id/contract_rent" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:inputType="numberDecimal" android:background="@drawable/edittext_background" android:paddingStart="12dp" android:paddingEnd="12dp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Tiền đặt cọc *" android:textColor="@color/secondary" />
+            <EditText android:id="@+id/contract_deposit" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:inputType="numberDecimal" android:background="@drawable/edittext_background" android:paddingStart="12dp" android:paddingEnd="12dp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Ngày thanh toán hàng tháng (1-31)" android:textColor="@color/secondary" />
+            <EditText android:id="@+id/contract_billing_day" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:inputType="number" android:background="@drawable/edittext_background" android:paddingStart="12dp" android:paddingEnd="12dp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Số ngày đến hạn thanh toán *" android:textColor="@color/secondary" />
+            <EditText android:id="@+id/contract_due_days" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:inputType="number" android:background="@drawable/edittext_background" android:paddingStart="12dp" android:paddingEnd="12dp" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/user_detail_card" android:orientation="vertical" android:padding="16dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="QUẢN LÝ VÀ TÀI LIỆU" android:textColor="@color/primary" android:textSize="14sp" android:textStyle="bold" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Trạng thái" android:textColor="@color/secondary" />
+            <RadioGroup android:id="@+id/contract_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+                <RadioButton android:id="@+id/contract_status_active" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Đang hoạt động" />
+                <RadioButton android:id="@+id/contract_status_inactive" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Không hoạt động" />
+            </RadioGroup>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Điều khoản" android:textColor="@color/secondary" />
+            <EditText android:id="@+id/contract_terms" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="80dp" android:gravity="top" android:inputType="textMultiLine" android:background="@drawable/edittext_background" android:padding="12dp" />
+            <Button android:id="@+id/contract_choose_pdf" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="12dp" android:backgroundTint="@color/primary" android:text="Chọn file PDF hoặc DOCX" android:textColor="@color/white" />
+            <TextView android:id="@+id/contract_pdf_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Chưa chọn tài liệu mới" android:textColor="@color/secondary" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

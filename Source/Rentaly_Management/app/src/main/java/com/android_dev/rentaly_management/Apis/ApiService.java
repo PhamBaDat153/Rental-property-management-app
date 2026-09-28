@@ -7,6 +7,7 @@ import com.android_dev.rentaly_management.DTO.UserUpdateRequest;
 import com.android_dev.rentaly_management.DTO.Location;
 import com.android_dev.rentaly_management.DTO.LocationRequest;
 import com.android_dev.rentaly_management.DTO.Room;
+import com.android_dev.rentaly_management.DTO.RentalContract;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -59,4 +60,19 @@ public interface ApiService {
     @Multipart @PUT("be/rooms/{id}") Call<Room> updateRoom(@Path("id") String id, @Part("room") RequestBody room,
                                                               @Part java.util.List<okhttp3.MultipartBody.Part> images);
     @DELETE("be/rooms/{id}") Call<Void> deleteRoom(@Path("id") String id);
+
+    @GET("be/contracts") Call<java.util.List<RentalContract>> contracts();
+    @GET("be/contracts/{id}") Call<RentalContract> contract(@Path("id") String id);
+    @Multipart @POST("be/contracts") Call<RentalContract> createContract(@Part("contract") RequestBody contract,
+                                                                            @Part okhttp3.MultipartBody.Part document);
+    @Multipart @PUT("be/contracts/{id}") Call<RentalContract> updateContract(@Path("id") String id,
+                                                                                @Part("contract") RequestBody contract,
+                                                                                @Part okhttp3.MultipartBody.Part document);
+    @DELETE("be/contracts/{id}") Call<Void> deleteContract(@Path("id") String id);
+
+    @GET("be/contract-tenants") Call<java.util.List<com.android_dev.rentaly_management.DTO.ContractTenant>> contractTenants();
+    @GET("be/contract-tenants/{contractId}/{tenantId}") Call<com.android_dev.rentaly_management.DTO.ContractTenant> contractTenant(@Path("contractId") String contractId, @Path("tenantId") String tenantId);
+    @POST("be/contract-tenants") Call<com.android_dev.rentaly_management.DTO.ContractTenant> createContractTenant(@Body com.android_dev.rentaly_management.DTO.ContractTenantRequest request);
+    @PUT("be/contract-tenants/{contractId}/{tenantId}") Call<com.android_dev.rentaly_management.DTO.ContractTenant> updateContractTenant(@Path("contractId") String contractId, @Path("tenantId") String tenantId, @Body com.android_dev.rentaly_management.DTO.ContractTenantRequest request);
+    @DELETE("be/contract-tenants/{contractId}/{tenantId}") Call<Void> deleteContractTenant(@Path("contractId") String contractId, @Path("tenantId") String tenantId);
 }

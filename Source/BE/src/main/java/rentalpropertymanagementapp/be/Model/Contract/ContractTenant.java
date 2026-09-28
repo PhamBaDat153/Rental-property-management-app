@@ -50,6 +50,7 @@ public class ContractTenant {
     @PrePersist
     public void prePersist() {
         created_at = LocalDateTime.now();
+        this.updated_at = LocalDateTime.now();
         if (status == null) status = ActiveStatus.ACTIVE;
         if (is_representative == null) is_representative = false;
     }

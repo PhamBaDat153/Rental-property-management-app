@@ -7,10 +7,13 @@ import rentalpropertymanagementapp.be.Model.Contract.ContractTenant;
 import rentalpropertymanagementapp.be.Model.Contract.ContractTenantId;
 
 import java.util.UUID;
+import java.util.List;
 
 public interface ContractTenantRepository extends JpaRepository<ContractTenant, ContractTenantId> {
     @Query("select count(ct) > 0 from ContractTenant ct where ct.id.contract_id = :contractId")
     boolean existsByContractId(@Param("contractId") UUID contractId);
     @Query("select count(ct) > 0 from ContractTenant ct where ct.tenant.tenant_id = :tenantId")
     boolean existsByTenantId(@Param("tenantId") UUID tenantId);
+    @Query("select ct from ContractTenant ct where ct.id.contract_id = :contractId and ct.is_representative = true")
+    List<ContractTenant> findRepresentativesByContractId(@Param("contractId") UUID contractId);
 }

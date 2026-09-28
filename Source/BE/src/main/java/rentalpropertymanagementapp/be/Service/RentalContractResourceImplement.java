@@ -56,9 +56,11 @@ public class RentalContractResourceImplement implements RentalContractService {
         Room room = roomRepository.findById(request.room_id()).orElseThrow(() -> new ResourceNotFoundException("Room not found"));
         RentalContract replacement = toEntity(request, room);
         contract.setRoom(room); contract.setStart_date(replacement.getStart_date()); contract.setEnd_date(replacement.getEnd_date());
+        contract.setSigned_at(replacement.getSigned_at());
         contract.setRent_amount(replacement.getRent_amount()); contract.setDeposit_required(replacement.getDeposit_required());
         contract.setBilling_day(replacement.getBilling_day()); contract.setPayment_due_days(replacement.getPayment_due_days());
-        contract.setStatus(replacement.getStatus()); contract.setTerms(replacement.getTerms()); contract.setDocument_url(replacement.getDocument_url());
+        contract.setStatus(replacement.getStatus()); contract.setTerms(replacement.getTerms());
+        contract.setTerminated_at(replacement.getTerminated_at()); contract.setTermination_reason(replacement.getTermination_reason());
         uploadDocument(contract, document);
         return repository.save(contract);
     }
@@ -73,9 +75,10 @@ public class RentalContractResourceImplement implements RentalContractService {
     }
 
     private RentalContract toEntity(RentalContractRequest request, Room room) {
-        return RentalContract.builder().room(room).start_date(request.start_date()).end_date(request.end_date())
+        return RentalContract.builder().room(room).start_date(request.start_date()).end_date(request.end_date()).signed_at(request.signed_at())
                 .rent_amount(request.rent_amount()).deposit_required(request.deposit_required()).billing_day(request.billing_day())
-                .payment_due_days(request.payment_due_days()).status(request.status()).terms(request.terms()).document_url(request.document_url()).build();
+                .payment_due_days(request.payment_due_days()).status(request.status()).terms(request.terms()).document_url(request.document_url())
+                .terminated_at(request.terminated_at()).termination_reason(request.termination_reason()).build();
     }
 
     private void validateDates(LocalDate start, LocalDate end) {
@@ -92,9 +95,14 @@ public class RentalContractResourceImplement implements RentalContractService {
                 || name.endsWith(".pdf") || name.endsWith(".doc") || name.endsWith(".docx");
         if (!supported) throw new ResourceConflictException("Only PDF and Word documents are accepted");
         try {
-            contract.setDocument_url(String.valueOf(fileUploader.uploadDocument(document, "rental/contracts").get("secure_url")));
-        } catch (IOException exception) {
-            throw new ResourceConflictException("Contract document upload failed");
+            Object secureUrl = fileUploader.uploadDocument(document, "rental/contracts").get("secure_url");
+            if (secureUrl == null || secureUrl.toString().isBlank()) {
+                throw new ResourceConflictException("Contract document upload returned no URL");
+            }
+            contract.setDocument_url(secureUrl.toString());
+        } catch (IOException | RuntimeException exception) {
+            if (exception instanceof ResourceConflictException) throw (ResourceConflictException) exception;
+            throw new ResourceConflictException("Contract document upload failed: " + exception.getMessage());
         }
     }
 }

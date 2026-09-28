@@ -27,8 +27,8 @@ class RentalResourceCrudTest {
     void rejectsContractEndBeforeStart() {
         RentalContractResourceImplement service = new RentalContractResourceImplement(null, null, null, null, null);
         assertThrows(ResourceConflictException.class, () -> service.create(new RentalContractRequest(
-                UUID.randomUUID(), LocalDate.of(2026, 2, 1), LocalDate.of(2026, 1, 1),
-                BigDecimal.ZERO, BigDecimal.ZERO, null, 0, ActiveStatus.ACTIVE, null, null), null));
+                 UUID.randomUUID(), LocalDate.of(2026, 2, 1), LocalDate.of(2026, 1, 1), null,
+                 BigDecimal.ZERO, BigDecimal.ZERO, null, 0, ActiveStatus.ACTIVE, null, null, null, null), null));
     }
 
     @Test

@@ -37,6 +37,7 @@ public class ContractTenantServiceImplement implements ContractTenantService {
         if (repository.existsById(id)) throw new ResourceConflictException("Tenant is already assigned to contract");
         RentalContract contract = contractRepository.findById(request.contract_id()).orElseThrow(() -> new ResourceNotFoundException("Contract not found"));
         Tenant tenant = tenantRepository.findById(request.tenant_id()).orElseThrow(() -> new ResourceNotFoundException("Tenant not found"));
+        clearRepresentative(request.contract_id(), request.tenant_id(), request.is_representative());
         return repository.save(toEntity(request, id, contract, tenant));
     }
 
@@ -45,6 +46,7 @@ public class ContractTenantServiceImplement implements ContractTenantService {
         if (!contractId.equals(request.contract_id()) || !tenantId.equals(request.tenant_id())) throw new ResourceConflictException("Assignment identifiers cannot change");
         validateDates(request.move_in_date(), request.move_out_date());
         ContractTenant assignment = get(contractId, tenantId);
+        clearRepresentative(contractId, tenantId, request.is_representative());
         assignment.setIs_representative(request.is_representative()); assignment.setMove_in_date(request.move_in_date()); assignment.setMove_out_date(request.move_out_date());
         return repository.save(assignment);
     }
@@ -57,4 +59,10 @@ public class ContractTenantServiceImplement implements ContractTenantService {
                 .move_in_date(request.move_in_date()).move_out_date(request.move_out_date()).build();
     }
     private void validateDates(LocalDate start, LocalDate end) { if (end != null && start != null && end.isBefore(start)) throw new ResourceConflictException("Move-out date must not precede move-in date"); }
+    private void clearRepresentative(UUID contractId, UUID selectedTenantId, Boolean representative) {
+        if (!Boolean.TRUE.equals(representative)) return;
+        repository.findRepresentativesByContractId(contractId).stream()
+                .filter(item -> !item.getId().getTenant_id().equals(selectedTenantId))
+                .forEach(item -> item.setIs_representative(false));
+    }
 }

@@ -108,7 +108,8 @@ public class RentalContract {
     public void prePersist() {
         this.created_at = LocalDateTime.now();
         this.contract_id = Generators.timeBasedEpochGenerator().generate();
-        this.status = ActiveStatus.ACTIVE;
+        this.updated_at = LocalDateTime.now();
+        this.status = ActiveStatus.INACTIVE;
     }
 
     @PreUpdate
