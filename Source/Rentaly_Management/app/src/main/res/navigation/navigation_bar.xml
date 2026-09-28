@@ -19,6 +19,11 @@
     </fragment>
 
     <fragment
+        android:id="@+id/serviceFragment"
+        android:name="com.android_dev.rentaly_management.Fragment.ServiceFragment"
+        android:label="Tiện ích" />
+
+    <fragment
         android:id="@+id/contractsFragment"
         android:name="com.android_dev.rentaly_management.Fragment.ContractsFragment"
         android:label="Hợp đồng">
@@ -58,5 +63,17 @@
         android:label="Chi tiết phòng">
         <argument android:name="room_id" app:argType="string" />
     </fragment>
+
+    <fragment
+        android:id="@+id/meterFragment"
+        android:name="com.android_dev.rentaly_management.Fragment.MeterFragment"
+        android:label="Quản lý đồng hồ">
+        <argument android:name="room_id" app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/serviceCatalogFragment"
+        android:name="com.android_dev.rentaly_management.Fragment.ServiceCatalogFragment"
+        android:label="Danh mục dịch vụ" />
 
 </navigation>

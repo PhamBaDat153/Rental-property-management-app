@@ -61,6 +61,26 @@ public interface ApiService {
                                                               @Part java.util.List<okhttp3.MultipartBody.Part> images);
     @DELETE("be/rooms/{id}") Call<Void> deleteRoom(@Path("id") String id);
 
+    @GET("be/meters") Call<java.util.List<com.android_dev.rentaly_management.DTO.Meter>> meters(@Query("roomId") String roomId);
+    @GET("be/meters/{id}") Call<com.android_dev.rentaly_management.DTO.Meter> meter(@Path("id") String id);
+    @POST("be/meters") Call<com.android_dev.rentaly_management.DTO.Meter> createMeter(@Body com.android_dev.rentaly_management.DTO.MeterRequest request);
+    @PUT("be/meters/{id}") Call<com.android_dev.rentaly_management.DTO.Meter> updateMeter(@Path("id") String id, @Body com.android_dev.rentaly_management.DTO.MeterRequest request);
+    @DELETE("be/meters/{id}") Call<Void> deleteMeter(@Path("id") String id);
+    @GET("be/meters/{meterId}/readings") Call<java.util.List<com.android_dev.rentaly_management.DTO.MeterReading>> meterReadings(@Path("meterId") String meterId);
+    @POST("be/meter-readings") Call<com.android_dev.rentaly_management.DTO.MeterReading> createMeterReading(@Body com.android_dev.rentaly_management.DTO.MeterReadingRequest request);
+    @Multipart @POST("be/meter-readings") Call<com.android_dev.rentaly_management.DTO.MeterReading> createMeterReading(@Part("reading") RequestBody reading, @Part okhttp3.MultipartBody.Part evidence);
+    @PUT("be/meter-readings/{id}") Call<com.android_dev.rentaly_management.DTO.MeterReading> updateMeterReading(@Path("id") String id, @Body com.android_dev.rentaly_management.DTO.MeterReadingRequest request);
+    @Multipart @PUT("be/meter-readings/{id}") Call<com.android_dev.rentaly_management.DTO.MeterReading> updateMeterReading(@Path("id") String id, @Part("reading") RequestBody reading, @Part okhttp3.MultipartBody.Part evidence);
+    @DELETE("be/meter-readings/{id}") Call<Void> deleteMeterReading(@Path("id") String id);
+    @GET("be/services") Call<java.util.List<com.android_dev.rentaly_management.DTO.Service>> services();
+    @POST("be/services") Call<com.android_dev.rentaly_management.DTO.Service> createService(@Body com.android_dev.rentaly_management.DTO.ServiceRequest request);
+    @PUT("be/services/{id}") Call<com.android_dev.rentaly_management.DTO.Service> updateService(@Path("id") String id, @Body com.android_dev.rentaly_management.DTO.ServiceRequest request);
+    @DELETE("be/services/{id}") Call<Void> deleteService(@Path("id") String id);
+    @GET("be/rooms/{roomId}/services") Call<java.util.List<com.android_dev.rentaly_management.DTO.RoomService>> roomServices(@Path("roomId") String roomId);
+    @POST("be/rooms/{roomId}/services/{serviceId}") Call<com.android_dev.rentaly_management.DTO.RoomService> assignRoomService(@Path("roomId") String roomId, @Path("serviceId") String serviceId);
+    @PUT("be/rooms/{roomId}/services/{serviceId}") Call<com.android_dev.rentaly_management.DTO.RoomService> updateRoomService(@Path("roomId") String roomId, @Path("serviceId") String serviceId, @Body java.util.Map<String, Boolean> request);
+    @DELETE("be/rooms/{roomId}/services/{serviceId}") Call<Void> deleteRoomService(@Path("roomId") String roomId, @Path("serviceId") String serviceId);
+
     @GET("be/contracts") Call<java.util.List<RentalContract>> contracts();
     @GET("be/contracts/{id}") Call<RentalContract> contract(@Path("id") String id);
     @Multipart @POST("be/contracts") Call<RentalContract> createContract(@Part("contract") RequestBody contract,

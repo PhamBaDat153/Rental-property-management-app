@@ -37,6 +37,6 @@ public class Meter {
     private LocalDateTime updated_at;
     @OneToMany(mappedBy = "meter", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, orphanRemoval = true)
     private Set<MeterReading> readings = new LinkedHashSet<>();
-    @PrePersist public void prePersist() { meter_id = Generators.timeBasedEpochGenerator().generate(); created_at = LocalDateTime.now(); if (status == null) status = AvailableStatus.AVAILABLE; }
+    @PrePersist public void prePersist() { meter_id = Generators.timeBasedEpochGenerator().generate();this.updated_at=LocalDateTime.now(); created_at = LocalDateTime.now(); if (status == null) status = AvailableStatus.AVAILABLE; }
     @PreUpdate public void preUpdate() { updated_at = LocalDateTime.now(); }
 }

@@ -59,11 +59,12 @@ public class PropertiesFragment extends Fragment {
     private ProgressBar loading;
     private TextView empty;
     private boolean showingLocations = true;
+    private View rootView;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle state) {
-        View view = inflater.inflate(R.layout.fragment_properties, container, false);
+        View view = rootView = inflater.inflate(R.layout.fragment_properties, container, false);
         search = view.findViewById(R.id.resource_search);
         loading = view.findViewById(R.id.resource_loading);
         empty = view.findViewById(R.id.resource_empty);
@@ -93,7 +94,11 @@ public class PropertiesFragment extends Fragment {
         list.setOnItemClickListener((parent, row, position, id) -> openDetails(visible.get(position)));
         view.findViewById(R.id.resource_locations).setOnClickListener(v -> selectLocations());
         view.findViewById(R.id.resource_rooms).setOnClickListener(v -> selectRooms());
-        view.findViewById(R.id.resource_locations).setSelected(true);
+        if (getArguments() != null && getArguments().getBoolean("show_rooms", false)) {
+            selectRooms();
+        } else {
+            view.findViewById(R.id.resource_locations).setSelected(true);
+        }
         view.findViewById(R.id.resource_add).setOnClickListener(v -> {
             if (showingLocations) showLocationForm(null); else showRoomForm(null);
         });
@@ -120,7 +125,7 @@ public class PropertiesFragment extends Fragment {
     private void selectLocations() {
         showingLocations = true;
         search.setHint("Tìm theo mã hoặc địa chỉ");
-        TextView title = requireView().findViewById(R.id.resource_list_title);
+        TextView title = rootView.findViewById(R.id.resource_list_title);
         title.setText("DANH SÁCH ĐỊA ĐIỂM");
         render();
     }
@@ -128,10 +133,11 @@ public class PropertiesFragment extends Fragment {
     private void selectRooms() {
         showingLocations = false;
         search.setHint("Tìm theo tên phòng");
-        TextView title = requireView().findViewById(R.id.resource_list_title);
+        TextView title = rootView.findViewById(R.id.resource_list_title);
         title.setText("DANH SÁCH PHÒNG");
         render();
     }
+
 
     private void loadLocations() {
         setLoading(true);

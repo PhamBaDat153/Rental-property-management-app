@@ -196,6 +196,14 @@
         </LinearLayout>
         <Button android:id="@+id/room_detail_save" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="16dp" android:backgroundTint="@color/primary" android:text="Lưu thay đổi" android:textColor="@color/white" android:textStyle="bold" />
 
+        <LinearLayout android:id="@+id/room_detail_services_section" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/user_detail_card" android:orientation="vertical" android:padding="16dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="DỊCH VỤ PHÒNG" android:textColor="@color/primary" android:textSize="14sp" android:textStyle="bold" />
+            <TextView android:id="@+id/room_detail_services_empty" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Chưa có dịch vụ được gán" android:textColor="@color/secondary" />
+            <LinearLayout android:id="@+id/room_detail_services_list" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+            <Button android:id="@+id/room_detail_assign_service" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Gán dịch vụ" />
+            <Button android:id="@+id/room_detail_meters" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:backgroundTint="@color/primary" android:text="Quản lý đồng hồ và chỉ số" android:textColor="@color/white" />
+        </LinearLayout>
+
         <Button
             android:id="@+id/room_detail_delete"
             android:layout_width="match_parent"

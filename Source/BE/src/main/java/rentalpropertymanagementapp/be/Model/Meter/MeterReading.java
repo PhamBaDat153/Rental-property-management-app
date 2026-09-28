@@ -31,6 +31,6 @@ public class MeterReading {
     @Column(length = 500) private String note;
     @Column(nullable = false) private LocalDateTime created_at;
     private LocalDateTime updated_at;
-    @PrePersist public void prePersist() { reading_id = Generators.timeBasedEpochGenerator().generate(); created_at = LocalDateTime.now(); }
+    @PrePersist public void prePersist() { reading_id = Generators.timeBasedEpochGenerator().generate(); this.updated_at = LocalDateTime.now() ;created_at = LocalDateTime.now(); }
     @PreUpdate public void preUpdate() { updated_at = LocalDateTime.now(); }
 }

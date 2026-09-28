@@ -36,6 +36,7 @@ public class RoomService {
     @PrePersist
     public void prePersist() {
         created_at = LocalDateTime.now();
+        this.updated_at = LocalDateTime.now();
         if (is_active == null) is_active = true;
     }
 

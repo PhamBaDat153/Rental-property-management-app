@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="16dp" android:background="@color/background">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+        <Button android:id="@+id/service_catalog_back" android:layout_width="48dp" android:layout_height="48dp" android:backgroundTint="@color/primary" android:contentDescription="Quay lại" android:drawableStart="@drawable/back_icon" android:gravity="center" android:minWidth="0dp" android:minHeight="0dp" android:padding="8dp" android:stateListAnimator="@null" android:text="" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="16dp" android:text="Danh mục dịch vụ" android:textColor="@color/dark_navy" android:textSize="24sp" android:textStyle="bold" />
+        <Button android:id="@+id/service_add" android:layout_width="48dp" android:layout_height="48dp" android:backgroundTint="@color/primary" android:contentDescription="Thêm dịch vụ" android:minWidth="0dp" android:minHeight="0dp" android:text="+" android:textColor="@color/white" android:textSize="20sp" />
+    </LinearLayout>
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:background="@drawable/user_detail_card" android:padding="16dp" android:text="Tạo và quản lý các dịch vụ dùng cho phòng trọ." android:textColor="@color/secondary" android:textSize="14sp" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="12dp" android:background="@drawable/user_detail_card" android:orientation="vertical" android:padding="16dp">
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="DANH SÁCH DỊCH VỤ" android:textColor="@color/primary" android:textSize="14sp" android:textStyle="bold" />
+        <ProgressBar android:id="@+id/service_loading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:layout_marginTop="16dp" android:visibility="gone" />
+        <TextView android:id="@+id/service_empty" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:gravity="center" android:text="Chưa có dịch vụ. Nhấn + để thêm dịch vụ." android:textColor="@color/secondary" android:visibility="gone" />
+        <ListView android:id="@+id/service_list" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="12dp" android:divider="@color/background" android:dividerHeight="8dp" android:footerDividersEnabled="false" android:headerDividersEnabled="false" />
+    </LinearLayout>
+</LinearLayout>

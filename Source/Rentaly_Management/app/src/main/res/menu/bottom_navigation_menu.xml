@@ -5,16 +5,16 @@
         android:icon="@drawable/home_icon"
         android:title="" />
     <item
-        android:id="@+id/romeFragment"
-        android:icon="@drawable/bed_icon"
-        android:title="" />
+        android:id="@+id/serviceFragment"
+        android:icon="@drawable/tool_icon"
+        android:title="Dịch vụ" />
     <item
         android:id="@+id/contractsFragment"
         android:icon="@drawable/clipboard_icon"
         android:title=" " />
     <item
         android:id="@+id/propertiesFragment"
-        android:icon="@drawable/tool_icon"
+        android:icon="@drawable/bed_icon"
         android:title="" />
     <item
         android:id="@+id/profilesFragment"
