@@ -64,6 +64,7 @@ public class UserManageFragment extends Fragment {
                 roles[role.getSelectedItemPosition()]));
         view.findViewById(R.id.user_delete).setOnClickListener(v -> confirmDelete(selectedUser));
         view.findViewById(R.id.button3).setOnClickListener(v -> showCreateDialog());
+        view.findViewById(R.id.user_announcements).setOnClickListener(v -> NavHostFragment.findNavController(this).navigate(R.id.announcementFragment));
         search.addTextChangedListener(new android.text.TextWatcher() {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             public void onTextChanged(CharSequence s, int start, int before, int count) { loadUsers(s.toString()); }

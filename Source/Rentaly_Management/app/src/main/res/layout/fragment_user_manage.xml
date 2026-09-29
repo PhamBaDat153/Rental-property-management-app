@@ -40,6 +40,16 @@
                 android:textColor="@color/white"
                 android:textSize="20sp"
                 android:contentDescription="Thêm người dùng" />
+            <Button
+                android:id="@+id/user_announcements"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginStart="8dp"
+                android:backgroundTint="@color/secondary"
+                android:minHeight="48dp"
+                android:minWidth="48dp"
+                android:text="Thông báo"
+                android:textColor="@color/white" />
         </LinearLayout>
 
         <EditText

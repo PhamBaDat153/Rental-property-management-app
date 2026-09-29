@@ -47,6 +47,7 @@ public class Announcement {
     public void prePersist() {
         announcement_id = Generators.timeBasedEpochGenerator().generate();
         created_at = LocalDateTime.now();
+        this.updated_at = LocalDateTime.now();
         if (status == null) status = AnnouncementStatus.SENTED;
     }
 

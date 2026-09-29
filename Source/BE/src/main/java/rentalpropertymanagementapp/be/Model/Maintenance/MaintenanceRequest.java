@@ -59,6 +59,7 @@ public class MaintenanceRequest {
     public void prePersist() {
         request_id = Generators.timeBasedEpochGenerator().generate();
         created_at = LocalDateTime.now();
+        this.updated_at = LocalDateTime.now();
         if (priority == null) priority = "NORMAL";
         if (status == null) status = MaintenanceStatus.PENDING;
     }

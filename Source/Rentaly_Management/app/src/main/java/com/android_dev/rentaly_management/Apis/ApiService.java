@@ -46,6 +46,10 @@ public interface ApiService {
 
     @PUT("be/user/manage/{id}")
     Call<UserTenant> updateManagedUser(@Path("id") String id, @Body UserUpdateRequest request);
+    @GET("be/announcements") Call<java.util.List<com.android_dev.rentaly_management.DTO.Announcement>> announcements();
+    @POST("be/announcements") Call<com.android_dev.rentaly_management.DTO.Announcement> createAnnouncement(@Body com.android_dev.rentaly_management.DTO.AnnouncementRequest request);
+    @PUT("be/announcements/{id}") Call<com.android_dev.rentaly_management.DTO.Announcement> updateAnnouncement(@Path("id") String id, @Body com.android_dev.rentaly_management.DTO.AnnouncementRequest request);
+    @DELETE("be/announcements/{id}") Call<Void> deleteAnnouncement(@Path("id") String id);
 
     @GET("be/locations") Call<java.util.List<Location>> locations();
     @GET("be/locations/{id}") Call<Location> location(@Path("id") String id);
@@ -95,4 +99,12 @@ public interface ApiService {
     @POST("be/contract-tenants") Call<com.android_dev.rentaly_management.DTO.ContractTenant> createContractTenant(@Body com.android_dev.rentaly_management.DTO.ContractTenantRequest request);
     @PUT("be/contract-tenants/{contractId}/{tenantId}") Call<com.android_dev.rentaly_management.DTO.ContractTenant> updateContractTenant(@Path("contractId") String contractId, @Path("tenantId") String tenantId, @Body com.android_dev.rentaly_management.DTO.ContractTenantRequest request);
     @DELETE("be/contract-tenants/{contractId}/{tenantId}") Call<Void> deleteContractTenant(@Path("contractId") String contractId, @Path("tenantId") String tenantId);
+    @GET("be/invoices") Call<java.util.List<com.android_dev.rentaly_management.DTO.Invoice>> invoices(@Query("contractId") String contractId, @Query("status") String status);
+    @POST("be/invoices") Call<com.android_dev.rentaly_management.DTO.Invoice> createInvoice(@Body com.android_dev.rentaly_management.DTO.InvoiceRequest request);
+    @PUT("be/invoices/{id}") Call<com.android_dev.rentaly_management.DTO.Invoice> updateInvoice(@Path("id") String id, @Body com.android_dev.rentaly_management.DTO.InvoiceRequest request);
+    @DELETE("be/invoices/{id}") Call<Void> deleteInvoice(@Path("id") String id);
+    @GET("be/maintenance") Call<java.util.List<com.android_dev.rentaly_management.DTO.Maintenance>> maintenance(@Query("roomId") String roomId, @Query("status") String status, @Query("priority") String priority);
+    @POST("be/maintenance") Call<com.android_dev.rentaly_management.DTO.Maintenance> createMaintenance(@Body com.android_dev.rentaly_management.DTO.MaintenanceRequest request);
+    @PUT("be/maintenance/{id}") Call<com.android_dev.rentaly_management.DTO.Maintenance> updateMaintenance(@Path("id") String id, @Body com.android_dev.rentaly_management.DTO.MaintenanceRequest request);
+    @DELETE("be/maintenance/{id}") Call<Void> deleteMaintenance(@Path("id") String id);
 }

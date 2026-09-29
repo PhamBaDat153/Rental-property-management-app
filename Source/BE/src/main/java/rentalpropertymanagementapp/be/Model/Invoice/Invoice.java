@@ -70,6 +70,7 @@ public class Invoice {
     public void prePersist() {
         invoice_id = Generators.timeBasedEpochGenerator().generate();
         created_at = LocalDateTime.now();
+        this.updated_at = LocalDateTime.now();
         issued_at = issued_at == null ? created_at : issued_at;
         if (status == null) status = InvoiceStatus.SENTED;
         if (subtotal == null) subtotal = BigDecimal.ZERO;
