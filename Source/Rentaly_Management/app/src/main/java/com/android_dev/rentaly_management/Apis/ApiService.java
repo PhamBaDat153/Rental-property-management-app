@@ -22,12 +22,8 @@ import retrofit2.http.Part;
 import okhttp3.RequestBody;
 
 public interface ApiService {
-    @GET("be/user/login")
-    Call<User> login(
-            @Query("username") String username,
-            @Query("password") String password,
-            @Query("loginType") String loginType
-    );
+    @POST("be/user/login")
+    Call<com.android_dev.rentaly_management.DTO.LoginResponse> login(@Body com.android_dev.rentaly_management.DTO.LoginRequest request);
 
     @GET("be/user/manage")
     Call<java.util.List<UserTenant>> managedUsers(@Query("search") String search);

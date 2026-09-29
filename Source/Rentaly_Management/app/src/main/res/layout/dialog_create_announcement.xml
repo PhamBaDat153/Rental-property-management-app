@@ -1,1 +1,133 @@
-<?xml version="1.0" encoding="utf-8"?><ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp"><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Chọn nhiều người nhận trước khi gửi thông báo." android:textColor="@color/secondary"/><EditText android:id="@+id/announcement_form_content" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:gravity="top" android:hint="Nội dung thông báo *" android:minHeight="90dp"/><EditText android:id="@+id/announcement_form_type" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="Loại thông báo" android:minHeight="48dp"/><TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="Người nhận *" android:textColor="@color/dark_navy" android:textStyle="bold"/><ListView android:id="@+id/announcement_form_recipients" android:layout_width="match_parent" android:layout_height="220dp" android:choiceMode="multipleChoice"/><CheckBox android:id="@+id/announcement_form_send" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Gửi ngay"/></LinearLayout></ScrollView>
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="8dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Chọn người nhận trước khi gửi thông báo."
+            android:textColor="@color/secondary"
+            android:textSize="14sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Nội dung thông báo"
+            android:textColor="@color/dark_navy"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/announcement_form_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/edittext_background"
+            android:gravity="top"
+            android:hint="Nhập nội dung thông báo *"
+            android:inputType="textCapSentences|textMultiLine"
+            android:minHeight="90dp"
+            android:padding="12dp"
+            android:textColor="@color/dark_navy"
+            android:textColorHint="@color/secondary" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Loại thông báo"
+            android:textColor="@color/dark_navy"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/announcement_form_type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/edittext_background"
+            android:hint="Nhập loại thông báo nếu có"
+            android:inputType="textCapSentences"
+            android:minHeight="48dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:singleLine="true"
+            android:textColor="@color/dark_navy"
+            android:textColorHint="@color/secondary" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Người nhận *"
+            android:textColor="@color/dark_navy"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/announcement_form_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/edittext_background"
+            android:hint="Tìm theo tên người thuê"
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:singleLine="true"
+            android:textColor="@color/dark_navy"
+            android:textColorHint="@color/secondary" />
+
+        <Spinner
+            android:id="@+id/announcement_form_room"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/announcement_form_recipient_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Đang hiển thị 0 người nhận"
+            android:textColor="@color/secondary"
+            android:textSize="14sp" />
+
+        <CheckBox
+            android:id="@+id/announcement_form_select_all"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Chọn tất cả đang hiển thị"
+            android:textColor="@color/dark_navy" />
+
+        <ListView
+            android:id="@+id/announcement_form_recipients"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:layout_marginTop="6dp"
+            android:choiceMode="multipleChoice"
+            android:divider="@color/background"
+            android:dividerHeight="1dp" />
+
+        <CheckBox
+            android:id="@+id/announcement_form_send"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:text="Gửi ngay"
+            android:textColor="@color/dark_navy" />
+    </LinearLayout>
+</ScrollView>

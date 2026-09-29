@@ -12,15 +12,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
+import rentalpropertymanagementapp.be.DTO.LoginRequest;
+import rentalpropertymanagementapp.be.DTO.LoginResponse;
 import rentalpropertymanagementapp.be.DTO.UserCreateRequest;
 import rentalpropertymanagementapp.be.DTO.UserUpdateRequest;
 import rentalpropertymanagementapp.be.DTO.UserTenantResponse;
-import rentalpropertymanagementapp.be.Model.Enum.LoginType;
-import rentalpropertymanagementapp.be.Model.User.User;
 import rentalpropertymanagementapp.be.Service.UserService;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -62,12 +61,11 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUserByID(id, request));
     }
 
-    @GetMapping("/login")
-    public ResponseEntity<User> Login(@RequestParam(required = true) String username,
-                                      @RequestParam(required = true) String password,
-                                      @RequestParam(required = true) LoginType loginType) {
-        Optional<User> user = userService.authenticate(username, password, loginType);
-        return user.map(ResponseEntity::ok)
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        return userService.authenticate(request.username(), request.password(), request.loginType())
+                .map(LoginResponse::from)
+                .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 }

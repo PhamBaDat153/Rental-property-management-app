@@ -203,7 +203,7 @@ public class PropertiesFragment extends Fragment {
     }
 
     private void showLocationForm(Location current) {
-        View form = getLayoutInflater().inflate(R.layout.form_location, null);
+        View form = getLayoutInflater().inflate(R.layout.dialog_create_location, null);
         EditText code = form.findViewById(R.id.location_code);
         EditText address = form.findViewById(R.id.location_address);
         EditText description = form.findViewById(R.id.location_description);
@@ -242,7 +242,7 @@ public class PropertiesFragment extends Fragment {
     private void showRoomForm(Room current) {
         if (locations.isEmpty()) { showError("Cần có địa điểm trước khi thêm phòng"); return; }
         selectedImages.clear();
-        View form = getLayoutInflater().inflate(R.layout.form_room, null);
+        View form = getLayoutInflater().inflate(R.layout.dialog_create_room, null);
         Spinner location = form.findViewById(R.id.room_location); EditText code = form.findViewById(R.id.room_code); EditText name = form.findViewById(R.id.room_name);
         EditText floor = form.findViewById(R.id.room_floor); EditText area = form.findViewById(R.id.room_area); EditText occupants = form.findViewById(R.id.room_occupants); EditText rent = form.findViewById(R.id.room_rent); EditText description = form.findViewById(R.id.room_description); RadioGroup status = form.findViewById(R.id.room_status);
         code.setText(current == null ? "" : current.room_code); name.setText(current == null ? "" : current.room_name); floor.setText(current == null ? "" : value(current.floor)); area.setText(current == null ? "" : value(current.area_m2)); occupants.setText(current == null ? "1" : value(current.max_occupants)); rent.setText(current == null ? "0" : value(current.rent_price)); description.setText(current == null ? "" : current.description);

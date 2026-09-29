@@ -89,7 +89,7 @@ public class ContractsFragment extends Fragment {
 
     private void showForm(RentalContract current) {
         if (rooms.isEmpty()) { toast("Chưa tải được danh sách phòng để chọn"); return; }
-        selectedPdf = null; View form = getLayoutInflater().inflate(R.layout.form_rental_contract, null);
+        selectedPdf = null; View form = getLayoutInflater().inflate(R.layout.dialog_create_rental_contract, null);
         Spinner room = form.findViewById(R.id.contract_room); EditText start=form.findViewById(R.id.contract_start), end=form.findViewById(R.id.contract_end), rent=form.findViewById(R.id.contract_rent), deposit=form.findViewById(R.id.contract_deposit), billing=form.findViewById(R.id.contract_billing_day), due=form.findViewById(R.id.contract_due_days), terms=form.findViewById(R.id.contract_terms); RadioGroup status=form.findViewById(R.id.contract_status); TextView pdf=form.findViewById(R.id.contract_pdf_status);
         List<String> labels=new ArrayList<>(); for(Room r:rooms) labels.add(value(r.room_code)); room.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, labels));
         start.setText(current==null?"":value(current.start_date)); end.setText(current==null?"":value(current.end_date)); rent.setText(current==null?"":value(current.rent_amount)); deposit.setText(current==null?"":value(current.deposit_required)); billing.setText(current==null?"":value(current.billing_day)); due.setText(current==null?"0":value(current.payment_due_days)); terms.setText(current==null?"":value(current.terms)); ((RadioButton)form.findViewById("ACTIVE".equals(current==null?"INACTIVE":current.status)?R.id.contract_status_active:R.id.contract_status_inactive)).setChecked(true);

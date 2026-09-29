@@ -65,11 +65,11 @@ public class ContractDetailFragment extends Fragment {
         view.findViewById(R.id.contract_detail_end).setOnClickListener(v -> chooseDate(R.id.contract_detail_end));
         view.findViewById(R.id.contract_detail_signed).setOnClickListener(v -> chooseDate(R.id.contract_detail_signed));
         view.findViewById(R.id.contract_detail_terminated).setOnClickListener(v -> chooseDate(R.id.contract_detail_terminated));
-        view.findViewById(R.id.contract_tenant_add).setOnClickListener(v -> showNewTenantForm());
+        view.findViewById(R.id.contract_tenant_add).setOnClickListener(v -> showTenantFormXml(null));
         load(requireArguments().getString("contract_id"));
         return view;
     }
-    private void showNewTenantForm(){
+     private void unusedLegacyTenantForm(){
         List<UserTenant> available=new ArrayList<>();
         for(UserTenant t:tenants){boolean used=false;for(ContractTenant a:assignments)if(a.tenant_id!=null&&a.tenant_id.equals(t.getTenant_id()))used=true;if(!used&&t.getTenant_id()!=null)available.add(t);}
         if(available.isEmpty()){toast("Không còn người thuê phù hợp để thêm");return;}
@@ -96,7 +96,7 @@ public class ContractDetailFragment extends Fragment {
     private void tenantError(){if(view==null)return;view.findViewById(R.id.contract_tenant_loading).setVisibility(View.GONE);TextView state=view.findViewById(R.id.contract_tenant_state);state.setVisibility(View.VISIBLE);state.setText("Không thể tải danh sách người thuê");}
     private UserTenant tenant(UUID id){for(UserTenant t:tenants)if(id!=null&&id.equals(t.getTenant_id()))return t;return null;}
     private String tenantName(UUID id){UserTenant t=tenant(id);return t==null?"Chưa cập nhật người thuê":t.displayName();}
-    private void renderTenants(){LinearLayout list=view.findViewById(R.id.contract_tenant_list);list.removeAllViews();TextView state=view.findViewById(R.id.contract_tenant_state);state.setVisibility(assignments.isEmpty()?View.VISIBLE:View.GONE);state.setText("Chưa có người thuê trong hợp đồng");for(ContractTenant a:assignments){LinearLayout row=new LinearLayout(requireContext());row.setOrientation(LinearLayout.VERTICAL);row.setPadding(12,12,12,12);row.setBackgroundResource(R.drawable.resource_item_background);TextView text=new TextView(requireContext());text.setText(tenantName(a.tenant_id)+"\n"+(Boolean.TRUE.equals(a.is_representative)?"Người đại diện":"Người thuê")+"\nVào ở: "+value(a.move_in_date)+" | Rời đi: "+value(a.move_out_date)+"\nTrạng thái: "+status(a.status));text.setTextColor(getResources().getColor(R.color.dark_navy));row.addView(text);LinearLayout actions=new LinearLayout(requireContext());Button edit=new Button(requireContext());edit.setText("Sửa");edit.setOnClickListener(v->showTenantForm(a));Button delete=new Button(requireContext());delete.setText("Xóa");delete.setOnClickListener(v->confirmTenantDelete(a));actions.addView(edit,new LinearLayout.LayoutParams(0,48,1));actions.addView(delete,new LinearLayout.LayoutParams(0,48,1));row.addView(actions);LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(-1,-2);params.setMargins(0,0,0,8);list.addView(row,params);}}
+     private void renderTenants(){LinearLayout list=view.findViewById(R.id.contract_tenant_list);list.removeAllViews();TextView state=view.findViewById(R.id.contract_tenant_state);state.setVisibility(assignments.isEmpty()?View.VISIBLE:View.GONE);state.setText("Chưa có người thuê trong hợp đồng");for(ContractTenant a:assignments){LinearLayout row=new LinearLayout(requireContext());row.setOrientation(LinearLayout.VERTICAL);row.setPadding(12,12,12,12);row.setBackgroundResource(R.drawable.resource_item_background);TextView text=new TextView(requireContext());text.setText(tenantName(a.tenant_id)+"\n"+(Boolean.TRUE.equals(a.is_representative)?"Người đại diện":"Người thuê")+"\nVào ở: "+value(a.move_in_date)+" | Rời đi: "+value(a.move_out_date)+"\nTrạng thái: "+status(a.status));text.setTextColor(getResources().getColor(R.color.dark_navy));row.addView(text);LinearLayout actions=new LinearLayout(requireContext());Button edit=new Button(requireContext());edit.setText("Sửa");edit.setOnClickListener(v->showTenantFormXml(a));Button delete=new Button(requireContext());delete.setText("Xóa");delete.setOnClickListener(v->confirmTenantDelete(a));actions.addView(edit,new LinearLayout.LayoutParams(0,48,1));actions.addView(delete,new LinearLayout.LayoutParams(0,48,1));row.addView(actions);LinearLayout.LayoutParams params=new LinearLayout.LayoutParams(-1,-2);params.setMargins(0,0,0,8);list.addView(row,params);}}
     private void showTenantForm(ContractTenant current){if(contract==null)return;List<UserTenant> available=new ArrayList<>();for(UserTenant t:tenants){boolean used=false;for(ContractTenant a:assignments)if(a.tenant_id!=null&&a.tenant_id.equals(t.getTenant_id())&&(current==null||!a.tenant_id.equals(current.tenant_id)))used=true;if(!used&&t.getTenant_id()!=null)available.add(t);}if(current==null&&available.isEmpty()){toast("Không còn người thuê phù hợp để thêm");return;}LinearLayout form=new LinearLayout(requireContext());form.setPadding(16,8,16,8);form.setOrientation(LinearLayout.VERTICAL);Spinner tenantSpinner=new Spinner(requireContext());List<String> labels=new ArrayList<>();for(UserTenant t:available)labels.add(t.displayName());if(current!=null){UserTenant selected=tenant(current.tenant_id);if(selected!=null){available.add(0,selected);labels.add(0,selected.displayName());}}tenantSpinner.setAdapter(new ArrayAdapter<>(requireContext(),android.R.layout.simple_spinner_dropdown_item,labels));tenantSpinner.setEnabled(current==null);form.addView(tenantSpinner);EditText moveIn=new EditText(requireContext());moveIn.setHint("Ngày vào ở yyyy-MM-dd");moveIn.setInputType(16);moveIn.setText(current==null?"":value(current.move_in_date));form.addView(moveIn);EditText moveOut=new EditText(requireContext());moveOut.setHint("Ngày rời đi yyyy-MM-dd");moveOut.setInputType(16);moveOut.setText(current==null?"":value(current.move_out_date));form.addView(moveOut);RadioGroup rep=new RadioGroup(requireContext());RadioButton yes=new RadioButton(requireContext());yes.setId(View.generateViewId());yes.setText("Người đại diện");RadioButton no=new RadioButton(requireContext());no.setId(View.generateViewId());no.setText("Không đại diện");rep.addView(yes);rep.addView(no);(Boolean.TRUE.equals(current==null?false:current.is_representative)?yes:no).setChecked(true);form.addView(rep);AlertDialog dialog=new AlertDialog.Builder(requireContext()).setTitle(current==null?"Thêm người thuê":"Sửa người thuê").setView(form).setNegativeButton("Hủy",null).setPositiveButton("Lưu",null).create();dialog.setOnShowListener(x->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{try{LocalDate in=moveIn.getText().toString().trim().isEmpty()?null:LocalDate.parse(moveIn.getText().toString().trim());LocalDate out=moveOut.getText().toString().trim().isEmpty()?null:LocalDate.parse(moveOut.getText().toString().trim());if(in!=null&&out!=null&&out.isBefore(in))throw new IllegalArgumentException();UUID tenantId=current==null?available.get(tenantSpinner.getSelectedItemPosition()).getTenant_id():current.tenant_id;ContractTenantRequest req=new ContractTenantRequest(contract.contract_id,tenantId,rep.getCheckedRadioButtonId()==yes.getId(),in,out);Call<ContractTenant> call=current==null?ApiClient.api.createContractTenant(req):ApiClient.api.updateContractTenant(contract.contract_id.toString(),tenantId.toString(),req);call.enqueue(new Callback<ContractTenant>(){public void onResponse(Call<ContractTenant> c,Response<ContractTenant> r){if(r.isSuccessful()){dialog.dismiss();toast("Đã lưu người thuê");loadTenants();}else toast(r.code()==409?"Người thuê đã có trong hợp đồng":"Không thể lưu người thuê");}public void onFailure(Call<ContractTenant> c,Throwable t){toast("Không thể kết nối đến máy chủ");}});}catch(Exception e){toast("Vui lòng kiểm tra ngày vào ở và ngày rời đi");}}));dialog.show();}
     private void confirmTenantDelete(ContractTenant a){new AlertDialog.Builder(requireContext()).setTitle("Xóa người thuê?").setMessage("Người thuê sẽ bị gỡ khỏi hợp đồng này.").setNegativeButton("Hủy",null).setPositiveButton("Xóa",(d,w)->ApiClient.api.deleteContractTenant(a.contract_id.toString(),a.tenant_id.toString()).enqueue(new Callback<Void>(){public void onResponse(Call<Void> c,Response<Void> r){if(r.isSuccessful()){toast("Đã xóa người thuê");loadTenants();}else toast("Không thể xóa người thuê");}public void onFailure(Call<Void> c,Throwable t){toast("Không thể kết nối đến máy chủ");}})).show();}
     private void editContract() {
@@ -197,6 +197,63 @@ public class ContractDetailFragment extends Fragment {
     private void chooseDocument(){Intent intent=new Intent(Intent.ACTION_OPEN_DOCUMENT);intent.setType("*/*");intent.putExtra(Intent.EXTRA_MIME_TYPES,new String[]{"application/pdf","application/vnd.openxmlformats-officedocument.wordprocessingml.document"});intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE,false);intent.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(intent,DOCUMENT_PICKER);}
     @Override public void onActivityResult(int requestCode,int resultCode,Intent data){super.onActivityResult(requestCode,resultCode,data);if(requestCode==DOCUMENT_PICKER&&resultCode==Activity.RESULT_OK&&data!=null&&data.getData()!=null){selectedDocument=data.getData();toast("Đã chọn tài liệu mới");}}
     private okhttp3.MultipartBody.Part documentPart() throws Exception {if(selectedDocument==null)return null;String type=requireContext().getContentResolver().getType(selectedDocument);String name=selectedDocument.getLastPathSegment()==null?"":selectedDocument.getLastPathSegment().toLowerCase(java.util.Locale.ROOT);boolean pdf="application/pdf".equals(type)||name.endsWith(".pdf");boolean docx="application/vnd.openxmlformats-officedocument.wordprocessingml.document".equals(type)||name.endsWith(".docx");if(!pdf&&!docx)throw new IllegalArgumentException();java.io.InputStream input=requireContext().getContentResolver().openInputStream(selectedDocument);java.io.ByteArrayOutputStream output=new java.io.ByteArrayOutputStream();byte[] buffer=new byte[8192];int count;while(input!=null&&(count=input.read(buffer))!=-1)output.write(buffer,0,count);if(input!=null)input.close();if(output.size()==0)throw new IllegalArgumentException();String mime=pdf?"application/pdf":"application/vnd.openxmlformats-officedocument.wordprocessingml.document";return okhttp3.MultipartBody.Part.createFormData("document","contract."+(pdf?"pdf":"docx"),okhttp3.RequestBody.create(output.toByteArray(),okhttp3.MediaType.parse(mime)));}
-    private void confirmDelete(){if(contract==null)return;new AlertDialog.Builder(requireContext()).setTitle("Xóa hợp đồng?").setMessage("Thao tác này không thể hoàn tác.").setNegativeButton("Hủy",null).setPositiveButton("Xóa hợp đồng",(d,w)->ApiClient.api.deleteContract(contract.contract_id.toString()).enqueue(new Callback<Void>(){public void onResponse(Call<Void> c,Response<Void> r){if(r.isSuccessful())NavHostFragment.findNavController(ContractDetailFragment.this).navigateUp();else toast(r.code()==409?"Không thể xóa vì hợp đồng đang có người thuê hoặc hóa đơn":"Không thể xóa hợp đồng");}public void onFailure(Call<Void> c,Throwable t){toast("Không thể kết nối đến máy chủ");}})).show();}
+     private void showTenantFormXml(ContractTenant current) {
+         if (contract == null) return;
+         List<UserTenant> available = new ArrayList<>();
+         for (UserTenant tenant : tenants) {
+             boolean used = false;
+             for (ContractTenant assignment : assignments) {
+                 if (assignment.tenant_id != null && assignment.tenant_id.equals(tenant.getTenant_id())
+                         && (current == null || !assignment.tenant_id.equals(current.tenant_id))) used = true;
+             }
+             if (!used && tenant.getTenant_id() != null) available.add(tenant);
+         }
+         if (current == null && available.isEmpty()) { toast("Không còn người thuê phù hợp để thêm"); return; }
+         View form = getLayoutInflater().inflate(R.layout.dialog_create_contract_tenant, null);
+         Spinner spinner = form.findViewById(R.id.contract_tenant_form_tenant);
+         EditText moveIn = form.findViewById(R.id.contract_tenant_form_move_in);
+         EditText moveOut = form.findViewById(R.id.contract_tenant_form_move_out);
+         RadioButton yes = form.findViewById(R.id.contract_tenant_form_yes);
+         RadioButton no = form.findViewById(R.id.contract_tenant_form_no);
+         List<String> labels = new ArrayList<>();
+         for (UserTenant tenant : available) labels.add(tenant.displayName());
+         if (current != null) {
+             UserTenant selected = tenant(current.tenant_id);
+             if (selected != null) { available.add(0, selected); labels.add(0, selected.displayName()); }
+         }
+         spinner.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, labels));
+         spinner.setEnabled(current == null);
+         moveIn.setText(current == null ? "" : value(current.move_in_date));
+         moveOut.setText(current == null ? "" : value(current.move_out_date));
+         moveIn.setOnClickListener(v -> chooseTenantDate(moveIn));
+         moveOut.setOnClickListener(v -> chooseTenantDate(moveOut));
+         (Boolean.TRUE.equals(current == null ? false : current.is_representative) ? yes : no).setChecked(true);
+         AlertDialog dialog = new AlertDialog.Builder(requireContext()).setTitle(current == null ? "Thêm người thuê" : "Sửa người thuê")
+                 .setView(form).setNegativeButton("Hủy", null).setPositiveButton(current == null ? "Thêm" : "Lưu", null).create();
+         dialog.setOnShowListener(x -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+             try {
+                 String out = moveOut.getText().toString().trim();
+                 String inText = moveIn.getText().toString().trim();
+                 LocalDate in = inText.isEmpty() ? null : LocalDate.parse(inText);
+                 LocalDate outDate = out.isEmpty() ? null : LocalDate.parse(out);
+                 if (in == null || (outDate != null && outDate.isBefore(in))) throw new IllegalArgumentException();
+                 ContractTenantRequest request = new ContractTenantRequest(contract.contract_id,
+                         available.get(spinner.getSelectedItemPosition()).getTenant_id(), yes.isChecked(), in, outDate);
+                 dialog.dismiss();
+                 if (current == null) ApiClient.api.createContractTenant(request).enqueue(tenantMutationCallback("Đã thêm người thuê"));
+                 else ApiClient.api.updateContractTenant(current.contract_id.toString(), current.tenant_id.toString(), request).enqueue(tenantMutationCallback("Đã cập nhật người thuê"));
+             } catch (Exception e) { toast("Vui lòng chọn ngày vào ở và ngày rời đi hợp lệ"); }
+         }));
+         dialog.show();
+     }
+
+     private Callback<ContractTenant> tenantMutationCallback(String success) {
+         return new Callback<ContractTenant>() {
+             public void onResponse(Call<ContractTenant> c, Response<ContractTenant> r) { if (r.isSuccessful()) { toast(success); loadTenants(); } else toast("Không thể lưu người thuê"); }
+             public void onFailure(Call<ContractTenant> c, Throwable t) { toast("Không thể kết nối đến máy chủ"); }
+         };
+     }
+
+     private void confirmDelete(){if(contract==null)return;new AlertDialog.Builder(requireContext()).setTitle("Xóa hợp đồng?").setMessage("Thao tác này không thể hoàn tác.").setNegativeButton("Hủy",null).setPositiveButton("Xóa hợp đồng",(d,w)->ApiClient.api.deleteContract(contract.contract_id.toString()).enqueue(new Callback<Void>(){public void onResponse(Call<Void> c,Response<Void> r){if(r.isSuccessful())NavHostFragment.findNavController(ContractDetailFragment.this).navigateUp();else toast(r.code()==409?"Không thể xóa vì hợp đồng đang có người thuê hoặc hóa đơn":"Không thể xóa hợp đồng");}public void onFailure(Call<Void> c,Throwable t){toast("Không thể kết nối đến máy chủ");}})).show();}
      private String dateValue(Object o){String text=value(o);return text.length()>10?text.substring(0,10):text;} private String value(Object o){return o==null||o.toString().trim().isEmpty()?"Chưa cập nhật":o.toString();} private String status(String s){return "ACTIVE".equalsIgnoreCase(s)?"Đang hoạt động":"Không hoạt động";} private void toast(String s){Toast.makeText(requireContext(),s,Toast.LENGTH_LONG).show();}
 }

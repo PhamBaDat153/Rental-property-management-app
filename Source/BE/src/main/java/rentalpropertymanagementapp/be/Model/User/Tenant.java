@@ -1,6 +1,7 @@
 package rentalpropertymanagementapp.be.Model.User;
 
 import com.fasterxml.uuid.Generators;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import rentalpropertymanagementapp.be.Model.Enum.IdentityType;
@@ -79,6 +80,7 @@ public class Tenant {
     private LocalDateTime updated_at;
 
     @OneToOne(mappedBy = "tenant", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH}, orphanRemoval = true)
+    @JsonIgnore
     private User user;
 
     @PrePersist

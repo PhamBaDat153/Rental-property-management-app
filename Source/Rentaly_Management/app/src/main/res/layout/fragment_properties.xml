@@ -38,7 +38,7 @@
     </LinearLayout>
     <EditText android:id="@+id/resource_search" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp"
         android:minHeight="48dp" android:singleLine="true" android:hint="Tìm theo mã hoặc địa chỉ" android:inputType="text"
-        android:background="@drawable/user_detail_card" android:paddingStart="16dp" android:paddingEnd="16dp" />
+         android:background="@drawable/user_detail_card" android:paddingStart="12dp" android:paddingEnd="12dp" android:textColor="@color/dark_navy" android:textColorHint="@color/secondary" />
     <ProgressBar android:id="@+id/resource_loading" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:visibility="gone" />
     <TextView android:id="@+id/resource_empty" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="20dp" android:gravity="center" android:textColor="@color/secondary" android:visibility="gone" />
     <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="12dp" android:background="@drawable/user_detail_card" android:orientation="vertical" android:padding="16dp">

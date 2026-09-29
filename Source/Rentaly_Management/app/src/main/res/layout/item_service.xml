@@ -4,5 +4,5 @@
         <TextView android:id="@+id/service_item_name" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/dark_navy" android:textSize="17sp" android:textStyle="bold" />
         <TextView android:id="@+id/service_item_status" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/secondary" android:textSize="13sp" />
     </LinearLayout>
-    <TextView android:id="@+id/service_item_details" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:textColor="@color/secondary" android:textSize="13sp" />
+    <TextView android:id="@+id/service_item_details" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/secondary" android:textSize="13sp" />
 </LinearLayout>

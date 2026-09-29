@@ -13,7 +13,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.android_dev.rentaly_management.Apis.ApiClient;
-import com.android_dev.rentaly_management.DTO.User;
+import com.android_dev.rentaly_management.DTO.LoginRequest;
+import com.android_dev.rentaly_management.DTO.LoginResponse;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -59,14 +60,14 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         setLoginEnabled(false);
-        ApiClient.api.login(username, password, "Manage")
-                .enqueue(new Callback<User>() {
+        ApiClient.api.login(new LoginRequest(username, password, "Manage"))
+                .enqueue(new Callback<LoginResponse>() {
                     @Override
-                    public void onResponse(Call<User> call, Response<User> response) {
+                    public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                         setLoginEnabled(true);
 
                         if (response.isSuccessful() && response.body() != null) {
-                            User loggedUser = response.body();
+                            LoginResponse loggedUser = response.body();
 
                             Intent intent = new Intent(
                                     LoginActivity.this,
@@ -88,7 +89,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onFailure(Call<User> call, Throwable throwable) {
+                    public void onFailure(Call<LoginResponse> call, Throwable throwable) {
                         setLoginEnabled(true);
 
                         Toast.makeText(

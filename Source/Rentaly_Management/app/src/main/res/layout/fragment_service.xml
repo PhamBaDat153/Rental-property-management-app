@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="16dp" android:background="@color/background">
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="QUẢN LÝ TIỆN ÍCH" android:textColor="@color/dark_navy" android:textSize="24sp" android:textStyle="bold" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Quản lý tiện ích" android:textColor="@color/dark_navy" android:textSize="24sp" android:textStyle="bold" />
     <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="Chọn chức năng cần quản lý" android:textColor="@color/secondary" />
 
-    <Button android:id="@+id/service_open_invoice" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="24dp" android:backgroundTint="@color/primary" android:text="Hóa đơn" android:textColor="@color/white" />
-    <Button android:id="@+id/service_open_maintenance" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="12dp" android:backgroundTint="@color/secondary" android:text="Bảo trì" android:textColor="@color/white" />
-    <Button android:id="@+id/service_open_catalog" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="12dp" android:backgroundTint="@color/secondary" android:text="Danh mục dịch vụ" android:textColor="@color/white" />
+    <Button android:id="@+id/service_open_invoice" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="24dp" android:backgroundTint="@color/primary" android:minHeight="48dp" android:text="Hóa đơn" android:textColor="@color/white" />
+    <Button android:id="@+id/service_open_maintenance" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="12dp" android:backgroundTint="@color/secondary" android:minHeight="48dp" android:text="Bảo trì" android:textColor="@color/white" />
+    <Button android:id="@+id/service_open_catalog" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="12dp" android:backgroundTint="@color/secondary" android:minHeight="48dp" android:text="Danh mục dịch vụ" android:textColor="@color/white" />
 </LinearLayout>
