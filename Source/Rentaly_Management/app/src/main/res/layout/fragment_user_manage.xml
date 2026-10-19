@@ -36,7 +36,7 @@
                 android:backgroundTint="@color/primary"
                 android:minHeight="48dp"
                 android:minWidth="48dp"
-                android:text="@string/plus_char"
+                android:text="Thêm"
                 android:textColor="@color/white"
                 android:textSize="20sp"
                 android:contentDescription="Thêm người dùng" />

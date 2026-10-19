@@ -26,137 +26,533 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class UserDetailFragment extends Fragment {
-    private UserTenant user;
-    private RadioGroup role;
-    private RadioGroup status;
+
+    // -------------------------------------------------------------------------
+    // Constants
+    // -------------------------------------------------------------------------
+
+    private static final String ARG_USER_ID = "user_id";
+
+    private static final String ROLE_TENANT = "TENANT";
+    private static final String ROLE_LANDLORD = "LANDLORD";
+
+    private static final String STATUS_ACTIVE = "ACTIVE";
+    private static final String STATUS_INACTIVE = "INACTIVE";
+
+    private static final String GENDER_MALE = "MALE";
+    private static final String GENDER_FEMALE = "FEMALE";
+    private static final String GENDER_OTHER = "OTHER";
+
+    private static final String MESSAGE_CONNECTION_FAILED =
+            "Không thể kết nối đến máy chủ";
+
+    // -------------------------------------------------------------------------
+    // Views
+    // -------------------------------------------------------------------------
+
+    private View rootView;
+
+    private RadioGroup roleGroup;
+    private RadioGroup statusGroup;
+
+    // -------------------------------------------------------------------------
+    // Fragment lifecycle
+    // -------------------------------------------------------------------------
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_user_detail, container, false);
-        role = view.findViewById(R.id.user_detail_role);
-        status = view.findViewById(R.id.user_detail_status);
-        String userId = requireArguments().getString("user_id");
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState
+    ) {
+        rootView = inflater.inflate(
+                R.layout.fragment_user_detail,
+                container,
+                false
+        );
 
-        view.findViewById(R.id.user_detail_back).setOnClickListener(v -> goBack());
-        view.findViewById(R.id.user_detail_update).setOnClickListener(v -> update(userId));
-        view.findViewById(R.id.user_detail_delete).setOnClickListener(v -> delete(userId));
-        load(userId, view);
-        return view;
+        bindViews();
+        setupClickListeners();
+
+        String userId = requireArguments().getString(ARG_USER_ID);
+
+        if (isBlank(userId)) {
+            showMessage("Không tìm thấy mã người dùng");
+            return rootView;
+        }
+
+        loadUser(userId);
+
+        return rootView;
     }
 
-    private void load(String id, View view) {
-        ApiClient.api.managedUser(id).enqueue(new Callback<UserTenant>() {
-            @Override
-            public void onResponse(Call<UserTenant> call, Response<UserTenant> response) {
-                if (!response.isSuccessful() || response.body() == null) {
-                    showError("Không thể tải thông tin người dùng");
-                    return;
+    private void bindViews() {
+        roleGroup = rootView.findViewById(
+                R.id.user_detail_role
+        );
+
+        statusGroup = rootView.findViewById(
+                R.id.user_detail_status
+        );
+    }
+
+    // -------------------------------------------------------------------------
+    // Click listeners
+    // -------------------------------------------------------------------------
+
+    private void setupClickListeners() {
+        rootView.findViewById(R.id.user_detail_back)
+                .setOnClickListener(
+                        view -> goBack()
+                );
+
+        rootView.findViewById(R.id.user_detail_update)
+                .setOnClickListener(
+                        view -> updateUser()
+                );
+
+        rootView.findViewById(R.id.user_detail_delete)
+                .setOnClickListener(
+                        view -> deleteUser()
+                );
+    }
+
+    // -------------------------------------------------------------------------
+    // Load user
+    // -------------------------------------------------------------------------
+
+    private void loadUser(@NonNull String userId) {
+        ApiClient.api.managedUser(userId).enqueue(
+                new Callback<UserTenant>() {
+
+                    @Override
+                    public void onResponse(
+                            @NonNull Call<UserTenant> call,
+                            @NonNull Response<UserTenant> response
+                    ) {
+                        if (!isAdded() || rootView == null) {
+                            return;
+                        }
+
+                        if (!response.isSuccessful()
+                                || response.body() == null) {
+                            showMessage(
+                                    "Không thể tải thông tin người dùng"
+                            );
+                            return;
+                        }
+
+                        displayUser(response.body());
+                    }
+
+                    @Override
+                    public void onFailure(
+                            @NonNull Call<UserTenant> call,
+                            @NonNull Throwable throwable
+                    ) {
+                        if (!isAdded() || rootView == null) {
+                            return;
+                        }
+
+                        showMessage(MESSAGE_CONNECTION_FAILED);
+                    }
                 }
-                user = response.body();
-                setText(view, R.id.user_full_name, "Họ và tên: " + value(user.getFull_name()));
-                setText(view, R.id.user_date_of_birth, "Ngày sinh: " + value(user.getDate_of_birth()));
-                setText(view, R.id.user_phone, "Số điện thoại: " + value(user.getPhone()));
-                setText(view, R.id.user_email, "Email: " + value(user.getEmail()));
-                setText(view, R.id.user_address, "Địa chỉ: " + value(user.getPermanent_address()));
-                setText(view, R.id.user_identity_type, "Loại giấy tờ: " + value(user.getIdentityType()));
-                setText(view, R.id.user_identity_number, "Số giấy tờ: " + value(user.getIdentity_number()));
-                setText(view, R.id.user_identity_issued_date, "Ngày cấp: " + value(user.getIdentity_issued_date()));
-                setText(view, R.id.user_identity_issued_place, "Nơi cấp: " + value(user.getIdentity_issued_place()));
-                setText(view, R.id.user_emergency_name, "Họ tên: " + value(user.getEmergency_contact_name()));
-                setText(view, R.id.user_emergency_phone, "Số điện thoại: " + value(user.getEmergency_contact_phone()));
-                setText(view, R.id.user_note, "Ghi chú: " + value(user.getAdditional_note()));
-                String gender = user.getGender();
-                int genderId = "MALE".equalsIgnoreCase(gender) ? R.id.gender_male
-                        : "FEMALE".equalsIgnoreCase(gender) ? R.id.gender_female : R.id.gender_other;
-                ((RadioButton) view.findViewById(genderId)).setChecked(true);
-                ((RadioButton) view.findViewById("TENANT".equalsIgnoreCase(user.getRole())
-                        ? R.id.role_tenant : R.id.role_landlord)).setChecked(true);
-                ((RadioButton) view.findViewById("ACTIVE".equalsIgnoreCase(user.getStatus())
-                        ? R.id.status_active : R.id.status_inactive)).setChecked(true);
-            }
-
-            @Override
-            public void onFailure(Call<UserTenant> call, Throwable t) {
-                showError("Không thể kết nối đến máy chủ");
-            }
-        });
+        );
     }
 
-    private void update(String id) {
-        int roleId = role.getCheckedRadioButtonId();
-        int statusId = status.getCheckedRadioButtonId();
-        if (roleId == -1 || statusId == -1) {
-            showError("Vui lòng chọn role và trạng thái");
+    // -------------------------------------------------------------------------
+    // Display user information
+    // -------------------------------------------------------------------------
+
+    private void displayUser(@NonNull UserTenant user) {
+        displayPersonalInformation(user);
+        displayIdentityInformation(user);
+        displayEmergencyContact(user);
+        displayAdditionalInformation(user);
+        selectUserOptions(user);
+    }
+
+    private void displayPersonalInformation(
+            @NonNull UserTenant user
+    ) {
+        setText(
+                R.id.user_full_name,
+                "Họ và tên: " + value(user.getFull_name())
+        );
+
+        setText(
+                R.id.user_date_of_birth,
+                "Ngày sinh: " + value(user.getDate_of_birth())
+        );
+
+        setText(
+                R.id.user_phone,
+                "Số điện thoại: " + value(user.getPhone())
+        );
+
+        setText(
+                R.id.user_email,
+                "Email: " + value(user.getEmail())
+        );
+
+        setText(
+                R.id.user_address,
+                "Địa chỉ: " + value(user.getPermanent_address())
+        );
+    }
+
+    private void displayIdentityInformation(
+            @NonNull UserTenant user
+    ) {
+        setText(
+                R.id.user_identity_type,
+                "Loại giấy tờ: " + value(user.getIdentityType())
+        );
+
+        setText(
+                R.id.user_identity_number,
+                "Số giấy tờ: " + value(user.getIdentity_number())
+        );
+
+        setText(
+                R.id.user_identity_issued_date,
+                "Ngày cấp: " + value(user.getIdentity_issued_date())
+        );
+
+        setText(
+                R.id.user_identity_issued_place,
+                "Nơi cấp: " + value(user.getIdentity_issued_place())
+        );
+    }
+
+    private void displayEmergencyContact(
+            @NonNull UserTenant user
+    ) {
+        setText(
+                R.id.user_emergency_name,
+                "Họ tên: " + value(user.getEmergency_contact_name())
+        );
+
+        setText(
+                R.id.user_emergency_phone,
+                "Số điện thoại: "
+                        + value(user.getEmergency_contact_phone())
+        );
+    }
+
+    private void displayAdditionalInformation(
+            @NonNull UserTenant user
+    ) {
+        setText(
+                R.id.user_note,
+                "Ghi chú: " + value(user.getAdditional_note())
+        );
+    }
+
+    // -------------------------------------------------------------------------
+    // Select user options
+    // -------------------------------------------------------------------------
+
+    private void selectUserOptions(@NonNull UserTenant user) {
+        selectGender(user.getGender());
+        selectRole(user.getRole());
+        selectStatus(user.getStatus());
+    }
+
+    private void selectGender(@Nullable String gender) {
+        int genderId;
+
+        if (GENDER_MALE.equalsIgnoreCase(gender)) {
+            genderId = R.id.gender_male;
+        } else if (GENDER_FEMALE.equalsIgnoreCase(gender)) {
+            genderId = R.id.gender_female;
+        } else {
+            genderId = R.id.gender_other;
+        }
+
+        RadioButton genderButton = rootView.findViewById(genderId);
+
+        if (genderButton != null) {
+            genderButton.setChecked(true);
+        }
+    }
+
+    private void selectRole(@Nullable String role) {
+        int roleId = ROLE_TENANT.equalsIgnoreCase(role)
+                ? R.id.role_tenant
+                : R.id.role_landlord;
+
+        RadioButton roleButton = rootView.findViewById(roleId);
+
+        if (roleButton != null) {
+            roleButton.setChecked(true);
+        }
+    }
+
+    private void selectStatus(@Nullable String status) {
+        int statusId = STATUS_ACTIVE.equalsIgnoreCase(status)
+                ? R.id.status_active
+                : R.id.status_inactive;
+
+        RadioButton statusButton = rootView.findViewById(statusId);
+
+        if (statusButton != null) {
+            statusButton.setChecked(true);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Update user
+    // -------------------------------------------------------------------------
+
+    private void updateUser() {
+        String userId = getUserId();
+
+        if (userId == null) {
+            showMessage("Không tìm thấy mã người dùng");
             return;
         }
-        String selectedRole = roleId == R.id.role_landlord ? "LANDLORD" : "TENANT";
-        String selectedStatus = statusId == R.id.status_active ? "ACTIVE" : "INACTIVE";
-        ApiClient.api.updateManagedUser(id, new UserUpdateRequest(selectedRole, selectedStatus))
-                .enqueue(new Callback<UserTenant>() {
+
+        if (roleGroup == null || statusGroup == null) {
+            return;
+        }
+
+        int selectedRoleId = roleGroup.getCheckedRadioButtonId();
+        int selectedStatusId = statusGroup.getCheckedRadioButtonId();
+
+        if (selectedRoleId == -1 || selectedStatusId == -1) {
+            showMessage("Vui lòng chọn role và trạng thái");
+            return;
+        }
+
+        String selectedRole = selectedRoleId == R.id.role_landlord
+                ? ROLE_LANDLORD
+                : ROLE_TENANT;
+
+        String selectedStatus = selectedStatusId == R.id.status_active
+                ? STATUS_ACTIVE
+                : STATUS_INACTIVE;
+
+        UserUpdateRequest request = new UserUpdateRequest(
+                selectedRole,
+                selectedStatus
+        );
+
+        submitUserUpdate(userId, request);
+    }
+
+    private void submitUserUpdate(
+            @NonNull String userId,
+            @NonNull UserUpdateRequest request
+    ) {
+        ApiClient.api.updateManagedUser(userId, request).enqueue(
+                new Callback<UserTenant>() {
+
                     @Override
-                    public void onResponse(Call<UserTenant> call, Response<UserTenant> response) {
-                        if (response.isSuccessful()) showError("Đã cập nhật người dùng");
-                        else showError(errorMessage(response, "Không thể cập nhật người dùng"));
+                    public void onResponse(
+                            @NonNull Call<UserTenant> call,
+                            @NonNull Response<UserTenant> response
+                    ) {
+                        if (!isAdded()) {
+                            return;
+                        }
+
+                        if (response.isSuccessful()) {
+                            showMessage("Đã cập nhật người dùng");
+                            return;
+                        }
+
+                        showMessage(
+                                errorMessage(
+                                        response,
+                                        "Không thể cập nhật người dùng"
+                                )
+                        );
                     }
 
                     @Override
-                    public void onFailure(Call<UserTenant> call, Throwable t) {
-                        showError("Không thể kết nối đến máy chủ");
+                    public void onFailure(
+                            @NonNull Call<UserTenant> call,
+                            @NonNull Throwable throwable
+                    ) {
+                        if (!isAdded()) {
+                            return;
+                        }
+
+                        showMessage(MESSAGE_CONNECTION_FAILED);
                     }
-                });
+                }
+        );
     }
 
-    private void delete(String id) {
-        ApiClient.api.deleteManagedUser(id).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) goBack();
-                else showError(errorMessage(response, "Không thể xóa người dùng"));
-            }
+    // -------------------------------------------------------------------------
+    // Delete user
+    // -------------------------------------------------------------------------
 
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                showError("Không thể kết nối đến máy chủ");
-            }
-        });
+    private void deleteUser() {
+        String userId = getUserId();
+
+        if (userId == null) {
+            showMessage("Không tìm thấy mã người dùng");
+            return;
+        }
+
+        ApiClient.api.deleteManagedUser(userId).enqueue(
+                new Callback<Void>() {
+
+                    @Override
+                    public void onResponse(
+                            @NonNull Call<Void> call,
+                            @NonNull Response<Void> response
+                    ) {
+                        if (!isAdded()) {
+                            return;
+                        }
+
+                        if (response.isSuccessful()) {
+                            goBack();
+                            return;
+                        }
+
+                        showMessage(
+                                errorMessage(
+                                        response,
+                                        "Không thể xóa người dùng"
+                                )
+                        );
+                    }
+
+                    @Override
+                    public void onFailure(
+                            @NonNull Call<Void> call,
+                            @NonNull Throwable throwable
+                    ) {
+                        if (!isAdded()) {
+                            return;
+                        }
+
+                        showMessage(MESSAGE_CONNECTION_FAILED);
+                    }
+                }
+        );
     }
 
-    private String details(UserTenant user) {
-        return "Tên đăng nhập: " + value(user.getUser_name())
-                + "\nRole: " + value(user.getRole())
-                + "\nTrạng thái: " + value(user.getStatus())
-                + "\nHọ tên: " + value(user.getFull_name())
-                + "\nSố điện thoại: " + value(user.getPhone())
-                + "\nEmail: " + value(user.getEmail())
-                + "\nĐịa chỉ: " + value(user.getPermanent_address())
-                + "\nGhi chú: " + value(user.getAdditional_note());
-    }
-
-    private void setText(View view, int id, String text) {
-        ((TextView) view.findViewById(id)).setText(text);
-    }
+    // -------------------------------------------------------------------------
+    // Navigation
+    // -------------------------------------------------------------------------
 
     private void goBack() {
+        if (!isAdded()) {
+            return;
+        }
+
         NavHostFragment.findNavController(this).navigateUp();
     }
 
-    private String value(String value) {
-        return value == null || value.isBlank() ? "Chưa cập nhật" : value;
+    // -------------------------------------------------------------------------
+    // View helpers
+    // -------------------------------------------------------------------------
+
+    private void setText(
+            int viewId,
+            @NonNull String text
+    ) {
+        if (rootView == null) {
+            return;
+        }
+
+        TextView textView = rootView.findViewById(viewId);
+
+        if (textView != null) {
+            textView.setText(text);
+        }
     }
 
-    private String errorMessage(Response<?> response, String fallback) {
+    // -------------------------------------------------------------------------
+    // Data helpers
+    // -------------------------------------------------------------------------
+
+    @Nullable
+    private String getUserId() {
+        Bundle arguments = getArguments();
+
+        if (arguments == null) {
+            return null;
+        }
+
+        String userId = arguments.getString(ARG_USER_ID);
+
+        return isBlank(userId) ? null : userId;
+    }
+
+    @NonNull
+    private String value(@Nullable String value) {
+        return isBlank(value)
+                ? "Chưa cập nhật"
+                : value;
+    }
+
+    private boolean isBlank(@Nullable String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    // -------------------------------------------------------------------------
+    // API error handling
+    // -------------------------------------------------------------------------
+
+    @NonNull
+    private String errorMessage(
+            @NonNull Response<?> response,
+            @NonNull String fallback
+    ) {
         try {
-            if (response.errorBody() != null) {
-                String message = new JSONObject(response.errorBody().string()).optString("message");
-                if (!message.isBlank()) return message;
+            if (response.errorBody() == null) {
+                return fallback;
             }
-        } catch (Exception ignored) { }
-        return fallback;
+
+            String responseBody = response.errorBody().string();
+
+            if (isBlank(responseBody)) {
+                return fallback;
+            }
+
+            String message = new JSONObject(responseBody)
+                    .optString("message", "");
+
+            return isBlank(message) ? fallback : message;
+
+        } catch (Exception ignored) {
+            return fallback;
+        }
     }
 
-    private void showError(String message) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
+    // -------------------------------------------------------------------------
+    // User messages
+    // -------------------------------------------------------------------------
+
+    private void showMessage(@NonNull String message) {
+        if (!isAdded()) {
+            return;
+        }
+
+        Toast.makeText(
+                requireContext(),
+                message,
+                Toast.LENGTH_LONG
+        ).show();
+    }
+
+    // -------------------------------------------------------------------------
+    // Fragment cleanup
+    // -------------------------------------------------------------------------
+
+    @Override
+    public void onDestroyView() {
+        rootView = null;
+        roleGroup = null;
+        statusGroup = null;
+
+        super.onDestroyView();
     }
 }

@@ -3,26 +3,103 @@ package com.android_dev.rentaly_management.Fragment;
 import com.android_dev.rentaly_management.DTO.RentalContract;
 import com.android_dev.rentaly_management.DTO.Room;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
 final class ContractDisplay {
-    private ContractDisplay() { }
 
-    static String roomCode(RentalContract contract, List<Room> rooms) {
-        if (contract == null || contract.room_id == null) return "Chưa xác định phòng";
-        for (Room room : rooms) {
-            if (contract.room_id.equals(room.room_id)) {
-                return room.room_code == null || room.room_code.trim().isEmpty()
-                        ? "Chưa xác định phòng" : room.room_code;
-            }
-        }
-        return "Chưa xác định phòng";
+    private static final String UNKNOWN_ROOM = "Chưa xác định phòng";
+
+    private ContractDisplay() {
+        // Prevent instantiation.
     }
 
-    static boolean matchesRoomCode(RentalContract contract, List<Room> rooms, String query) {
-        String normalized = query == null ? "" : query.trim().toLowerCase(Locale.ROOT);
-        return normalized.isEmpty() || roomCode(contract, rooms).toLowerCase(Locale.ROOT).contains(normalized)
-                && !roomCode(contract, rooms).equals("Chưa xác định phòng");
+    // -------------------------------------------------------------------------
+    // Room display
+    // -------------------------------------------------------------------------
+
+    /**
+     * Lấy mã phòng tương ứng với hợp đồng.
+     *
+     * @return Mã phòng hoặc thông báo khi chưa xác định được phòng.
+     */
+    static String roomCode(
+            RentalContract contract,
+            List<Room> rooms
+    ) {
+        if (contract == null || contract.room_id == null) {
+            return UNKNOWN_ROOM;
+        }
+
+        for (Room room : safeRooms(rooms)) {
+            if (room == null || room.room_id == null) {
+                continue;
+            }
+
+            if (!contract.room_id.equals(room.room_id)) {
+                continue;
+            }
+
+            return getRoomCode(room);
+        }
+
+        return UNKNOWN_ROOM;
+    }
+
+    private static String getRoomCode(Room room) {
+        String code = room.room_code;
+
+        if (code == null || code.trim().isEmpty()) {
+            return UNKNOWN_ROOM;
+        }
+
+        return code;
+    }
+
+    // -------------------------------------------------------------------------
+    // Room search
+    // -------------------------------------------------------------------------
+
+    /**
+     * Kiểm tra mã phòng có khớp với từ khóa tìm kiếm hay không.
+     *
+     * Từ khóa rỗng sẽ khớp với mọi hợp đồng.
+     */
+    static boolean matchesRoomCode(
+            RentalContract contract,
+            List<Room> rooms,
+            String query
+    ) {
+        String normalizedQuery = normalize(query);
+
+        if (normalizedQuery.isEmpty()) {
+            return true;
+        }
+
+        String code = roomCode(contract, rooms);
+
+        if (UNKNOWN_ROOM.equals(code)) {
+            return false;
+        }
+
+        return code.toLowerCase(Locale.ROOT)
+                .contains(normalizedQuery);
+    }
+
+    private static String normalize(String value) {
+        return value == null
+                ? ""
+                : value.trim().toLowerCase(Locale.ROOT);
+    }
+
+    // -------------------------------------------------------------------------
+    // Shared helpers
+    // -------------------------------------------------------------------------
+
+    private static List<Room> safeRooms(List<Room> rooms) {
+        return rooms == null
+                ? Collections.emptyList()
+                : rooms;
     }
 }

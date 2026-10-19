@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/background" android:fillViewport="true">
     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
-            <Button android:id="@+id/location_detail_back" android:layout_width="48dp" android:layout_height="48dp" android:backgroundTint="@color/primary" android:contentDescription="Quay lại" android:drawableStart="@drawable/back_icon" android:padding="8dp" android:text="" />
+            <Button android:id="@+id/location_detail_back" android:layout_width="wrap_content" android:layout_height="48dp" android:backgroundTint="@color/primary" android:contentDescription="Quay lại" android:drawableStart="@drawable/back_icon" android:minWidth="48dp" android:paddingStart="8dp" android:paddingEnd="12dp" android:text="Quay lại" />
             <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="16dp" android:text="Thông tin địa điểm" android:textColor="@color/dark_navy" android:textSize="24sp" android:textStyle="bold" />
         </LinearLayout>
 
@@ -36,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="5dp"
-                android:background="@drawable/edittext_background"
+                android:background="@drawable/user_detail_card"
                 android:hint="Mã địa điểm"
                 android:minHeight="48dp"
                 android:paddingStart="12dp"
@@ -57,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
-                android:background="@drawable/edittext_background"
+                android:background="@drawable/user_detail_card"
                 android:hint="Địa chỉ"
                 android:minHeight="48dp"
                 android:paddingStart="12dp"
@@ -95,7 +95,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/edittext_background"
+                android:background="@drawable/user_detail_card"
                 android:gravity="top"
                 android:inputType="textMultiLine"
                 android:minHeight="80dp"

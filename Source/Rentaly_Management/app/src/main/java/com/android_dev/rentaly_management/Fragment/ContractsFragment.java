@@ -1,5 +1,6 @@
 package com.android_dev.rentaly_management.Fragment;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -9,7 +10,15 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,6 +26,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.android_dev.rentaly_management.Adapter.ContractAdapter;
 import com.android_dev.rentaly_management.Apis.ApiClient;
 import com.android_dev.rentaly_management.DTO.RentalContract;
 import com.android_dev.rentaly_management.DTO.RentalContractRequest;
@@ -24,12 +34,13 @@ import com.android_dev.rentaly_management.DTO.Room;
 import com.android_dev.rentaly_management.R;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -38,70 +49,1102 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Màn hình quản lý danh sách hợp đồng thuê.
+ *
+ * Chức năng:
+ * - Hiển thị và tìm kiếm hợp đồng.
+ * - Tạo mới và chỉnh sửa hợp đồng.
+ * - Chọn tài liệu PDF/DOCX để gửi lên máy chủ.
+ * - Điều hướng đến màn hình chi tiết hợp đồng.
+ */
 public class ContractsFragment extends Fragment {
-    private static final int PDF_PICKER = 702;
+
+    // -------------------------------------------------------------------------
+    // Constants
+    // -------------------------------------------------------------------------
+
+    private static final int DOCUMENT_PICKER_REQUEST = 702;
+
+    private static final String ARG_EDIT_CONTRACT_ID = "edit_contract_id";
+    private static final String ARG_CREATE_CONTRACT = "create_contract";
+
+    private static final String STATUS_ACTIVE = "ACTIVE";
+    private static final String STATUS_INACTIVE = "INACTIVE";
+
+    private static final String MIME_PDF = "application/pdf";
+
+    private static final String MIME_DOCX =
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+    private static final String UNKNOWN_VALUE = "Chưa cập nhật";
+
+    private static final String LOAD_ERROR_MESSAGE =
+            "Không thể tải dữ liệu hợp đồng hoặc phòng. Chạm để thử lại.";
+
+    private static final String EMPTY_MESSAGE =
+            "Chưa có hợp đồng phù hợp";
+
+    // -------------------------------------------------------------------------
+    // Data
+    // -------------------------------------------------------------------------
+
     private final List<RentalContract> contracts = new ArrayList<>();
     private final List<Room> rooms = new ArrayList<>();
-    private final List<RentalContract> visible = new ArrayList<>();
-    private ArrayAdapter<RentalContract> adapter;
-    private EditText search;
-    private ProgressBar loading;
-    private TextView state;
-    private Uri selectedPdf;
-    private String pendingEditId;
+    private final List<RentalContract> visibleContracts = new ArrayList<>();
+
+    private ContractAdapter contractAdapter;
+
+    private Uri selectedDocument;
+
+    private String pendingEditContractId;
+
     private boolean loadFailed;
+    private boolean createContractPending;
 
-    @Nullable @Override public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle saved) {
-        View view = inflater.inflate(R.layout.fragment_contracts, container, false);
-        search = view.findViewById(R.id.contract_search); loading = view.findViewById(R.id.contract_loading); state = view.findViewById(R.id.contract_state);
-        ListView list = view.findViewById(R.id.contract_list);
-        adapter = new ArrayAdapter<RentalContract>(requireContext(), R.layout.item_contract, R.id.contract_primary, visible) {
-            @NonNull @Override public View getView(int position, View convert, @NonNull ViewGroup parent) {
-                View row = super.getView(position, convert, parent); RentalContract c = visible.get(position);
-                ((TextView) row.findViewById(R.id.contract_primary)).setText("Phòng: " + ContractDisplay.roomCode(c, rooms));
-                ((TextView) row.findViewById(R.id.contract_secondary)).setText("Thời hạn: " + value(c.start_date) + " - " + value(c.end_date));
-                ((TextView) row.findViewById(R.id.contract_meta)).setText("Giá thuê: " + value(c.rent_amount) + " | " + status(c.status));
-                return row;
+    // -------------------------------------------------------------------------
+    // Views
+    // -------------------------------------------------------------------------
+
+    private View rootView;
+
+    private EditText searchInput;
+    private ProgressBar loadingIndicator;
+    private TextView stateView;
+
+    // -------------------------------------------------------------------------
+    // Fragment lifecycle
+    // -------------------------------------------------------------------------
+
+    @Nullable
+    @Override
+    public View onCreateView(
+            @NonNull LayoutInflater inflater,
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState
+    ) {
+        rootView = inflater.inflate(
+                R.layout.fragment_contracts,
+                container,
+                false
+        );
+
+        bindViews();
+        setupContractList();
+        setupSearch();
+        setupClickListeners();
+        readNavigationArguments();
+
+        loadContractsAndRooms();
+
+        return rootView;
+    }
+
+    private void bindViews() {
+        searchInput = rootView.findViewById(R.id.contract_search);
+        loadingIndicator = rootView.findViewById(R.id.contract_loading);
+        stateView = rootView.findViewById(R.id.contract_state);
+    }
+
+    private void setupContractList() {
+        ListView contractList = rootView.findViewById(
+                R.id.contract_list
+        );
+
+        contractAdapter = new ContractAdapter(
+                requireContext(),
+                visibleContracts,
+                new ContractAdapter.Formatter() {
+
+                    @Override
+                    public String room(RentalContract contract) {
+                        return ContractDisplay.roomCode(
+                                contract,
+                                rooms
+                        );
+                    }
+
+                    @Override
+                    public String status(String status) {
+                        return getStatusLabel(status);
+                    }
+                }
+        );
+
+        contractList.setAdapter(contractAdapter);
+
+        contractList.setOnItemClickListener(
+                (parent, row, position, id) -> openContractDetails(position)
+        );
+    }
+
+    private void setupSearch() {
+        searchInput.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(
+                    CharSequence text,
+                    int start,
+                    int count,
+                    int after
+            ) {
+                // No action required.
             }
-        };
-        list.setAdapter(adapter);
-        list.setOnItemClickListener((p, row, position, id) -> { Bundle args = new Bundle(); args.putString("contract_id", visible.get(position).contract_id.toString()); NavHostFragment.findNavController(this).navigate(R.id.contractDetailFragment, args); });
-        view.findViewById(R.id.contract_add).setOnClickListener(v -> showForm(null));
-        search.addTextChangedListener(new TextWatcher() { public void beforeTextChanged(CharSequence s,int st,int c,int a){} public void onTextChanged(CharSequence s,int st,int b,int c){ render(); } public void afterTextChanged(Editable e){} });
-        pendingEditId = getArguments() == null ? null : getArguments().getString("edit_contract_id");
-        load(); return view;
-    }
 
-    private void load() {
-        loading.setVisibility(View.VISIBLE); state.setVisibility(View.GONE); loadFailed = false; contracts.clear(); rooms.clear();
-        final boolean[] done = {false, false}; final boolean[] failed = {false};
-        ApiClient.api.contracts().enqueue(new Callback<List<RentalContract>>() {
-            public void onResponse(Call<List<RentalContract>> c, Response<List<RentalContract>> r) { if (r.isSuccessful() && r.body()!=null) contracts.addAll(r.body()); else failed[0]=true; done[0]=true; finishLoad(done, failed); }
-            public void onFailure(Call<List<RentalContract>> c, Throwable t) { failed[0]=true; done[0]=true; finishLoad(done, failed); }
-        });
-        ApiClient.api.rooms().enqueue(new Callback<List<Room>>() {
-            public void onResponse(Call<List<Room>> c, Response<List<Room>> r) { if (r.isSuccessful() && r.body()!=null) rooms.addAll(r.body()); else failed[0]=true; done[1]=true; finishLoad(done, failed); }
-            public void onFailure(Call<List<Room>> c, Throwable t) { failed[0]=true; done[1]=true; finishLoad(done, failed); }
+            @Override
+            public void onTextChanged(
+                    CharSequence text,
+                    int start,
+                    int before,
+                    int count
+            ) {
+                renderContracts();
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                // No action required.
+            }
         });
     }
-    private void finishLoad(boolean[] done, boolean[] failed) { if (!done[0] || !done[1]) return; loading.setVisibility(View.GONE); loadFailed = failed[0]; if (loadFailed) { state.setVisibility(View.VISIBLE); state.setText("Không thể tải dữ liệu hợp đồng hoặc phòng. Chạm để thử lại."); state.setOnClickListener(v -> load()); } render(); if (pendingEditId != null) { for (RentalContract item : contracts) if (item.contract_id != null && pendingEditId.equals(item.contract_id.toString())) { pendingEditId = null; showForm(item); break; } } }
-    private void render() { if (adapter==null) return; String q=search.getText().toString(); visible.clear(); for (RentalContract c:contracts) if (ContractDisplay.matchesRoomCode(c, rooms, q)) visible.add(c); adapter.notifyDataSetChanged(); if (!loading.isShown() && !loadFailed) { state.setVisibility(visible.isEmpty()?View.VISIBLE:View.GONE); if(visible.isEmpty()) { state.setText("Chưa có hợp đồng phù hợp"); state.setOnClickListener(null); } } }
 
-    private void showForm(RentalContract current) {
-        if (rooms.isEmpty()) { toast("Chưa tải được danh sách phòng để chọn"); return; }
-        selectedPdf = null; View form = getLayoutInflater().inflate(R.layout.dialog_create_rental_contract, null);
-        Spinner room = form.findViewById(R.id.contract_room); EditText start=form.findViewById(R.id.contract_start), end=form.findViewById(R.id.contract_end), rent=form.findViewById(R.id.contract_rent), deposit=form.findViewById(R.id.contract_deposit), billing=form.findViewById(R.id.contract_billing_day), due=form.findViewById(R.id.contract_due_days), terms=form.findViewById(R.id.contract_terms); RadioGroup status=form.findViewById(R.id.contract_status); TextView pdf=form.findViewById(R.id.contract_pdf_status);
-        List<String> labels=new ArrayList<>(); for(Room r:rooms) labels.add(value(r.room_code)); room.setAdapter(new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, labels));
-        start.setText(current==null?"":value(current.start_date)); end.setText(current==null?"":value(current.end_date)); rent.setText(current==null?"":value(current.rent_amount)); deposit.setText(current==null?"":value(current.deposit_required)); billing.setText(current==null?"":value(current.billing_day)); due.setText(current==null?"0":value(current.payment_due_days)); terms.setText(current==null?"":value(current.terms)); ((RadioButton)form.findViewById("ACTIVE".equals(current==null?"INACTIVE":current.status)?R.id.contract_status_active:R.id.contract_status_inactive)).setChecked(true);
-        if(current!=null) for(int i=0;i<rooms.size();i++) if(rooms.get(i).room_id.equals(current.room_id)) room.setSelection(i);
-        start.setOnClickListener(v->date(start)); end.setOnClickListener(v->date(end)); form.findViewById(R.id.contract_choose_pdf).setOnClickListener(v->{ Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT); i.setType("*/*"); i.putExtra(Intent.EXTRA_MIME_TYPES,new String[]{"application/pdf","application/vnd.openxmlformats-officedocument.wordprocessingml.document"}); i.putExtra(Intent.EXTRA_ALLOW_MULTIPLE,false); i.addCategory(Intent.CATEGORY_OPENABLE); startActivityForResult(i,PDF_PICKER); });
-        AlertDialog dialog=new AlertDialog.Builder(requireContext()).setTitle(current==null?"Thêm hợp đồng":"Sửa hợp đồng").setView(form).setNegativeButton("Hủy",null).setPositiveButton("Lưu hợp đồng",null).create();
-         dialog.setOnShowListener(x->dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v->{ try { int index=room.getSelectedItemPosition(); LocalDate s=LocalDate.parse(start.getText().toString().trim()); LocalDate e=end.getText().toString().trim().isEmpty()?null:LocalDate.parse(end.getText().toString().trim()); BigDecimal ra=new BigDecimal(rent.getText().toString().trim()), de=new BigDecimal(deposit.getText().toString().trim()); Integer bd=billing.getText().toString().trim().isEmpty()?null:Integer.valueOf(billing.getText().toString().trim()); int pd=Integer.parseInt(due.getText().toString().trim()); if(index<0||!ContractValidation.valid(s,e,ra,de,bd,pd)||status.getCheckedRadioButtonId()==-1) throw new IllegalArgumentException(); String st=status.getCheckedRadioButtonId()==R.id.contract_status_active?"ACTIVE":"INACTIVE"; RentalContractRequest req=new RentalContractRequest(rooms.get(index).room_id,s,e,null,ra,de,bd,pd,st,optional(terms),null,null); RequestBody body=RequestBody.create(ApiClient.gson.toJson(req),MediaType.parse("application/json")); dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false); Call<RentalContract> call=current==null?ApiClient.api.createContract(body,documentPart()):ApiClient.api.updateContract(current.contract_id.toString(),body,documentPart()); call.enqueue(new Callback<RentalContract>(){ public void onResponse(Call<RentalContract> c,Response<RentalContract> r){ if(r.isSuccessful()){dialog.dismiss();toast(current==null?"Đã thêm hợp đồng":"Đã cập nhật hợp đồng");load();}else{dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);toast(error(r,"Không thể lưu hợp đồng"));}} public void onFailure(Call<RentalContract> c,Throwable t){dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);toast("Không thể kết nối đến máy chủ: "+t.getMessage());} }); }catch(Exception ex){dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);toast(ex.getMessage()==null?"Vui lòng kiểm tra ngày, giá trị và thông tin bắt buộc":ex.getMessage());} })); dialog.show();
+    private void setupClickListeners() {
+        rootView.findViewById(R.id.contract_add)
+                .setOnClickListener(view -> showContractForm(null));
     }
-    private MultipartBody.Part documentPart() throws Exception { if(selectedPdf==null)return null; String type=requireContext().getContentResolver().getType(selectedPdf); String name=selectedPdf.getLastPathSegment()==null?"":selectedPdf.getLastPathSegment().toLowerCase(Locale.ROOT); boolean pdf="application/pdf".equals(type)||name.endsWith(".pdf"); boolean docx="application/vnd.openxmlformats-officedocument.wordprocessingml.document".equals(type)||name.endsWith(".docx"); if(!pdf&&!docx) throw new IllegalArgumentException("PDF or DOCX required"); byte[] bytes=read(selectedPdf); if(bytes.length==0) throw new IllegalArgumentException("Empty document"); String mediaType=pdf?"application/pdf":"application/vnd.openxmlformats-officedocument.wordprocessingml.document"; String extension=pdf?"pdf":"docx"; return MultipartBody.Part.createFormData("document","contract."+extension,RequestBody.create(bytes,MediaType.parse(mediaType))); }
-    private byte[] read(Uri uri)throws Exception{ByteArrayOutputStream out=new ByteArrayOutputStream();java.io.InputStream in=requireContext().getContentResolver().openInputStream(uri);byte[] b=new byte[8192];int n;while(in!=null&&(n=in.read(b))!=-1)out.write(b,0,n);if(in!=null)in.close();return out.toByteArray();}
-    @Override public void onActivityResult(int req,int result,Intent data){super.onActivityResult(req,result,data);if(req==PDF_PICKER&&result==android.app.Activity.RESULT_OK&&data!=null&&data.getData()!=null){selectedPdf=data.getData();toast("Đã chọn file PDF hoặc DOCX");}}
-    private void date(EditText target){java.util.Calendar c=java.util.Calendar.getInstance();new DatePickerDialog(requireContext(),(v,y,m,d)->target.setText(String.format(Locale.ROOT,"%04d-%02d-%02d",y,m+1,d)),c.get(1),c.get(2),c.get(5)).show();}
-    private String optional(EditText e){String s=e.getText().toString().trim();return s.isEmpty()?null:s;} private String value(Object o){return o==null?"":o.toString();} private String status(String s){return "ACTIVE".equalsIgnoreCase(s)?"Đang hoạt động":"Không hoạt động";} private void toast(String s){Toast.makeText(requireContext(),s,Toast.LENGTH_LONG).show();}
-    private String error(Response<?> r,String fallback){try{if(r.errorBody()!=null){String m=new org.json.JSONObject(r.errorBody().string()).optString("message");if(!m.isEmpty())return m;}}catch(Exception ignored){}return fallback;}
+
+    private void readNavigationArguments() {
+        Bundle arguments = getArguments();
+
+        if (arguments == null) {
+            return;
+        }
+
+        pendingEditContractId = arguments.getString(
+                ARG_EDIT_CONTRACT_ID
+        );
+
+        createContractPending = arguments.getBoolean(
+                ARG_CREATE_CONTRACT,
+                false
+        );
+    }
+
+    private void openContractDetails(int position) {
+        if (position < 0 || position >= visibleContracts.size()) {
+            return;
+        }
+
+        RentalContract contract = visibleContracts.get(position);
+
+        if (contract == null || contract.contract_id == null) {
+            showMessage("Không xác định được hợp đồng");
+            return;
+        }
+
+        Bundle arguments = new Bundle();
+
+        arguments.putString(
+                "contract_id",
+                contract.contract_id.toString()
+        );
+
+        NavHostFragment.findNavController(this).navigate(
+                R.id.contractDetailFragment,
+                arguments
+        );
+    }
+
+    // -------------------------------------------------------------------------
+    // Load contracts and rooms
+    // -------------------------------------------------------------------------
+
+    private void loadContractsAndRooms() {
+        setLoading(true);
+
+        stateView.setVisibility(View.GONE);
+
+        loadFailed = false;
+
+        contracts.clear();
+        rooms.clear();
+
+        LoadTracker tracker = new LoadTracker();
+
+        loadContracts(tracker);
+        loadRooms(tracker);
+    }
+
+    private void loadContracts(@NonNull LoadTracker tracker) {
+        ApiClient.api.contracts().enqueue(
+                new Callback<List<RentalContract>>() {
+
+                    @Override
+                    public void onResponse(
+                            @NonNull Call<List<RentalContract>> call,
+                            @NonNull Response<List<RentalContract>> response
+                    ) {
+                        boolean succeeded = response.isSuccessful()
+                                && response.body() != null;
+
+                        if (succeeded) {
+                            contracts.clear();
+                            contracts.addAll(response.body());
+                        }
+
+                        tracker.completeRequest(!succeeded);
+                    }
+
+                    @Override
+                    public void onFailure(
+                            @NonNull Call<List<RentalContract>> call,
+                            @NonNull Throwable throwable
+                    ) {
+                        tracker.completeRequest(true);
+                    }
+                }
+        );
+    }
+
+    private void loadRooms(@NonNull LoadTracker tracker) {
+        ApiClient.api.rooms().enqueue(
+                new Callback<List<Room>>() {
+
+                    @Override
+                    public void onResponse(
+                            @NonNull Call<List<Room>> call,
+                            @NonNull Response<List<Room>> response
+                    ) {
+                        boolean succeeded = response.isSuccessful()
+                                && response.body() != null;
+
+                        if (succeeded) {
+                            rooms.clear();
+                            rooms.addAll(response.body());
+                        }
+
+                        tracker.completeRequest(!succeeded);
+                    }
+
+                    @Override
+                    public void onFailure(
+                            @NonNull Call<List<Room>> call,
+                            @NonNull Throwable throwable
+                    ) {
+                        tracker.completeRequest(true);
+                    }
+                }
+        );
+    }
+
+    private void finishLoading(boolean failed) {
+        setLoading(false);
+
+        loadFailed = failed;
+
+        if (failed) {
+            stateView.setVisibility(View.VISIBLE);
+            stateView.setText(LOAD_ERROR_MESSAGE);
+            stateView.setOnClickListener(
+                    view -> loadContractsAndRooms()
+            );
+
+            renderContracts();
+            return;
+        }
+
+        stateView.setOnClickListener(null);
+
+        renderContracts();
+        handlePendingActions();
+    }
+
+    /**
+     * Theo dõi trạng thái hoàn tất của hai yêu cầu API.
+     */
+    private final class LoadTracker {
+
+        private int completedRequests;
+        private boolean failed;
+
+        private void completeRequest(boolean requestFailed) {
+            failed |= requestFailed;
+            completedRequests++;
+
+            if (completedRequests == 2) {
+                finishLoading(failed);
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Pending navigation actions
+    // -------------------------------------------------------------------------
+
+    private void handlePendingActions() {
+        if (pendingEditContractId != null) {
+            openPendingContractForEditing();
+            return;
+        }
+
+        if (createContractPending && !rooms.isEmpty()) {
+            createContractPending = false;
+            showContractForm(null);
+        }
+    }
+
+    private void openPendingContractForEditing() {
+        for (RentalContract contract : contracts) {
+            if (contract == null || contract.contract_id == null) {
+                continue;
+            }
+
+            if (pendingEditContractId.equals(
+                    contract.contract_id.toString()
+            )) {
+                pendingEditContractId = null;
+                showContractForm(contract);
+                return;
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Render contract list
+    // -------------------------------------------------------------------------
+
+    private void renderContracts() {
+        if (contractAdapter == null || searchInput == null) {
+            return;
+        }
+
+        String query = searchInput.getText()
+                .toString()
+                .trim();
+
+        visibleContracts.clear();
+
+        for (RentalContract contract : contracts) {
+            if (ContractDisplay.matchesRoomCode(
+                    contract,
+                    rooms,
+                    query
+            )) {
+                visibleContracts.add(contract);
+            }
+        }
+
+        contractAdapter.notifyDataSetChanged();
+
+        if (loadingIndicator.getVisibility() == View.VISIBLE
+                || loadFailed) {
+            return;
+        }
+
+        boolean isEmpty = visibleContracts.isEmpty();
+
+        stateView.setVisibility(
+                isEmpty ? View.VISIBLE : View.GONE
+        );
+
+        if (isEmpty) {
+            stateView.setText(EMPTY_MESSAGE);
+            stateView.setOnClickListener(null);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Contract form
+    // -------------------------------------------------------------------------
+
+    private void showContractForm(
+            @Nullable RentalContract contractToEdit
+    ) {
+        if (rooms.isEmpty()) {
+            showMessage("Chưa tải được danh sách phòng để chọn");
+            return;
+        }
+
+        selectedDocument = null;
+
+        View formView = getLayoutInflater().inflate(
+                R.layout.dialog_create_rental_contract,
+                null
+        );
+
+        ContractForm form = new ContractForm(formView);
+
+        setupRoomSpinner(form.roomSpinner, contractToEdit);
+        populateContractForm(form, contractToEdit);
+        setupDatePickers(form);
+        setupDocumentPicker(form);
+
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setTitle(
+                        contractToEdit == null
+                                ? "Thêm hợp đồng"
+                                : "Sửa hợp đồng"
+                )
+                .setView(formView)
+                .setNegativeButton("Hủy", null)
+                .setPositiveButton("Lưu hợp đồng", null)
+                .create();
+
+        dialog.setOnShowListener(ignored ->
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                        .setOnClickListener(
+                                view -> saveContract(
+                                        form,
+                                        contractToEdit,
+                                        dialog
+                                )
+                        )
+        );
+
+        dialog.show();
+    }
+
+    /**
+     * Gom các thành phần của biểu mẫu vào một đối tượng để tránh
+     * truyền nhiều tham số giữa các phương thức.
+     */
+    private static final class ContractForm {
+
+        final View root;
+
+        final Spinner roomSpinner;
+
+        final EditText startDateInput;
+        final EditText endDateInput;
+        final EditText rentInput;
+        final EditText depositInput;
+        final EditText billingDayInput;
+        final EditText dueDaysInput;
+        final EditText termsInput;
+
+        final RadioGroup statusGroup;
+        final TextView documentStatus;
+
+        ContractForm(View root) {
+            this.root = root;
+
+            roomSpinner = root.findViewById(R.id.contract_room);
+
+            startDateInput = root.findViewById(R.id.contract_start);
+            endDateInput = root.findViewById(R.id.contract_end);
+            rentInput = root.findViewById(R.id.contract_rent);
+            depositInput = root.findViewById(R.id.contract_deposit);
+            billingDayInput = root.findViewById(R.id.contract_billing_day);
+            dueDaysInput = root.findViewById(R.id.contract_due_days);
+            termsInput = root.findViewById(R.id.contract_terms);
+
+            statusGroup = root.findViewById(R.id.contract_status);
+
+            documentStatus = root.findViewById(
+                    R.id.contract_pdf_status
+            );
+        }
+    }
+
+    private void setupRoomSpinner(
+            @NonNull Spinner spinner,
+            @Nullable RentalContract contractToEdit
+    ) {
+        List<String> labels = new ArrayList<>();
+
+        for (Room room : rooms) {
+            labels.add(
+                    room == null ? "" : getValue(room.room_code)
+            );
+        }
+
+        spinner.setAdapter(
+                new ArrayAdapter<>(
+                        requireContext(),
+                        android.R.layout.simple_spinner_dropdown_item,
+                        labels
+                )
+        );
+
+        if (contractToEdit == null) {
+            return;
+        }
+
+        for (int index = 0; index < rooms.size(); index++) {
+            Room room = rooms.get(index);
+
+            if (room != null
+                    && room.room_id != null
+                    && room.room_id.equals(contractToEdit.room_id)) {
+                spinner.setSelection(index);
+                return;
+            }
+        }
+    }
+
+    private void populateContractForm(
+            @NonNull ContractForm form,
+            @Nullable RentalContract contract
+    ) {
+        form.startDateInput.setText(
+                contract == null ? "" : getValue(contract.start_date)
+        );
+
+        form.endDateInput.setText(
+                contract == null ? "" : getValue(contract.end_date)
+        );
+
+        form.rentInput.setText(
+                contract == null ? "" : getValue(contract.rent_amount)
+        );
+
+        form.depositInput.setText(
+                contract == null ? "" : getValue(contract.deposit_required)
+        );
+
+        form.billingDayInput.setText(
+                contract == null ? "" : getValue(contract.billing_day)
+        );
+
+        form.dueDaysInput.setText(
+                contract == null
+                        ? "0"
+                        : getValue(contract.payment_due_days)
+        );
+
+        form.termsInput.setText(
+                contract == null ? "" : getValue(contract.terms)
+        );
+
+        String status = contract == null
+                ? STATUS_INACTIVE
+                : contract.status;
+
+        int statusViewId = STATUS_ACTIVE.equalsIgnoreCase(status)
+                ? R.id.contract_status_active
+                : R.id.contract_status_inactive;
+
+        RadioButton statusButton = form.root.findViewById(statusViewId);
+        statusButton.setChecked(true);
+
+        form.documentStatus.setText("Chưa chọn tài liệu mới");
+    }
+
+    private void setupDatePickers(@NonNull ContractForm form) {
+        form.startDateInput.setOnClickListener(
+                view -> showDatePicker(form.startDateInput)
+        );
+
+        form.endDateInput.setOnClickListener(
+                view -> showDatePicker(form.endDateInput)
+        );
+    }
+
+    // -------------------------------------------------------------------------
+    // Document picker
+    // -------------------------------------------------------------------------
+
+    private void setupDocumentPicker(@NonNull ContractForm form) {
+        form.root.findViewById(R.id.contract_choose_pdf)
+                .setOnClickListener(view -> chooseDocument());
+    }
+
+    private void chooseDocument() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+
+        intent.setType("*/*");
+
+        intent.putExtra(
+                Intent.EXTRA_MIME_TYPES,
+                new String[]{
+                        MIME_PDF,
+                        MIME_DOCX
+                }
+        );
+
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+        startActivityForResult(
+                intent,
+                DOCUMENT_PICKER_REQUEST
+        );
+    }
+
+    @Override
+    public void onActivityResult(
+            int requestCode,
+            int resultCode,
+            @Nullable Intent data
+    ) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode != DOCUMENT_PICKER_REQUEST
+                || resultCode != Activity.RESULT_OK
+                || data == null
+                || data.getData() == null) {
+            return;
+        }
+
+        selectedDocument = data.getData();
+
+        showMessage("Đã chọn tài liệu PDF hoặc DOCX");
+    }
+
+    // -------------------------------------------------------------------------
+    // Save contract
+    // -------------------------------------------------------------------------
+
+    private void saveContract(
+            @NonNull ContractForm form,
+            @Nullable RentalContract contractToEdit,
+            @NonNull AlertDialog dialog
+    ) {
+        try {
+            int roomIndex = form.roomSpinner.getSelectedItemPosition();
+
+            if (roomIndex < 0 || roomIndex >= rooms.size()) {
+                throw new IllegalArgumentException(
+                        "Vui lòng chọn phòng"
+                );
+            }
+
+            Room selectedRoom = rooms.get(roomIndex);
+
+            if (selectedRoom == null || selectedRoom.room_id == null) {
+                throw new IllegalArgumentException(
+                        "Phòng được chọn không hợp lệ"
+                );
+            }
+
+            LocalDate startDate = parseRequiredDate(
+                    form.startDateInput.getText().toString()
+            );
+
+            LocalDate endDate = parseOptionalDate(
+                    form.endDateInput.getText().toString()
+            );
+
+            BigDecimal rentAmount = parseRequiredAmount(
+                    form.rentInput.getText().toString()
+            );
+
+            BigDecimal depositAmount = parseRequiredAmount(
+                    form.depositInput.getText().toString()
+            );
+
+            Integer billingDay = parseOptionalInteger(
+                    form.billingDayInput.getText().toString()
+            );
+
+            int paymentDueDays = Integer.parseInt(
+                    form.dueDaysInput.getText().toString().trim()
+            );
+
+            int selectedStatusId =
+                    form.statusGroup.getCheckedRadioButtonId();
+
+            if (!ContractValidation.valid(
+                    startDate,
+                    endDate,
+                    rentAmount,
+                    depositAmount,
+                    billingDay,
+                    paymentDueDays
+            )) {
+                throw new IllegalArgumentException(
+                        "Vui lòng kiểm tra ngày, giá thuê, tiền cọc "
+                                + "và thông tin thanh toán"
+                );
+            }
+
+            if (selectedStatusId == -1) {
+                throw new IllegalArgumentException(
+                        "Vui lòng chọn trạng thái hợp đồng"
+                );
+            }
+
+            String status = selectedStatusId
+                    == R.id.contract_status_active
+                    ? STATUS_ACTIVE
+                    : STATUS_INACTIVE;
+
+            RentalContractRequest request =
+                    new RentalContractRequest(
+                            selectedRoom.room_id,
+                            startDate,
+                            endDate,
+                            null,
+                            rentAmount,
+                            depositAmount,
+                            billingDay,
+                            paymentDueDays,
+                            status,
+                            getOptionalText(form.termsInput),
+                            null,
+                            null
+                    );
+
+            RequestBody requestBody = RequestBody.create(
+                    ApiClient.gson.toJson(request),
+                    MediaType.parse("application/json")
+            );
+
+            MultipartBody.Part documentPart = createDocumentPart();
+
+            submitContract(
+                    requestBody,
+                    documentPart,
+                    contractToEdit,
+                    dialog
+            );
+
+        } catch (Exception exception) {
+            String message = exception.getMessage();
+
+            showMessage(
+                    message == null || message.trim().isEmpty()
+                            ? "Vui lòng kiểm tra ngày và các trường bắt buộc"
+                            : message
+            );
+        }
+    }
+
+    private void submitContract(
+            @NonNull RequestBody requestBody,
+            @Nullable MultipartBody.Part documentPart,
+            @Nullable RentalContract contractToEdit,
+            @NonNull AlertDialog dialog
+    ) {
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setEnabled(false);
+
+        Call<RentalContract> call;
+
+        if (contractToEdit == null) {
+            call = ApiClient.api.createContract(
+                    requestBody,
+                    documentPart
+            );
+        } else {
+            call = ApiClient.api.updateContract(
+                    contractToEdit.contract_id.toString(),
+                    requestBody,
+                    documentPart
+            );
+        }
+
+        call.enqueue(new Callback<RentalContract>() {
+
+            @Override
+            public void onResponse(
+                    @NonNull Call<RentalContract> call,
+                    @NonNull Response<RentalContract> response
+            ) {
+                if (!response.isSuccessful()) {
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                            .setEnabled(true);
+
+                    showMessage(
+                            getErrorMessage(
+                                    response,
+                                    "Không thể lưu hợp đồng"
+                            )
+                    );
+
+                    return;
+                }
+
+                dialog.dismiss();
+
+                selectedDocument = null;
+
+                showMessage(
+                        contractToEdit == null
+                                ? "Đã thêm hợp đồng"
+                                : "Đã cập nhật hợp đồng"
+                );
+
+                loadContractsAndRooms();
+            }
+
+            @Override
+            public void onFailure(
+                    @NonNull Call<RentalContract> call,
+                    @NonNull Throwable throwable
+            ) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                        .setEnabled(true);
+
+                showMessage(
+                        "Không thể kết nối đến máy chủ: "
+                                + throwable.getMessage()
+                );
+            }
+        });
+    }
+
+    // -------------------------------------------------------------------------
+    // Document upload
+    // -------------------------------------------------------------------------
+
+    @Nullable
+    private MultipartBody.Part createDocumentPart() throws IOException {
+        if (selectedDocument == null) {
+            return null;
+        }
+
+        String mimeType = requireContext()
+                .getContentResolver()
+                .getType(selectedDocument);
+
+        String fileName = selectedDocument.getLastPathSegment() == null
+                ? ""
+                : selectedDocument.getLastPathSegment()
+                .toLowerCase(Locale.ROOT);
+
+        boolean isPdf = MIME_PDF.equals(mimeType)
+                || fileName.endsWith(".pdf");
+
+        boolean isDocx = MIME_DOCX.equals(mimeType)
+                || fileName.endsWith(".docx");
+
+        if (!isPdf && !isDocx) {
+            throw new IllegalArgumentException(
+                    "Chỉ hỗ trợ tài liệu PDF hoặc DOCX"
+            );
+        }
+
+        byte[] fileBytes = readDocument(selectedDocument);
+
+        if (fileBytes.length == 0) {
+            throw new IllegalArgumentException(
+                    "Tài liệu được chọn không có dữ liệu"
+            );
+        }
+
+        String selectedMimeType = isPdf ? MIME_PDF : MIME_DOCX;
+        String extension = isPdf ? "pdf" : "docx";
+
+        RequestBody requestBody = RequestBody.create(
+                fileBytes,
+                MediaType.parse(selectedMimeType)
+        );
+
+        return MultipartBody.Part.createFormData(
+                "document",
+                "contract." + extension,
+                requestBody
+        );
+    }
+
+    private byte[] readDocument(@NonNull Uri uri) throws IOException {
+        try (
+                InputStream input = requireContext()
+                        .getContentResolver()
+                        .openInputStream(uri);
+
+                ByteArrayOutputStream output = new ByteArrayOutputStream()
+        ) {
+            if (input == null) {
+                throw new IOException(
+                        "Không thể đọc tài liệu được chọn"
+                );
+            }
+
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+
+            while ((bytesRead = input.read(buffer)) != -1) {
+                output.write(buffer, 0, bytesRead);
+            }
+
+            return output.toByteArray();
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Date picker
+    // -------------------------------------------------------------------------
+
+    private void showDatePicker(@NonNull EditText targetInput) {
+        java.util.Calendar calendar =
+                java.util.Calendar.getInstance();
+
+        new DatePickerDialog(
+                requireContext(),
+                (picker, year, month, day) -> {
+                    String date = String.format(
+                            Locale.ROOT,
+                            "%04d-%02d-%02d",
+                            year,
+                            month + 1,
+                            day
+                    );
+
+                    targetInput.setText(date);
+                },
+                calendar.get(java.util.Calendar.YEAR),
+                calendar.get(java.util.Calendar.MONTH),
+                calendar.get(java.util.Calendar.DAY_OF_MONTH)
+        ).show();
+    }
+
+    // -------------------------------------------------------------------------
+    // Parsing and validation helpers
+    // -------------------------------------------------------------------------
+
+    @NonNull
+    private LocalDate parseRequiredDate(@Nullable String text) {
+        if (text == null) {
+            throw new IllegalArgumentException(
+                    "Vui lòng nhập ngày bắt đầu"
+            );
+        }
+
+        String value = text.trim();
+
+        if (value.isEmpty() || UNKNOWN_VALUE.equals(value)) {
+            throw new IllegalArgumentException(
+                    "Vui lòng nhập ngày bắt đầu"
+            );
+        }
+
+        return LocalDate.parse(value);
+    }
+
+    @Nullable
+    private LocalDate parseOptionalDate(@Nullable String text) {
+        if (text == null) {
+            return null;
+        }
+
+        String value = text.trim();
+
+        if (value.isEmpty() || UNKNOWN_VALUE.equals(value)) {
+            return null;
+        }
+
+        return LocalDate.parse(value);
+    }
+
+    @NonNull
+    private BigDecimal parseRequiredAmount(@NonNull String text) {
+        String value = text.trim();
+
+        if (value.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Vui lòng nhập giá trị tiền"
+            );
+        }
+
+        return new BigDecimal(value);
+    }
+
+    @Nullable
+    private Integer parseOptionalInteger(@Nullable String text) {
+        if (text == null) {
+            return null;
+        }
+
+        String value = text.trim();
+
+        if (value.isEmpty() || UNKNOWN_VALUE.equals(value)) {
+            return null;
+        }
+
+        return Integer.valueOf(value);
+    }
+
+    @Nullable
+    private String getOptionalText(@NonNull EditText input) {
+        String value = input.getText().toString().trim();
+
+        return value.isEmpty() ? null : value;
+    }
+
+    @NonNull
+    private String getValue(@Nullable Object value) {
+        return value == null ? "" : value.toString();
+    }
+
+    @NonNull
+    private String getStatusLabel(@Nullable String status) {
+        return STATUS_ACTIVE.equalsIgnoreCase(status)
+                ? "Đang hoạt động"
+                : "Không hoạt động";
+    }
+
+    // -------------------------------------------------------------------------
+    // Loading and messages
+    // -------------------------------------------------------------------------
+
+    private void setLoading(boolean isLoading) {
+        if (loadingIndicator == null) {
+            return;
+        }
+
+        loadingIndicator.setVisibility(
+                isLoading ? View.VISIBLE : View.GONE
+        );
+    }
+
+    private void showMessage(@NonNull String message) {
+        if (!isAdded()) {
+            return;
+        }
+
+        Toast.makeText(
+                requireContext(),
+                message,
+                Toast.LENGTH_LONG
+        ).show();
+    }
+
+    // -------------------------------------------------------------------------
+    // API error parsing
+    // -------------------------------------------------------------------------
+
+    @NonNull
+    private String getErrorMessage(
+            @NonNull Response<?> response,
+            @NonNull String fallback
+    ) {
+        try {
+            if (response.errorBody() == null) {
+                return fallback;
+            }
+
+            String responseBody = response.errorBody().string();
+
+            String message = new org.json.JSONObject(responseBody)
+                    .optString("message");
+
+            if (!message.trim().isEmpty()) {
+                return message;
+            }
+
+        } catch (Exception ignored) {
+            // Dùng thông báo mặc định nếu không đọc được lỗi từ máy chủ.
+        }
+
+        return fallback;
+    }
+
+    // -------------------------------------------------------------------------
+    // Fragment cleanup
+    // -------------------------------------------------------------------------
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        rootView = null;
+
+        searchInput = null;
+        loadingIndicator = null;
+        stateView = null;
+
+        contractAdapter = null;
+    }
 }

@@ -6,7 +6,7 @@
         <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
             android:text="Quản lý hợp đồng" android:textColor="@color/dark_navy" android:textSize="24sp" android:textStyle="bold" />
         <Button android:id="@+id/contract_add" android:layout_width="wrap_content" android:layout_height="48dp"
-            android:minWidth="48dp" android:text="+" android:textSize="20sp" android:textColor="@color/white"
+            android:minWidth="48dp" android:text="Thêm" android:textColor="@color/white"
             android:backgroundTint="@color/primary" android:contentDescription="Thêm hợp đồng" />
     </LinearLayout>
     <EditText android:id="@+id/contract_search" android:layout_width="match_parent" android:layout_height="wrap_content"

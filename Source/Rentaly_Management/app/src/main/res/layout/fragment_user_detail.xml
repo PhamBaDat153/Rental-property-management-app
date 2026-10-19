@@ -20,18 +20,17 @@
 
             <Button
                 android:id="@+id/user_detail_back"
-                android:layout_width="48dp"
+                android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:backgroundTint="@color/primary"
                 android:contentDescription="Quay lại"
-                android:drawableStart="@drawable/back_icon"
                 android:drawablePadding="0dp"
                 android:gravity="center"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
-                android:padding="8dp"
+                android:padding="10dp"
                 android:stateListAnimator="@null"
-                android:text="" />
+                android:text="Quay lại" />
 
             <TextView
                 android:id="@+id/textView4"
