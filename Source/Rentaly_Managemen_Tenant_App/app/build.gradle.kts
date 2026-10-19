@@ -1,0 +1,47 @@
+plugins {
+    alias(libs.plugins.android.application)
+}
+
+android {
+    namespace = "com.example.rentaly_managemen_tenant_app"
+    compileSdk {
+        version = release(37)
+    }
+
+    defaultConfig {
+        applicationId = "com.example.rentaly_managemen_tenant_app"
+        minSdk = 24
+        targetSdk = 37
+        versionCode = 1
+        versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            optimization {
+                enable = true
+                packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
+            }
+        }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
+    }
+}
+
+dependencies {
+    implementation(libs.activity.ktx)
+    implementation(libs.appcompat)
+    implementation(libs.constraintlayout)
+    implementation(libs.material)
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.ext.junit)
+    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+}
