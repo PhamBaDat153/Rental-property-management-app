@@ -1,17 +1,8 @@
-package com.example.rentaly_managemen_tenant_app;
+package com.example.rentaly_managemen_tenant_app.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.example.rentaly_managemen_tenant_app.activities.AnnouncementActivity;
-import com.example.rentaly_managemen_tenant_app.activities.ContractActivity;
-import com.example.rentaly_managemen_tenant_app.activities.ElectricityWaterActivity;
-import com.example.rentaly_managemen_tenant_app.activities.InvoiceListActivity;
-import com.example.rentaly_managemen_tenant_app.activities.LoginActivity;
-import com.example.rentaly_managemen_tenant_app.activities.MaintenanceListActivity;
-import com.example.rentaly_managemen_tenant_app.activities.ProfileActivity;
-import com.example.rentaly_managemen_tenant_app.activities.RoomInfoActivity;
-import com.example.rentaly_managemen_tenant_app.activities.TenantBaseActivity;
 import com.example.rentaly_managemen_tenant_app.models.RentalContract;
 import com.example.rentaly_managemen_tenant_app.models.UserTenant;
 import com.example.rentaly_managemen_tenant_app.network.ApiCallback;
@@ -31,7 +22,7 @@ public class MainActivity extends TenantBaseActivity {
             finish();
             return;
         }
-        createScreen("Khu vực người thuê");
+        createScreen("Khu vực của bạn", false);
         new UserRepository().getProfile(session.getUserId(), new ApiCallback<UserTenant>() {
             @Override
             public void onSuccess(UserTenant profile) {

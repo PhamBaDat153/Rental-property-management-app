@@ -1,5 +1,7 @@
 package com.example.rentaly_managemen_tenant_app.repository;
 
+import android.util.Log;
+
 import com.example.rentaly_managemen_tenant_app.models.LoginRequest;
 import com.example.rentaly_managemen_tenant_app.models.LoginResponse;
 import com.example.rentaly_managemen_tenant_app.network.ApiCallback;
@@ -28,6 +30,9 @@ public class AuthRepository {
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable error) {
+                // Record transport/conversion failures without logging the request body
+                // (which contains the user's password).
+                Log.e("TenantApi", "Login request failed", error);
                 callback.onError("Không thể kết nối đến máy chủ. Hãy kiểm tra API đang chạy.");
             }
         });

@@ -567,5 +567,15 @@ ON DUPLICATE KEY UPDATE
     `unit` = VALUES(`unit`),
     `calculation_method` = VALUES(`calculation_method`),
     `default_unit_price` = VALUES(`default_unit_price`);
-
+INSERT INTO `user`
+    (`user_id`, `role_id`, `tenant_id`, `user_name`, `password_hash`, `status`)
+VALUES
+    (
+        UUID_TO_BIN(UUID()),
+        UUID_TO_BIN('00000000-0000-4000-8000-000000000002'),
+        NULL,
+        'lol123',
+        '$2a$12$fDnWOGjTS0eVkBaG4d3cFOXoGiVWYJ73udf6FzFQmXOcTP8OJBUX2',
+        'ACTIVE'
+    );
 SET FOREIGN_KEY_CHECKS = 1;

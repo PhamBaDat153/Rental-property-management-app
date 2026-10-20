@@ -1,6 +1,8 @@
 package com.example.rentaly_managemen_tenant_app.activities;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -9,7 +11,6 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.rentaly_managemen_tenant_app.MainActivity;
 import com.example.rentaly_managemen_tenant_app.R;
 import com.example.rentaly_managemen_tenant_app.models.LoginResponse;
 import com.example.rentaly_managemen_tenant_app.network.ApiCallback;
@@ -17,6 +18,9 @@ import com.example.rentaly_managemen_tenant_app.repository.AuthRepository;
 import com.example.rentaly_managemen_tenant_app.utils.SessionManager;
 
 public class LoginActivity extends AppCompatActivity {
+    private static final int REQUEST_LOCAL_NETWORK_PERMISSION = 2001;
+    private static final String ACCESS_LOCAL_NETWORK = "android.permission.ACCESS_LOCAL_NETWORK";
+
     private EditText usernameInput;
     private EditText passwordInput;
     private Button loginButton;
@@ -58,6 +62,16 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        // Android 17 blocks LAN connections by default for apps targeting API 37+.
+        if (Build.VERSION.SDK_INT >= 37
+                && checkSelfPermission(ACCESS_LOCAL_NETWORK) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(
+                    new String[]{ACCESS_LOCAL_NETWORK},
+                    REQUEST_LOCAL_NETWORK_PERMISSION
+            );
+            return;
+        }
+
         setLoading(true);
         authRepository.login(username, password, new ApiCallback<LoginResponse>() {
             @Override
@@ -73,6 +87,25 @@ public class LoginActivity extends AppCompatActivity {
                 errorText.setVisibility(android.view.View.VISIBLE);
             }
         });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode,
+            String[] permissions,
+            int[] grantResults
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode != REQUEST_LOCAL_NETWORK_PERMISSION) {
+            return;
+        }
+
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            login();
+        } else {
+            errorText.setText("Cần cấp quyền truy cập mạng cục bộ để kết nối tới máy chủ API.");
+            errorText.setVisibility(android.view.View.VISIBLE);
+        }
     }
 
     private void setLoading(boolean loading) {

@@ -16,15 +16,22 @@ public class ProfileActivity extends TenantBaseActivity {
             public void onSuccess(UserTenant user) {
                 showLoaded();
                 addSection(value(user.full_name));
+                addSection("Tài khoản");
                 addLine("Tên đăng nhập: " + value(user.user_name));
                 addLine("Trạng thái: " + value(user.status));
+
+                addSection("Thông tin cá nhân");
                 addLine("Điện thoại: " + value(user.phone));
                 addLine("Email: " + value(user.email));
                 addLine("Giới tính: " + value(user.gender));
                 addLine("Ngày sinh: " + value(user.date_of_birth));
+
+                addSection("Giấy tờ tùy thân");
                 addLine("Loại giấy tờ: " + value(user.identityType));
                 addLine("Số giấy tờ: " + value(user.identity_number));
                 addLine("Ngày/nơi cấp: " + value(user.identity_issued_date) + " / " + value(user.identity_issued_place));
+
+                addSection("Địa chỉ và liên hệ");
                 addLine("Địa chỉ thường trú: " + value(user.permanent_address));
                 addLine("Liên hệ khẩn cấp: " + value(user.emergency_contact_name)
                         + " — " + value(user.emergency_contact_phone));

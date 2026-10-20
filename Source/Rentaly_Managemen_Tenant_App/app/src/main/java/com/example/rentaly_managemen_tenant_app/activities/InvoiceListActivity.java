@@ -22,15 +22,16 @@ public class InvoiceListActivity extends TenantBaseActivity {
                     showEmpty("Chưa có hóa đơn.");
                     return;
                 }
+                addSection("Danh sách hóa đơn");
                 for (Invoice invoice : invoices) {
                     String number = invoice.invoice_number == null
                             ? value(invoice.invoice_id) : invoice.invoice_number;
-                    addButton(number + "  |  " + value(invoice.status)
-                                    + "  |  " + value(invoice.total_amount), v -> {
+                    addButton(number + "  ·  " + value(invoice.status), v -> {
                                 Intent intent = new Intent(InvoiceListActivity.this, InvoiceDetailActivity.class);
                                 intent.putExtra("invoice_id", invoice.invoice_id.toString());
                                 startActivity(intent);
                             });
+                    addLine("Tổng thanh toán: " + value(invoice.total_amount));
                     addLine("Hạn thanh toán: " + value(invoice.due_date));
                 }
             }

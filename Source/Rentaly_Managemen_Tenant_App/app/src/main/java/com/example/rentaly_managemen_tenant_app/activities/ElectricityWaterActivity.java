@@ -31,7 +31,8 @@ public class ElectricityWaterActivity extends TenantBaseActivity {
                     return;
                 }
                 for (Meter meter : meters) {
-                    addSection(value(meter.meter_type) + " · " + value(meter.status));
+                    addSection(value(meter.meter_type));
+                    addLine("Trạng thái đồng hồ: " + value(meter.status));
                     if (meter.meter_id != null) {
                         String id = meter.meter_id.toString();
                         addButton("Xem lịch sử chỉ số", v -> loadReadings(id));
@@ -54,10 +55,13 @@ public class ElectricityWaterActivity extends TenantBaseActivity {
                     return;
                 }
                 for (MeterReading reading : readings) {
-                    addLine(value(reading.reading_at) + "\nChỉ số trước: " + value(reading.previous_value)
-                            + " · Chỉ số mới: " + value(reading.current_value)
-                            + " · Tiêu thụ: " + value(reading.quantity)
-                            + (reading.note == null ? "" : "\n" + reading.note));
+                    addSection(value(reading.reading_at));
+                    addLine("Chỉ số trước: " + value(reading.previous_value));
+                    addLine("Chỉ số mới: " + value(reading.current_value));
+                    addLine("Mức tiêu thụ: " + value(reading.quantity));
+                    if (reading.note != null && !reading.note.trim().isEmpty()) {
+                        addLine("Ghi chú: " + reading.note);
+                    }
                 }
             }
 

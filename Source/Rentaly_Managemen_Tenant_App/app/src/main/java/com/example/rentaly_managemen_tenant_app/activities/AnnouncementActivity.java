@@ -32,9 +32,10 @@ public class AnnouncementActivity extends TenantBaseActivity {
                     return;
                 }
                 for (Announcement item : visible) {
-                    addSection(value(item.announcement_type) + " · " + value(item.sent_at));
+                    addSection(value(item.announcement_type));
+                    addLine("Ngày gửi: " + value(item.sent_at));
                     addLine(value(item.content));
-                    if (item.status != null) addLine("Trạng thái: " + item.status);
+                    if (item.status != null) addLine("Tình trạng: " + item.status);
                 }
             }
 

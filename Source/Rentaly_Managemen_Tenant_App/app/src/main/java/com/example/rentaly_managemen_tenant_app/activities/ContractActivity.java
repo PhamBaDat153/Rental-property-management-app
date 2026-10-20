@@ -23,13 +23,19 @@ public class ContractActivity extends TenantBaseActivity {
                     return;
                 }
                 for (RentalContract contract : contracts) {
-                    addSection("Hợp đồng " + value(contract.contract_id));
+                    addSection("Hợp đồng thuê  ·  " + value(contract.contract_id));
+                    addSection("Thông tin hợp đồng");
                     addLine("Trạng thái: " + value(contract.status));
                     addLine("Thời hạn: " + value(contract.start_date) + " – " + value(contract.end_date));
+
+                    addSection("Chi phí và thanh toán");
                     addLine("Tiền thuê: " + value(contract.rent_amount) + " | Tiền cọc: " + value(contract.deposit_required));
                     addLine("Ngày thanh toán: ngày " + value(contract.billing_day)
                             + " | Hạn thanh toán: " + value(contract.payment_due_days) + " ngày");
-                    if (contract.terms != null && !contract.terms.trim().isEmpty()) addLine("Điều khoản: " + contract.terms);
+                    if (contract.terms != null && !contract.terms.trim().isEmpty()) {
+                        addSection("Điều khoản");
+                        addLine(contract.terms);
+                    }
                     if (contract.room_id != null) {
                         String roomId = contract.room_id.toString();
                         addButton("Xem phòng trong hợp đồng", v -> {

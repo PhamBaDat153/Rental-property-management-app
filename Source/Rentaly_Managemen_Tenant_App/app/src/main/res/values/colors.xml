@@ -2,5 +2,11 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="primary">#548CA8</color>
+    <color name="background">#FFEEEEEE</color>
+    <color name="primary">#FF548CA8</color>
+    <color name="secondary">#FF476072</color>
+    <color name="dark_navy">#FF334257</color>
+    <color name="surface">#FFFFFFFF</color>
+    <color name="outline">#FFDAE1E6</color>
+    <color name="error">#FFB3261E</color>
 </resources>

@@ -1,7 +1,6 @@
 package com.example.rentaly_managemen_tenant_app.activities;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -23,27 +22,24 @@ public class CreateMaintenanceActivity extends TenantBaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         createScreen("Tạo yêu cầu bảo trì");
+        addSection("Mô tả sự cố cần hỗ trợ");
         titleInput = new EditText(this);
-        titleInput.setHint("Tiêu đề yêu cầu");
         titleInput.setSingleLine(true);
-        content.addView(titleInput);
+        styleInput(titleInput, "Tiêu đề yêu cầu", 1);
 
         descriptionInput = new EditText(this);
-        descriptionInput.setHint("Mô tả sự cố");
-        descriptionInput.setMinLines(3);
-        descriptionInput.setGravity(android.view.Gravity.TOP);
-        content.addView(descriptionInput);
+        descriptionInput.setInputType(android.text.InputType.TYPE_CLASS_TEXT
+                | android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                | android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        styleInput(descriptionInput, "Mô tả chi tiết vấn đề", 4);
 
-        addLine("Mức độ ưu tiên");
+        addSection("Mức độ ưu tiên");
         priorityInput = new Spinner(this);
-        String[] priorities = {"LOW", "MEDIUM", "HIGH"};
+        String[] priorityLabels = {"Thấp", "Trung bình", "Cao"};
         priorityInput.setAdapter(new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_dropdown_item, priorities));
-        content.addView(priorityInput);
-        submitButton = new android.widget.Button(this);
-        submitButton.setText("Gửi yêu cầu");
-        content.addView(submitButton);
-        submitButton.setOnClickListener(v -> submit());
+                android.R.layout.simple_spinner_dropdown_item, priorityLabels));
+        styleSpinner(priorityInput);
+        submitButton = addPrimaryButton("Gửi yêu cầu bảo trì", v -> submit());
     }
 
     private void submit() {
@@ -68,9 +64,10 @@ public class CreateMaintenanceActivity extends TenantBaseActivity {
         submitButton.setEnabled(false);
         submitButton.setText("Đang gửi...");
         showLoaded();
+        String[] priorities = {"LOW", "MEDIUM", "HIGH"};
         MaintenanceRequest request = new MaintenanceRequest(
                 UUID.fromString(session.getUserId()), UUID.fromString(roomId), title,
-                description, priorityInput.getSelectedItem().toString(), "PENDING");
+                description, priorities[priorityInput.getSelectedItemPosition()], "PENDING");
         new MaintenanceRepository().createRequest(request, new ApiCallback<Maintenance>() {
             @Override
             public void onSuccess(Maintenance result) {
@@ -83,10 +80,8 @@ public class CreateMaintenanceActivity extends TenantBaseActivity {
             @Override
             public void onError(String error) {
                 submitButton.setEnabled(true);
-                submitButton.setText("Gửi yêu cầu");
-                message.setText(error);
-                message.setVisibility(View.VISIBLE);
-                message.setTextColor(0xffb3261e);
+                submitButton.setText("Gửi yêu cầu bảo trì");
+                showFailure(error);
             }
         });
     }

@@ -27,12 +27,18 @@ public class RoomInfoActivity extends TenantBaseActivity {
             @Override
             public void onSuccess(Room room) {
                 showLoaded();
-                addSection(value(room.room_name) + " (" + value(room.room_code) + ")");
+                addSection(value(room.room_name) + "  ·  " + value(room.room_code));
+                addSection("Thông tin phòng");
                 addLine("Trạng thái: " + value(room.status));
-                addLine("Tầng: " + value(room.floor) + " | Diện tích: " + value(room.area_m2) + " m²");
-                addLine("Sức chứa: " + value(room.max_occupants) + " | Giá thuê niêm yết: " + value(room.rent_price));
+                addLine("Tầng: " + value(room.floor));
+                addLine("Diện tích: " + value(room.area_m2) + " m²");
+                addLine("Sức chứa: " + value(room.max_occupants));
+                addLine("Giá thuê niêm yết: " + value(room.rent_price));
                 if (room.description != null) addLine("Mô tả: " + room.description);
-                if (room.location_id != null) loadLocation(room.location_id.toString());
+                if (room.location_id != null) {
+                    addSection("Địa chỉ");
+                    loadLocation(room.location_id.toString());
+                }
                 loadServices(roomId);
             }
 
@@ -60,12 +66,12 @@ public class RoomInfoActivity extends TenantBaseActivity {
         repository.getRoomServices(roomId, new ApiCallback<List<RoomService>>() {
             @Override
             public void onSuccess(List<RoomService> services) {
-                addSection("Dịch vụ phòng");
+                addSection("Dịch vụ đang áp dụng");
                 if (services.isEmpty()) addLine("Chưa có dịch vụ được gán.");
                 for (RoomService service : services) {
-                    addLine(value(service.name) + " — " + value(service.default_unit_price)
-                            + " / " + value(service.unit)
-                            + (Boolean.FALSE.equals(service.is_active) ? " (ngừng hoạt động)" : ""));
+                    addSection(value(service.name));
+                    addLine("Đơn giá: " + value(service.default_unit_price) + " / " + value(service.unit));
+                    if (Boolean.FALSE.equals(service.is_active)) addLine("Trạng thái: Ngừng hoạt động");
                 }
             }
             @Override
