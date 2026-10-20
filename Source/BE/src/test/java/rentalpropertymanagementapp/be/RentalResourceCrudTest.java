@@ -6,7 +6,7 @@ import rentalpropertymanagementapp.be.DTO.RentalContractRequest;
 import rentalpropertymanagementapp.be.Exception.ResourceConflictException;
 import rentalpropertymanagementapp.be.Model.Enum.ActiveStatus;
 import rentalpropertymanagementapp.be.Service.ContractTenantServiceImplement;
-import rentalpropertymanagementapp.be.Service.RentalContractResourceImplement;
+import rentalpropertymanagementapp.be.Service.RentalContractServiceImplement;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
 class RentalResourceCrudTest {
     @Test
     void rejectsContractEndBeforeStart() {
-        RentalContractResourceImplement service = new RentalContractResourceImplement(null, null, null, null, null);
+        RentalContractServiceImplement service = new RentalContractServiceImplement(null, null, null, null, null);
         assertThrows(ResourceConflictException.class, () -> service.create(new RentalContractRequest(
                  UUID.randomUUID(), LocalDate.of(2026, 2, 1), LocalDate.of(2026, 1, 1), null,
                  BigDecimal.ZERO, BigDecimal.ZERO, null, 0, ActiveStatus.ACTIVE, null, null, null, null), null));
