@@ -586,8 +586,11 @@ public class RoomDetailFragment extends Fragment {
     }
 
     private void submitRoomUpdate(@NonNull RequestBody body) {
-        rootView.findViewById(R.id.room_detail_save)
-                .setEnabled(false);
+        View saveButton = rootView.findViewById(R.id.room_detail_save);
+        saveButton.setEnabled(false);
+        if (saveButton instanceof Button) {
+            ((Button) saveButton).setText("Đang lưu...");
+        }
 
         ApiClient.api.updateRoom(
                 room.room_id.toString(),
@@ -604,8 +607,11 @@ public class RoomDetailFragment extends Fragment {
                     return;
                 }
 
-                rootView.findViewById(R.id.room_detail_save)
-                        .setEnabled(true);
+                View saveButton = rootView.findViewById(R.id.room_detail_save);
+                saveButton.setEnabled(true);
+                if (saveButton instanceof Button) {
+                    ((Button) saveButton).setText("Lưu thay đổi");
+                }
 
                 if (!response.isSuccessful() || response.body() == null) {
                     showMessage("Không thể cập nhật phòng");
@@ -629,8 +635,11 @@ public class RoomDetailFragment extends Fragment {
                     return;
                 }
 
-                rootView.findViewById(R.id.room_detail_save)
-                        .setEnabled(true);
+                View saveButton = rootView.findViewById(R.id.room_detail_save);
+                saveButton.setEnabled(true);
+                if (saveButton instanceof Button) {
+                    ((Button) saveButton).setText("Lưu thay đổi");
+                }
 
                 showMessage(
                         "Không thể kết nối đến máy chủ"

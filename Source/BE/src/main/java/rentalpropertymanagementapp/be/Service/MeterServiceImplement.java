@@ -21,6 +21,7 @@ import rentalpropertymanagementapp.be.Ultilities.CloudinaryFileUploader;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+import java.math.BigDecimal;
 
 @Service
 public class MeterServiceImplement implements MeterService {
@@ -133,6 +134,7 @@ public class MeterServiceImplement implements MeterService {
     public MeterReading createReading(
             MeterReadingRequest request
     ) {
+        request = withCalculatedValues(request);
         MeterReading reading = toReading(
                 new MeterReading(),
                 request
@@ -147,6 +149,7 @@ public class MeterServiceImplement implements MeterService {
             MeterReadingRequest request,
             MultipartFile evidence
     ) {
+        request = withCalculatedValues(request);
         MeterReadingRequest requestWithEvidence =
                 withEvidence(request, evidence);
 
@@ -263,6 +266,34 @@ public class MeterServiceImplement implements MeterService {
         reading.setNote(request.note());
 
         return reading;
+    }
+
+    private MeterReadingRequest withCalculatedValues(MeterReadingRequest request) {
+        if (request.current_value() == null) {
+            throw new ResourceConflictException("Current meter value is required");
+        }
+
+        List<MeterReading> history = readings.findByMeterId(request.meter_id());
+        MeterReading previous = history.isEmpty() ? null : history.get(0);
+        BigDecimal previousValue = previous == null
+                ? BigDecimal.ZERO
+                : previous.getCurrent_value();
+
+        if (request.current_value().compareTo(previousValue) < 0) {
+            throw new ResourceConflictException(
+                    "Current meter value must not be smaller than previous value"
+            );
+        }
+
+        return new MeterReadingRequest(
+                request.meter_id(),
+                request.reading_at(),
+                request.current_value(),
+                previousValue,
+                request.current_value().subtract(previousValue),
+                request.evidence_url(),
+                request.note()
+        );
     }
 
     // Tìm phòng theo UUID.

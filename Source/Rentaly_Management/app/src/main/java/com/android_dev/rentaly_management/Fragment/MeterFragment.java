@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -15,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,6 +58,9 @@ import retrofit2.Response;
  * MeterReadingAdapter.
  */
 public class MeterFragment extends Fragment {
+
+    private static final String[] METER_LABELS = {"Điện", "Nước"};
+    private static final String[] METER_TYPES = {"ELECTRICITY", "WATER"};
 
     // -------------------------------------------------------------------------
     // Constants
@@ -271,9 +276,15 @@ public class MeterFragment extends Fragment {
                 null
         );
 
-        EditText typeInput = formView.findViewById(
+        Spinner typeInput = formView.findViewById(
                 R.id.meter_form_type
         );
+        ArrayAdapter<String> typeAdapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_spinner_dropdown_item,
+                METER_LABELS
+        );
+        typeInput.setAdapter(typeAdapter);
 
         RadioButton availableButton = formView.findViewById(
                 R.id.meter_form_available
@@ -318,14 +329,22 @@ public class MeterFragment extends Fragment {
     }
 
     private void populateMeterForm(
-            @NonNull EditText typeInput,
+            @NonNull Spinner typeInput,
             @NonNull RadioButton availableButton,
             @NonNull RadioButton unavailableButton,
             @Nullable Meter meter
     ) {
-        typeInput.setText(
-                meter == null ? "" : getValue(meter.meter_type)
-        );
+        if (meter != null && meter.meter_type != null) {
+            for (int index = 0; index < typeInput.getCount(); index++) {
+                String option = String.valueOf(typeInput.getItemAtPosition(index));
+                boolean matches = ("ELECTRICITY".equalsIgnoreCase(meter.meter_type) && "Điện".equals(option))
+                        || ("WATER".equalsIgnoreCase(meter.meter_type) && "Nước".equals(option));
+                if (matches) {
+                    typeInput.setSelection(index);
+                    break;
+                }
+            }
+        }
 
         String status = meter == null
                 ? STATUS_AVAILABLE
@@ -344,17 +363,17 @@ public class MeterFragment extends Fragment {
     // -------------------------------------------------------------------------
 
     private void saveMeter(
-            @NonNull EditText typeInput,
+            @NonNull Spinner typeInput,
             @NonNull RadioButton availableButton,
             @Nullable Meter meterToEdit,
             @NonNull AlertDialog dialog
     ) {
-        String meterType = typeInput.getText()
-                .toString()
-                .trim();
+        Object selectedType = typeInput.getSelectedItem();
+        String meterLabel = selectedType == null ? "" : selectedType.toString();
+        String meterType = meterLabel.equals("Nước") ? METER_TYPES[1] : METER_TYPES[0];
 
-        if (meterType.isEmpty()) {
-            showMessage("Vui lòng nhập loại đồng hồ");
+        if (meterLabel.isEmpty()) {
+            showMessage("Vui lòng chọn loại đồng hồ");
             return;
         }
 
@@ -392,6 +411,10 @@ public class MeterFragment extends Fragment {
     ) {
         dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setEnabled(false);
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                .setEnabled(false);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setText("Đang lưu...");
 
         Call<Meter> call;
 
@@ -418,6 +441,10 @@ public class MeterFragment extends Fragment {
                 if (!response.isSuccessful()) {
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                             .setEnabled(true);
+                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                            .setEnabled(true);
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                            .setText("Lưu");
 
                     showMessage("Không thể lưu đồng hồ");
                     return;
@@ -621,7 +648,7 @@ public class MeterFragment extends Fragment {
         addButton.setText("Thêm");
 
         addButton.setOnClickListener(
-                view -> showReadingForm(meter, null)
+                 view -> loadLatestReadingForForm(meter)
         );
 
         container.addView(
@@ -646,6 +673,39 @@ public class MeterFragment extends Fragment {
         );
 
         dialog.show();
+    }
+
+    private void loadLatestReadingForForm(@NonNull Meter meter) {
+        if (meter.meter_id == null) {
+            showMessage("Không xác định được đồng hồ");
+            return;
+        }
+
+        ApiClient.api.meterReadings(meter.meter_id.toString()).enqueue(
+                new Callback<List<MeterReading>>() {
+                    @Override
+                    public void onResponse(
+                            @NonNull Call<List<MeterReading>> call,
+                            @NonNull Response<List<MeterReading>> response
+                    ) {
+                        if (!response.isSuccessful() || response.body() == null) {
+                            showMessage("Không thể tải chỉ số trước đó");
+                            return;
+                        }
+                        showReadingForm(meter, null, response.body().isEmpty()
+                                ? BigDecimal.ZERO
+                                : response.body().get(0).current_value);
+                    }
+
+                    @Override
+                    public void onFailure(
+                            @NonNull Call<List<MeterReading>> call,
+                            @NonNull Throwable throwable
+                    ) {
+                        showMessage("Không thể tải chỉ số trước đó");
+                    }
+                }
+        );
     }
 
     /**
@@ -762,6 +822,14 @@ public class MeterFragment extends Fragment {
             @NonNull Meter meter,
             @Nullable MeterReading readingToEdit
     ) {
+        showReadingForm(meter, readingToEdit, null);
+    }
+
+    private void showReadingForm(
+            @NonNull Meter meter,
+            @Nullable MeterReading readingToEdit,
+            @Nullable BigDecimal previousValue
+    ) {
         evidenceUri = null;
         evidencePreview = null;
 
@@ -772,7 +840,7 @@ public class MeterFragment extends Fragment {
 
         ReadingForm form = new ReadingForm(formView);
 
-        populateReadingForm(form, readingToEdit);
+        populateReadingForm(form, readingToEdit, previousValue);
         setupEvidencePicker(form);
 
         AlertDialog dialog = new AlertDialog.Builder(requireContext())
@@ -859,7 +927,8 @@ public class MeterFragment extends Fragment {
 
     private void populateReadingForm(
             @NonNull ReadingForm form,
-            @Nullable MeterReading reading
+            @Nullable MeterReading reading,
+            @Nullable BigDecimal automaticPreviousValue
     ) {
         form.readingAtInput.setText(
                 reading == null || reading.reading_at == null
@@ -869,7 +938,8 @@ public class MeterFragment extends Fragment {
 
         form.previousValueInput.setText(
                 reading == null
-                        ? "0"
+                        ? getValue(automaticPreviousValue == null
+                                ? BigDecimal.ZERO : automaticPreviousValue)
                         : getValue(reading.previous_value)
         );
 
@@ -879,11 +949,21 @@ public class MeterFragment extends Fragment {
                         : getValue(reading.current_value)
         );
 
-        form.quantityInput.setText(
-                reading == null
-                        ? "0"
-                        : getValue(reading.quantity)
-        );
+        form.quantityInput.setText(reading == null ? "0" : getValue(reading.quantity));
+        form.currentValueInput.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                try {
+                    BigDecimal previous = new BigDecimal(form.previousValueInput.getText().toString().trim());
+                    BigDecimal current = new BigDecimal(s.toString().trim());
+                    form.quantityInput.setText(current.compareTo(previous) >= 0
+                            ? current.subtract(previous).toPlainString() : "");
+                } catch (Exception ignored) {
+                    form.quantityInput.setText("");
+                }
+            }
+            @Override public void afterTextChanged(android.text.Editable s) { }
+        });
 
         form.noteInput.setText(
                 reading == null
@@ -929,13 +1009,8 @@ public class MeterFragment extends Fragment {
                     form.currentValueInput.getText().toString()
             );
 
-            BigDecimal previousValue = parseRequiredDecimal(
-                    form.previousValueInput.getText().toString()
-            );
-
-            BigDecimal quantity = parseRequiredDecimal(
-                    form.quantityInput.getText().toString()
-            );
+            BigDecimal previousValue = parseRequiredDecimal(form.previousValueInput.getText().toString());
+            BigDecimal quantity = currentValue.subtract(previousValue);
 
             if (!validReadingValues(
                     currentValue,
@@ -943,7 +1018,7 @@ public class MeterFragment extends Fragment {
                     quantity
             )) {
                 throw new IllegalArgumentException(
-                        "Các chỉ số phải là số không âm"
+                        "Chỉ số hiện tại phải lớn hơn hoặc bằng chỉ số trước"
                 );
             }
 
@@ -996,6 +1071,10 @@ public class MeterFragment extends Fragment {
     ) {
         dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setEnabled(false);
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                .setEnabled(false);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setText("Đang lưu...");
 
         Call<MeterReading> call;
 
@@ -1034,6 +1113,10 @@ public class MeterFragment extends Fragment {
                 if (!response.isSuccessful()) {
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                             .setEnabled(true);
+                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                            .setEnabled(true);
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                            .setText("Lưu");
 
                     showMessage("Không thể lưu chỉ số");
                     return;
@@ -1225,7 +1308,9 @@ public class MeterFragment extends Fragment {
                 && quantity != null
                 && current.signum() >= 0
                 && previous.signum() >= 0
-                && quantity.signum() >= 0;
+                && quantity.signum() >= 0
+                && current.compareTo(previous) >= 0
+                && current.subtract(previous).compareTo(quantity) == 0;
     }
 
     static String readingLabel(MeterReading reading) {

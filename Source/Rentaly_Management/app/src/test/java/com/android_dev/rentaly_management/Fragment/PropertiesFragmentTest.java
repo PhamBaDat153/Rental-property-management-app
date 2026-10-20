@@ -20,14 +20,14 @@ public class PropertiesFragmentTest {
         assertTrue(PropertiesFragment.locationMatches(location, "chi minh"));
     }
 
-    @Test public void roomFilterUsesOnlyRoomNameAndKeepsUnnamedSeparate() {
+    @Test public void roomFilterMatchesNameAndCodeAndKeepsUnnamedSeparate() {
         Room room = new Room();
         room.room_name = "Phòng ban công";
         room.room_code = "A101";
         assertTrue(PropertiesFragment.roomMatches(room, "ban công"));
-        assertFalse(PropertiesFragment.roomMatches(room, "a101"));
+        assertTrue(PropertiesFragment.roomMatches(room, "a101"));
         room.room_name = null;
-        assertFalse(PropertiesFragment.roomMatches(room, "a101"));
+        assertTrue(PropertiesFragment.roomMatches(room, "a101"));
         assertEquals("Chưa đặt tên phòng", PropertiesFragment.roomName(room));
     }
 }

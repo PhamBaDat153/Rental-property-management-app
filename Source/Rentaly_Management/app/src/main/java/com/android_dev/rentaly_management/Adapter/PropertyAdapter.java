@@ -50,7 +50,12 @@ public class PropertyAdapter extends ArrayAdapter<Object> {
         Object item = getItem(position);
 
         if (item instanceof Location) { Location l = (Location) item; primary.setText(value(l.location_code)); secondary.setText(formatter.address(l)); meta.setText("Trạng thái: " + formatter.status(l.status)); }
-        else { Room r = (Room) item; primary.setText(formatter.roomName(r)); secondary.setText("Mã phòng: " + value(r.room_code)); meta.setText("Địa điểm: " + formatter.location(r.location_id) + " | " + formatter.status(r.status)); }
+        else {
+            Room r = (Room) item;
+            primary.setText(formatter.roomName(r));
+            secondary.setText("Mã phòng: " + value(r.room_code)
+            meta.setText(value(r.rent_price) + " VND/tháng · " + formatter.status(r.status));
+        }
 
         return row;
     }

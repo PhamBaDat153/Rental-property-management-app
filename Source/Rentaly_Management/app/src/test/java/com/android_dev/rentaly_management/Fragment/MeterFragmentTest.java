@@ -13,7 +13,7 @@ import static org.junit.Assert.assertTrue;
 
 public class MeterFragmentTest {
     @Test public void readingValidationRejectsNegativeValues() {
-        assertTrue(MeterFragment.validReadingValues(BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.ZERO));
+        assertTrue(MeterFragment.validReadingValues(BigDecimal.ONE, BigDecimal.ZERO, BigDecimal.ONE));
         assertFalse(MeterFragment.validReadingValues(new BigDecimal("-0.1"), BigDecimal.ZERO, BigDecimal.ZERO));
         assertFalse(MeterFragment.validReadingValues(null, BigDecimal.ZERO, BigDecimal.ZERO));
     }

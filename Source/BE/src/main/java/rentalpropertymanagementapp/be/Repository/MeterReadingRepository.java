@@ -24,4 +24,5 @@ public interface MeterReadingRepository
     List<MeterReading> findByMeterId(
             @Param("meterId") UUID meterId
     );
+
 }

@@ -619,7 +619,9 @@ public class PropertiesFragment extends Fragment {
         }
 
         return room != null
-                && text(room.room_name).contains(query);
+                && (text(room.room_name).contains(query)
+                || text(room.room_code).contains(query)
+                || text(room.status).contains(query));
     }
 
     // -------------------------------------------------------------------------
@@ -940,6 +942,10 @@ public class PropertiesFragment extends Fragment {
                 if (!response.isSuccessful()) {
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                             .setEnabled(true);
+                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                            .setEnabled(true);
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                            .setText("Lưu");
 
                     showMessage(
                             getErrorMessage(
@@ -1315,6 +1321,10 @@ public class PropertiesFragment extends Fragment {
     ) {
         dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setEnabled(false);
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                .setEnabled(false);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setText("Đang lưu...");
 
         Call<Room> call;
 
@@ -1353,6 +1363,10 @@ public class PropertiesFragment extends Fragment {
                 if (!response.isSuccessful()) {
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                             .setEnabled(true);
+                    dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+                            .setEnabled(true);
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                            .setText("Lưu");
 
                     showMessage(
                             getErrorMessage(
@@ -1366,6 +1380,8 @@ public class PropertiesFragment extends Fragment {
 
                 dialog.dismiss();
 
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                        .setText("Lưu");
                 showMessage(
                         current == null
                                 ? "Đã thêm phòng"
