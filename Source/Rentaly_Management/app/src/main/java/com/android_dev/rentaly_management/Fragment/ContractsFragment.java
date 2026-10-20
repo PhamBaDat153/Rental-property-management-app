@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -32,6 +33,7 @@ import com.android_dev.rentaly_management.DTO.RentalContract;
 import com.android_dev.rentaly_management.DTO.RentalContractRequest;
 import com.android_dev.rentaly_management.DTO.Room;
 import com.android_dev.rentaly_management.R;
+import com.android_dev.rentaly_management.Util.DateUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -111,6 +113,7 @@ public class ContractsFragment extends Fragment {
     private EditText searchInput;
     private ProgressBar loadingIndicator;
     private TextView stateView;
+    private TextView resultCountView;
 
     // -------------------------------------------------------------------------
     // Fragment lifecycle
@@ -144,6 +147,7 @@ public class ContractsFragment extends Fragment {
         searchInput = rootView.findViewById(R.id.contract_search);
         loadingIndicator = rootView.findViewById(R.id.contract_loading);
         stateView = rootView.findViewById(R.id.contract_state);
+        resultCountView = rootView.findViewById(R.id.contract_result_count);
     }
 
     private void setupContractList() {
@@ -425,11 +429,8 @@ public class ContractsFragment extends Fragment {
         visibleContracts.clear();
 
         for (RentalContract contract : contracts) {
-            if (ContractDisplay.matchesRoomCode(
-                    contract,
-                    rooms,
-                    query
-            )) {
+            boolean matchesQuery = ContractDisplay.matchesRoomCode(contract, rooms, query);
+            if (matchesQuery) {
                 visibleContracts.add(contract);
             }
         }
@@ -446,10 +447,18 @@ public class ContractsFragment extends Fragment {
         stateView.setVisibility(
                 isEmpty ? View.VISIBLE : View.GONE
         );
+        if (resultCountView != null) {
+            resultCountView.setVisibility(View.VISIBLE);
+            resultCountView.setText(visibleContracts.size() + " hợp đồng");
+        }
 
         if (isEmpty) {
-            stateView.setText(EMPTY_MESSAGE);
-            stateView.setOnClickListener(null);
+            stateView.setText(query.isEmpty()
+                    ? "Chưa có hợp đồng.\nThêm hợp đồng đầu tiên để bắt đầu quản lý."
+                    : "Không tìm thấy hợp đồng phù hợp.\nXóa tìm kiếm để xem lại danh sách.");
+            stateView.setOnClickListener(query.isEmpty()
+                    ? view -> showContractForm(null)
+                    : view -> searchInput.setText(""));
         }
     }
 
@@ -476,6 +485,32 @@ public class ContractsFragment extends Fragment {
 
         setupRoomSpinner(form.roomSpinner, contractToEdit);
         populateContractForm(form, contractToEdit);
+        form.roomSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(
+                    @NonNull AdapterView<?> parent,
+                    View view,
+                    int position,
+                    long id
+            ) {
+                if (position >= 0 && position < rooms.size()) {
+                    Room room = rooms.get(position);
+                    form.rentInput.setText(
+                            room == null || room.rent_price == null
+                                    ? ""
+                                    : getValue(room.rent_price)
+                    );
+                }
+            }
+
+            @Override
+            public void onNothingSelected(@NonNull AdapterView<?> parent) {
+                form.rentInput.setText("");
+            }
+        });
+        if (contractToEdit == null && !rooms.isEmpty()) {
+            form.rentInput.setText(getValue(rooms.get(0).rent_price));
+        }
         setupDatePickers(form);
         setupDocumentPicker(form);
 
@@ -587,11 +622,11 @@ public class ContractsFragment extends Fragment {
             @Nullable RentalContract contract
     ) {
         form.startDateInput.setText(
-                contract == null ? "" : getValue(contract.start_date)
+                contract == null ? "" : DateUtils.formatDate(contract.start_date)
         );
 
         form.endDateInput.setText(
-                contract == null ? "" : getValue(contract.end_date)
+                contract == null ? "" : DateUtils.formatDateOrOpen(contract.end_date)
         );
 
         form.rentInput.setText(
@@ -617,7 +652,7 @@ public class ContractsFragment extends Fragment {
         );
 
         String status = contract == null
-                ? STATUS_INACTIVE
+                ? STATUS_ACTIVE
                 : contract.status;
 
         int statusViewId = STATUS_ACTIVE.equalsIgnoreCase(status)
@@ -725,9 +760,13 @@ public class ContractsFragment extends Fragment {
                     form.endDateInput.getText().toString()
             );
 
-            BigDecimal rentAmount = parseRequiredAmount(
-                    form.rentInput.getText().toString()
-            );
+            BigDecimal rentAmount = selectedRoom.rent_price;
+
+            if (rentAmount == null) {
+                throw new IllegalArgumentException(
+                        "Phòng được chọn chưa có giá thuê"
+                );
+            }
 
             BigDecimal depositAmount = parseRequiredAmount(
                     form.depositInput.getText().toString()
@@ -818,6 +857,8 @@ public class ContractsFragment extends Fragment {
     ) {
         dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setEnabled(false);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setText("Đang lưu...");
 
         Call<RentalContract> call;
 
@@ -844,6 +885,8 @@ public class ContractsFragment extends Fragment {
                 if (!response.isSuccessful()) {
                     dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                             .setEnabled(true);
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                            .setText("Lưu hợp đồng");
 
                     showMessage(
                             getErrorMessage(
@@ -968,26 +1011,28 @@ public class ContractsFragment extends Fragment {
     // -------------------------------------------------------------------------
 
     private void showDatePicker(@NonNull EditText targetInput) {
-        java.util.Calendar calendar =
-                java.util.Calendar.getInstance();
-
-        new DatePickerDialog(
+        java.util.Calendar calendar = java.util.Calendar.getInstance();
+        DatePickerDialog picker = new DatePickerDialog(
                 requireContext(),
-                (picker, year, month, day) -> {
-                    String date = String.format(
-                            Locale.ROOT,
-                            "%04d-%02d-%02d",
-                            year,
-                            month + 1,
-                            day
-                    );
-
-                    targetInput.setText(date);
-                },
+                (dialog, year, month, day) -> targetInput.setText(String.format(
+                        Locale.ROOT, "%04d-%02d-%02d", year, month + 1, day
+                )),
                 calendar.get(java.util.Calendar.YEAR),
                 calendar.get(java.util.Calendar.MONTH),
                 calendar.get(java.util.Calendar.DAY_OF_MONTH)
-        ).show();
+        );
+        if (targetInput.getId() == R.id.contract_start) {
+            picker.getDatePicker().setMinDate(System.currentTimeMillis());
+        } else {
+            LocalDate start = DateUtils.parseDate(
+                    ((EditText) targetInput.getRootView().findViewById(R.id.contract_start))
+                            .getText().toString()
+            );
+            if (start != null) {
+                picker.getDatePicker().setMinDate(start.toEpochDay() * 86400000L);
+            }
+        }
+        picker.show();
     }
 
     // -------------------------------------------------------------------------
@@ -1010,7 +1055,7 @@ public class ContractsFragment extends Fragment {
             );
         }
 
-        return LocalDate.parse(value);
+        return DateUtils.parseDate(value);
     }
 
     @Nullable
@@ -1025,7 +1070,7 @@ public class ContractsFragment extends Fragment {
             return null;
         }
 
-        return LocalDate.parse(value);
+        return DateUtils.parseDate(value);
     }
 
     @NonNull
@@ -1144,6 +1189,7 @@ public class ContractsFragment extends Fragment {
         searchInput = null;
         loadingIndicator = null;
         stateView = null;
+        resultCountView = null;
 
         contractAdapter = null;
     }

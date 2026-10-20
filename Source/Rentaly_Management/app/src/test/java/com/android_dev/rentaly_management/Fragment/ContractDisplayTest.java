@@ -31,12 +31,25 @@ public class ContractDisplayTest {
     }
 
     @Test public void rejectsInvalidContractValues() {
-        assertFalse(ContractValidation.valid(LocalDate.of(2026, 2, 2), LocalDate.of(2026, 2, 1),
+        assertFalse(ContractValidation.valid(LocalDate.now().plusDays(1), LocalDate.now(),
                 BigDecimal.ZERO, BigDecimal.ZERO, 1, 0));
-        assertFalse(ContractValidation.valid(LocalDate.of(2026, 2, 1), null,
+        assertFalse(ContractValidation.valid(LocalDate.now().minusDays(1), null,
+                BigDecimal.ZERO, BigDecimal.ZERO, 1, 0));
+        assertFalse(ContractValidation.valid(LocalDate.now(), null,
                 BigDecimal.valueOf(-1), BigDecimal.ZERO, 1, 0));
-        assertTrue(ContractValidation.valid(LocalDate.of(2026, 2, 1), null,
+        assertTrue(ContractValidation.valid(LocalDate.now(), null,
                 BigDecimal.ZERO, BigDecimal.ZERO, 31, 0));
+    }
+
+    @Test public void rejectsInvalidLifecycleDates() {
+        LocalDate start = LocalDate.now();
+        LocalDate end = start.plusDays(10);
+        assertFalse(ContractValidation.validLifecycleDates(
+                start, end, start.plusDays(1), null, true));
+        assertFalse(ContractValidation.validLifecycleDates(
+                start, end, null, end.plusDays(1), false));
+        assertTrue(ContractValidation.validLifecycleDates(
+                start, end, start.minusDays(1), null, true));
     }
 
     @Test public void serializesRequestWithoutDocumentField() {

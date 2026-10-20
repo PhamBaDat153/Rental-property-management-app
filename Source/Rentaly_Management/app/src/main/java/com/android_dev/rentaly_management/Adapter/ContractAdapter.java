@@ -12,6 +12,8 @@ import com.android_dev.rentaly_management.R;
 
 import java.util.List;
 
+import com.android_dev.rentaly_management.Util.DateUtils;
+
 /** Adapter hiển thị các hợp đồng thuê trong ListView. */
 public class ContractAdapter extends ArrayAdapter<RentalContract> {
 
@@ -52,14 +54,14 @@ public class ContractAdapter extends ArrayAdapter<RentalContract> {
         TextView secondaryText = row.findViewById(R.id.contract_secondary);
         TextView metaText = row.findViewById(R.id.contract_meta);
 
-        primaryText.setText("Phòng: " + formatter.room(contract));
+        primaryText.setText("Phòng " + formatter.room(contract));
         secondaryText.setText(
-                "Thời hạn: " + value(contract.start_date)
-                        + " - " + value(contract.end_date)
+                "Thời hạn: " + DateUtils.formatDate(contract.start_date)
+                        + " - " + DateUtils.formatDateOrOpen(contract.end_date)
         );
         metaText.setText(
-                "Giá thuê: " + value(contract.rent_amount)
-                        + " | " + formatter.status(contract.status)
+                "Giá thuê: " + value(contract.rent_amount) + " VND/tháng"
+                        + " · " + formatter.status(contract.status)
         );
 
         return row;

@@ -190,7 +190,7 @@ public class RentalContractServiceImplement implements RentalContractService {
                 .start_date(request.start_date())
                 .end_date(request.end_date())
                 .signed_at(request.signed_at())
-                .rent_amount(request.rent_amount())
+                .rent_amount(room.getRent_price())
                 .deposit_required(request.deposit_required())
                 .billing_day(request.billing_day())
                 .payment_due_days(request.payment_due_days())

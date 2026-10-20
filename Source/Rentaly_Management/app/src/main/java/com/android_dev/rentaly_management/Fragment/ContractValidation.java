@@ -41,6 +41,28 @@ final class ContractValidation {
                 && hasValidPaymentSettings(billingDay, paymentDueDays);
     }
 
+    static boolean validLifecycleDates(
+            LocalDate start,
+            LocalDate end,
+            LocalDate signed,
+            LocalDate terminated,
+            boolean active
+    ) {
+        if (!hasValidDates(start, end)) {
+            return false;
+        }
+        if (signed != null && start != null && signed.isAfter(start)) {
+            return false;
+        }
+        if (terminated != null && start != null && terminated.isBefore(start)) {
+            return false;
+        }
+        if (terminated != null && end != null && terminated.isAfter(end)) {
+            return false;
+        }
+        return !active || terminated == null;
+    }
+
     // -------------------------------------------------------------------------
     // Date validation
     // -------------------------------------------------------------------------
@@ -53,7 +75,7 @@ final class ContractValidation {
             LocalDate start,
             LocalDate end
     ) {
-        if (start == null) {
+        if (start == null || start.isBefore(LocalDate.now())) {
             return false;
         }
 

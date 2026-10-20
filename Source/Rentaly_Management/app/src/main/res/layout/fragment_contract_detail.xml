@@ -9,7 +9,7 @@
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="TÓM TẮT HỢP ĐỒNG" android:textColor="@color/primary" android:textSize="14sp" android:textStyle="bold" />
 
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Phòng" android:textColor="@color/secondary" />
-            <EditText android:id="@+id/contract_detail_room" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:layout_marginBottom="5dp" android:background="@drawable/user_detail_card" android:paddingStart="12dp" android:paddingEnd="12dp" android:textColor="@color/secondary" android:focusable="false" android:cursorVisible="false" android:importantForAutofill="no" />
+            <TextView android:id="@+id/contract_detail_room" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:layout_marginBottom="5dp" android:background="@drawable/user_detail_card" android:padding="12dp" android:textColor="@color/dark_navy" android:textSize="16sp" />
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Trạng thái" android:textColor="@color/secondary" />
             <RadioGroup android:id="@+id/contract_detail_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
                 <RadioButton android:id="@+id/contract_detail_status_active" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Đang hoạt động" />
@@ -20,7 +20,7 @@
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="THỜI HẠN" android:textColor="@color/primary" android:textSize="14sp" android:textStyle="bold" />
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Ngày bắt đầu" android:textColor="@color/secondary" />
             <EditText android:id="@+id/contract_detail_start" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:layout_marginBottom="5dp" android:background="@drawable/user_detail_card" android:paddingStart="12dp" android:paddingEnd="12dp" android:inputType="date" android:textColor="@color/dark_navy" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Ngày kết thúc" android:textColor="@color/secondary" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Ngày kết thúc dự kiến" android:textColor="@color/secondary" />
             <EditText android:id="@+id/contract_detail_end" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:layout_marginBottom="5dp" android:background="@drawable/user_detail_card" android:paddingStart="12dp" android:paddingEnd="12dp" android:inputType="date" android:textColor="@color/dark_navy" />
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Ngày ký" android:textColor="@color/secondary" />
             <EditText android:id="@+id/contract_detail_signed" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:layout_marginBottom="5dp" android:background="@drawable/user_detail_card" android:paddingStart="12dp" android:paddingEnd="12dp" android:inputType="date" android:textColor="@color/secondary" />
@@ -28,9 +28,9 @@
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/user_detail_card" android:orientation="vertical" android:padding="16dp">
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="TÀI CHÍNH VÀ THANH TOÁN" android:textColor="@color/primary" android:textSize="14sp" android:textStyle="bold" />
 
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Giá thuê" android:textColor="@color/secondary" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Giá thuê (VND/tháng)" android:textColor="@color/secondary" />
             <EditText android:id="@+id/contract_detail_rent" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:layout_marginBottom="5dp" android:background="@drawable/user_detail_card" android:paddingStart="12dp" android:paddingEnd="12dp" android:inputType="numberDecimal" android:textColor="@color/dark_navy" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Tiền đặt cọc" android:textColor="@color/secondary" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Tiền đặt cọc (VND)" android:textColor="@color/secondary" />
             <EditText android:id="@+id/contract_detail_deposit" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:layout_marginBottom="5dp" android:background="@drawable/user_detail_card" android:paddingStart="12dp" android:paddingEnd="12dp" android:inputType="numberDecimal" android:textColor="@color/dark_navy" />
 
             <TextView
@@ -65,7 +65,7 @@
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Ngày kết thúc hợp đồng" android:textColor="@color/secondary" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Ngày chấm dứt thực tế" android:textColor="@color/secondary" />
         <EditText android:id="@+id/contract_detail_terminated" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:layout_marginBottom="5dp" android:background="@drawable/user_detail_card" android:paddingStart="12dp" android:paddingEnd="12dp" android:inputType="date" android:textColor="@color/secondary" android:focusable="false" android:cursorVisible="false" android:importantForAutofill="no" />
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="Lý do kết thúc hợp đồng" android:textColor="@color/secondary" />
         <EditText android:id="@+id/contract_detail_lifecycle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:layout_marginBottom="5dp" android:minHeight="80dp" android:gravity="top" android:background="@drawable/user_detail_card" android:paddingStart="12dp" android:paddingTop="12dp" android:paddingEnd="12dp" android:textColor="@color/secondary" android:inputType="textMultiLine" />

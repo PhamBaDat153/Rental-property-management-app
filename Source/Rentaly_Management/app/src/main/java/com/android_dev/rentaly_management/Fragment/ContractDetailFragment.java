@@ -35,6 +35,7 @@ import com.android_dev.rentaly_management.DTO.RentalContractRequest;
 import com.android_dev.rentaly_management.DTO.Room;
 import com.android_dev.rentaly_management.DTO.UserTenant;
 import com.android_dev.rentaly_management.R;
+import com.android_dev.rentaly_management.Util.DateUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -992,13 +993,11 @@ public class ContractDetailFragment extends Fragment {
 
     @Nullable
     private LocalDate parseStartDate(@NonNull String text) {
-        String value = text.trim();
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            return null;
+        LocalDate date = parseOptionalDate(text);
+        if (date == null) {
+            throw new IllegalArgumentException("Ngày bắt đầu không hợp lệ");
         }
-
-        return LocalDate.parse(value);
+        return date;
     }
 
     @NonNull
@@ -1017,7 +1016,7 @@ public class ContractDetailFragment extends Fragment {
             );
         }
 
-        return LocalDate.parse(dateText);
+        return DateUtils.parseDate(dateText);
     }
 
     @Nullable
@@ -1032,7 +1031,7 @@ public class ContractDetailFragment extends Fragment {
             return null;
         }
 
-        return LocalDate.parse(value);
+        return DateUtils.parseDate(value);
     }
 
     @NonNull
@@ -1112,18 +1111,26 @@ public class ContractDetailFragment extends Fragment {
             );
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (startDate == null) {
-                throw new IllegalArgumentException(
-                        "Ngày bắt đầu không hợp lệ"
-                );
-            }
+        if (startDate == null) {
+            throw new IllegalArgumentException("Ngày bắt đầu không hợp lệ");
+        }
 
-            if (endDate != null && endDate.isBefore(startDate)) {
-                throw new IllegalArgumentException(
-                        "Ngày kết thúc trước ngày bắt đầu"
-                );
-            }
+        if (endDate != null && endDate.isBefore(startDate)) {
+            throw new IllegalArgumentException("Ngày kết thúc trước ngày bắt đầu");
+        }
+
+        LocalDate signedDate = parseOptionalDate(
+                findEditText(R.id.contract_detail_signed).getText().toString()
+        );
+        LocalDate terminatedDate = parseOptionalDate(
+                findEditText(R.id.contract_detail_terminated).getText().toString()
+        );
+        boolean active = statusId == R.id.contract_detail_status_active;
+
+        if (!ContractValidation.validLifecycleDates(
+                startDate, endDate, signedDate, terminatedDate, active
+        )) {
+            throw new IllegalArgumentException("Ngày ký hoặc ngày chấm dứt không hợp lệ");
         }
     }
 
@@ -1146,6 +1153,9 @@ public class ContractDetailFragment extends Fragment {
         );
 
         editButton.setEnabled(false);
+        if (editButton instanceof android.widget.Button) {
+            ((android.widget.Button) editButton).setText("Đang lưu...");
+        }
 
         ApiClient.api.updateContract(
                 contract.contract_id.toString(),
@@ -1159,9 +1169,11 @@ public class ContractDetailFragment extends Fragment {
                     @NonNull Response<RentalContract> response
             ) {
                 if (rootView != null) {
-                    rootView.findViewById(
-                            R.id.contract_detail_edit
-                    ).setEnabled(true);
+                    View button = rootView.findViewById(R.id.contract_detail_edit);
+                    button.setEnabled(true);
+                    if (button instanceof android.widget.Button) {
+                        ((android.widget.Button) button).setText("Cập nhật hợp đồng");
+                    }
                 }
 
                 if (!response.isSuccessful() || response.body() == null) {
@@ -1185,9 +1197,11 @@ public class ContractDetailFragment extends Fragment {
                     @NonNull Throwable throwable
             ) {
                 if (rootView != null) {
-                    rootView.findViewById(
-                            R.id.contract_detail_edit
-                    ).setEnabled(true);
+                    View button = rootView.findViewById(R.id.contract_detail_edit);
+                    button.setEnabled(true);
+                    if (button instanceof android.widget.Button) {
+                        ((android.widget.Button) button).setText("Cập nhật hợp đồng");
+                    }
                 }
 
                 showMessage(
@@ -1214,9 +1228,10 @@ public class ContractDetailFragment extends Fragment {
 
         bindContractStatus();
 
-        setEditText(R.id.contract_detail_start, getValue(contract.start_date));
-        setEditText(R.id.contract_detail_end, getValue(contract.end_date));
-        setEditText(R.id.contract_detail_signed, getDateValue(contract.signed_at));
+        setEditText(R.id.contract_detail_start, DateUtils.formatDate(contract.start_date));
+        setEditText(R.id.contract_detail_end, DateUtils.formatDateOrOpen(contract.end_date));
+        setEditText(R.id.contract_detail_signed,
+                contract.signed_at == null ? "" : DateUtils.formatDate(contract.signed_at.toLocalDate()));
 
         setEditText(R.id.contract_detail_rent, getValue(contract.rent_amount));
         setEditText(R.id.contract_detail_deposit, getValue(contract.deposit_required));
@@ -1225,7 +1240,8 @@ public class ContractDetailFragment extends Fragment {
         setEditText(R.id.contract_detail_due_days, getValue(contract.payment_due_days));
 
         setEditText(R.id.contract_detail_terms, getValue(contract.terms));
-        setEditText(R.id.contract_detail_terminated, getDateValue(contract.terminated_at));
+        setEditText(R.id.contract_detail_terminated,
+                contract.terminated_at == null ? "" : DateUtils.formatDate(contract.terminated_at.toLocalDate()));
 
         setEditText(
                 R.id.contract_detail_lifecycle,

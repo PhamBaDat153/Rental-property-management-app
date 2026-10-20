@@ -77,14 +77,21 @@ final class ContractDisplay {
             return true;
         }
 
-        String code = roomCode(contract, rooms);
-
-        if (UNKNOWN_ROOM.equals(code)) {
-            return false;
+        for (Room room : safeRooms(rooms)) {
+            if (room == null || room.room_id == null
+                    || contract == null || !room.room_id.equals(contract.room_id)) {
+                continue;
+            }
+            return contains(room.room_code, normalizedQuery)
+                    || contains(room.room_name, normalizedQuery);
         }
 
-        return code.toLowerCase(Locale.ROOT)
-                .contains(normalizedQuery);
+        return false;
+    }
+
+    private static boolean contains(String value, String query) {
+        return value != null
+                && value.toLowerCase(Locale.ROOT).contains(query);
     }
 
     private static String normalize(String value) {

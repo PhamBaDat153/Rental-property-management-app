@@ -1,27 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical" android:padding="16dp" android:background="@color/background">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
-        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
-            android:text="Quản lý hợp đồng" android:textColor="@color/dark_navy" android:textSize="24sp" android:textStyle="bold" />
-        <Button android:id="@+id/contract_add" android:layout_width="wrap_content" android:layout_height="48dp"
-            android:minWidth="48dp" android:text="Thêm" android:textColor="@color/white"
-            android:backgroundTint="@color/primary" android:contentDescription="Thêm hợp đồng" />
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Quản lý hợp đồng"
+            android:textColor="@color/dark_navy"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+        <Button
+            android:id="@+id/contract_add"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:minWidth="48dp"
+            android:text="Thêm"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/primary"
+            android:contentDescription="Thêm hợp đồng" />
     </LinearLayout>
-    <EditText android:id="@+id/contract_search" android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:layout_marginTop="12dp" android:minHeight="48dp" android:singleLine="true"
-         android:hint="Tìm theo mã phòng" android:inputType="text" android:background="@drawable/user_detail_card"
-        android:paddingStart="16dp" android:paddingEnd="16dp" />
-    <ProgressBar android:id="@+id/contract_loading" android:layout_width="wrap_content" android:layout_height="wrap_content"
-         android:layout_gravity="center" android:layout_marginTop="12dp" android:contentDescription="Đang tải danh sách hợp đồng" android:visibility="gone" />
-    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="12dp"
-         android:background="@drawable/user_detail_card" android:orientation="vertical" android:padding="16dp">
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp"
-             android:text="Danh sách hợp đồng" android:textColor="@color/primary" android:textSize="16sp" android:textStyle="bold" />
-        <TextView android:id="@+id/contract_state" android:layout_width="match_parent" android:layout_height="wrap_content"
-             android:padding="12dp" android:gravity="center" android:textColor="@color/secondary" android:visibility="gone" />
-        <ListView android:id="@+id/contract_list" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
-             android:divider="@color/background" android:dividerHeight="8dp" android:footerDividersEnabled="false" android:headerDividersEnabled="false" />
+
+    <EditText
+        android:id="@+id/contract_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:minHeight="48dp"
+        android:singleLine="true"
+        android:hint="Tìm theo mã hoặc tên phòng"
+        android:inputType="text"
+        android:background="@drawable/user_detail_card"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp" />
+
+    <TextView
+        android:id="@+id/contract_result_count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/secondary"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/contract_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="12dp"
+        android:contentDescription="Đang tải danh sách hợp đồng"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/user_detail_card"
+        android:orientation="vertical"
+        android:padding="16dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:text="Danh sách hợp đồng"
+            android:textColor="@color/primary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/contract_state"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="12dp"
+            android:gravity="center"
+            android:textColor="@color/secondary"
+            android:visibility="gone" />
+        <ListView
+            android:id="@+id/contract_list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:divider="@color/background"
+            android:dividerHeight="8dp"
+            android:footerDividersEnabled="false"
+            android:headerDividersEnabled="false" />
     </LinearLayout>
 </LinearLayout>
