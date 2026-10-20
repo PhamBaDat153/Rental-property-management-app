@@ -7,10 +7,13 @@ import org.springframework.stereotype.Service;
 import rentalpropertymanagementapp.be.DTO.UserCreateRequest;
 import rentalpropertymanagementapp.be.DTO.UserTenantResponse;
 import rentalpropertymanagementapp.be.DTO.UserUpdateRequest;
+import rentalpropertymanagementapp.be.DTO.UserProfileUpdateRequest;
 import rentalpropertymanagementapp.be.Exception.TenantHasContractException;
 import rentalpropertymanagementapp.be.Exception.UserNotFoundException;
 import rentalpropertymanagementapp.be.Model.Enum.ActiveStatus;
 import rentalpropertymanagementapp.be.Model.Enum.LoginType;
+import rentalpropertymanagementapp.be.Model.Enum.Gender;
+import rentalpropertymanagementapp.be.Model.Enum.IdentityType;
 import rentalpropertymanagementapp.be.Model.User.Role;
 import rentalpropertymanagementapp.be.Model.User.Tenant;
 import rentalpropertymanagementapp.be.Model.User.User;
@@ -22,6 +25,7 @@ import rentalpropertymanagementapp.be.Repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.time.LocalDate;
 
 @Service
 public class UserServiceImplement implements UserService {
@@ -144,6 +148,45 @@ public class UserServiceImplement implements UserService {
         user.setRole(role);
         user.setStatus(status);
         return toResponse(userRepository.save(user));
+    }
+
+    @Override
+    @Transactional
+    public UserTenantResponse updateUserProfile(UUID id, UserProfileUpdateRequest request) {
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        Tenant tenant = user.getTenant();
+        if (tenant == null) throw new IllegalStateException("Tài khoản chưa có hồ sơ người thuê");
+
+        tenant.setFull_name(clean(request.full_name()));
+        tenant.setDate_of_birth(parseDate(request.date_of_birth()));
+        tenant.setPhone(clean(request.phone()));
+        tenant.setEmail(clean(request.email()));
+        tenant.setGender(parseEnum(request.gender(), Gender.class));
+        tenant.setIdentityType(parseEnum(request.identityType(), IdentityType.class));
+        tenant.setIdentity_number(clean(request.identity_number()));
+        tenant.setIdentity_issued_date(parseDate(request.identity_issued_date()));
+        tenant.setIdentity_issued_place(clean(request.identity_issued_place()));
+        tenant.setPermanent_address(clean(request.permanent_address()));
+        tenant.setEmergency_contact_name(clean(request.emergency_contact_name()));
+        tenant.setEmergency_contact_phone(clean(request.emergency_contact_phone()));
+        tenant.setAdditional_note(clean(request.additional_note()));
+
+        tenantRepository.save(tenant);
+        return toResponse(user);
+    }
+
+    private String clean(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    private LocalDate parseDate(String value) {
+        String cleaned = clean(value);
+        return cleaned == null ? null : LocalDate.parse(cleaned);
+    }
+
+    private <T extends Enum<T>> T parseEnum(String value, Class<T> enumClass) {
+        String cleaned = clean(value);
+        return cleaned == null ? null : Enum.valueOf(enumClass, cleaned.toUpperCase());
     }
 
     private UserTenantResponse toResponse(User user) {

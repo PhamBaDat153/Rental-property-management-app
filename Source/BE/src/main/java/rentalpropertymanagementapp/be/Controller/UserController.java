@@ -16,6 +16,7 @@ import rentalpropertymanagementapp.be.DTO.LoginRequest;
 import rentalpropertymanagementapp.be.DTO.LoginResponse;
 import rentalpropertymanagementapp.be.DTO.UserCreateRequest;
 import rentalpropertymanagementapp.be.DTO.UserUpdateRequest;
+import rentalpropertymanagementapp.be.DTO.UserProfileUpdateRequest;
 import rentalpropertymanagementapp.be.DTO.UserTenantResponse;
 import rentalpropertymanagementapp.be.Service.UserService;
 
@@ -59,6 +60,12 @@ public class UserController {
     public ResponseEntity<UserTenantResponse> updateManagedUser(
             @PathVariable UUID id, @Valid @RequestBody UserUpdateRequest request) {
         return ResponseEntity.ok(userService.updateUserByID(id, request));
+    }
+
+    @PutMapping("/manage/{id}/profile")
+    public ResponseEntity<UserTenantResponse> updateUserProfile(
+            @PathVariable UUID id, @RequestBody UserProfileUpdateRequest request) {
+        return ResponseEntity.ok(userService.updateUserProfile(id, request));
     }
 
     @PostMapping("/login")

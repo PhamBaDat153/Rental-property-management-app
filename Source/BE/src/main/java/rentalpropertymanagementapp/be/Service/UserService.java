@@ -3,6 +3,7 @@ package rentalpropertymanagementapp.be.Service;
 import rentalpropertymanagementapp.be.DTO.UserCreateRequest;
 import rentalpropertymanagementapp.be.DTO.UserTenantResponse;
 import rentalpropertymanagementapp.be.DTO.UserUpdateRequest;
+import rentalpropertymanagementapp.be.DTO.UserProfileUpdateRequest;
 import rentalpropertymanagementapp.be.Model.Enum.LoginType;
 import rentalpropertymanagementapp.be.Model.User.User;
 
@@ -18,5 +19,6 @@ public interface UserService {
     public UserTenantResponse createUser(UserCreateRequest request);
     public void deleteUserById(UUID id);
     public UserTenantResponse updateUserByID(UUID id, UserUpdateRequest request);
+    public UserTenantResponse updateUserProfile(UUID id, UserProfileUpdateRequest request);
 
 }

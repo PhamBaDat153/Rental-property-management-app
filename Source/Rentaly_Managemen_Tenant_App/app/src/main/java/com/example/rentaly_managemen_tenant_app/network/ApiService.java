@@ -22,6 +22,7 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -34,6 +35,9 @@ public interface ApiService {
 
     @GET("be/user/manage/{id}")
     Call<UserTenant> getUserById(@Path("id") String id);
+
+    @PUT("be/user/manage/{id}/profile")
+    Call<UserTenant> updateUserProfile(@Path("id") String id, @Body com.example.rentaly_managemen_tenant_app.models.UserProfileUpdateRequest request);
 
 
     // ==================== ROOM ====================
