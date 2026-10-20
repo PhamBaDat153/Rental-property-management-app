@@ -102,7 +102,8 @@ public class AnnouncementFragment extends Fragment {
 
         if (getArguments() != null
                 && getArguments().getBoolean(ARG_CREATE_ANNOUNCEMENT, false)) {
-            view.post(() -> loadRecipientData(null));
+            Announcement announcementToEdit = announcementFromArguments(getArguments());
+            view.post(() -> loadRecipientData(announcementToEdit));
         }
 
         return view;
@@ -124,6 +125,27 @@ public class AnnouncementFragment extends Fragment {
         );
 
         announcementList.setAdapter(announcementAdapter);
+        announcementList.setOnItemClickListener((parent, row, position, id) -> {
+            if (position < 0 || position >= announcements.size()) {
+                return;
+            }
+
+            Announcement announcement = announcements.get(position);
+            if (announcement.announcement_id == null) {
+                showMessage("Không xác định được thông báo");
+                return;
+            }
+
+            Bundle args = new Bundle();
+            args.putString("announcement_id", announcement.announcement_id.toString());
+            args.putString("announcement_content", announcement.content);
+            args.putString("announcement_type", announcement.announcement_type);
+            args.putString("announcement_status", announcement.status);
+            args.putString("announcement_created_at", announcement.created_at == null ? null : announcement.created_at.toString());
+            args.putString("announcement_sent_at", announcement.sent_at == null ? null : announcement.sent_at.toString());
+            args.putSerializable("announcement_recipient_ids", new ArrayList<>(announcement.recipient_ids == null ? new ArrayList<>() : announcement.recipient_ids));
+            NavHostFragment.findNavController(this).navigate(R.id.announcementDetailFragment, args);
+        });
     }
 
     private void setupNavigation(@NonNull View view) {
@@ -307,6 +329,25 @@ public class AnnouncementFragment extends Fragment {
     // Create/edit announcement form
     // -------------------------------------------------------------------------
 
+    @Nullable
+    private Announcement announcementFromArguments(@NonNull Bundle args) {
+        String id = args.getString("announcement_id");
+        if (id == null) return null;
+
+        Announcement announcement = new Announcement();
+        try {
+            announcement.announcement_id = UUID.fromString(id);
+        } catch (IllegalArgumentException ignored) {
+            return null;
+        }
+        ArrayList<UUID> recipientIds = (ArrayList<UUID>) args.getSerializable("announcement_recipient_ids");
+        announcement.recipient_ids = recipientIds == null ? new ArrayList<>() : recipientIds;
+        announcement.content = args.getString("announcement_content");
+        announcement.announcement_type = args.getString("announcement_type");
+        announcement.status = args.getString("announcement_status");
+        return announcement;
+    }
+
     private void showAnnouncementForm(
             @Nullable Announcement announcementToEdit
     ) {
@@ -403,9 +444,7 @@ public class AnnouncementFragment extends Fragment {
 
         if (announcementToEdit != null
                 && announcementToEdit.recipient_ids != null) {
-            selectedRecipientIds.addAll(
-                    announcementToEdit.recipient_ids
-            );
+            selectedRecipientIds.addAll(announcementToEdit.recipient_ids);
         }
     }
 
@@ -665,8 +704,14 @@ public class AnnouncementFragment extends Fragment {
                 .toString()
                 .trim();
 
-        if (content.isEmpty() || selectedRecipientIds.isEmpty()) {
-            showMessage("Cần nhập nội dung và chọn người nhận");
+        if (content.isEmpty()) {
+            contentInput.setError("Nhập nội dung thông báo");
+            contentInput.requestFocus();
+            return;
+        }
+        if (selectedRecipientIds.isEmpty()) {
+            recipientCount.setError("Chọn ít nhất một người nhận");
+            recipientCount.requestFocus();
             return;
         }
 
@@ -688,6 +733,12 @@ public class AnnouncementFragment extends Fragment {
             );
         }
 
+        if (formDialog != null) {
+            formDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+            formDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(false);
+            formDialog.getButton(AlertDialog.BUTTON_POSITIVE).setText("Đang lưu...");
+        }
+
         saveCall.enqueue(new Callback<Announcement>() {
 
             @Override
@@ -696,6 +747,7 @@ public class AnnouncementFragment extends Fragment {
                     @NonNull Response<Announcement> response
             ) {
                 if (!response.isSuccessful()) {
+                    resetFormButtons();
                     showMessage("Không thể lưu thông báo");
                     return;
                 }
@@ -713,9 +765,17 @@ public class AnnouncementFragment extends Fragment {
                     @NonNull Call<Announcement> call,
                     @NonNull Throwable throwable
             ) {
+                resetFormButtons();
                 showMessage("Không thể kết nối đến máy chủ");
             }
         });
+    }
+
+    private void resetFormButtons() {
+        if (formDialog == null) return;
+        formDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+        formDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(true);
+        formDialog.getButton(AlertDialog.BUTTON_POSITIVE).setText("Lưu");
     }
 
     // -------------------------------------------------------------------------

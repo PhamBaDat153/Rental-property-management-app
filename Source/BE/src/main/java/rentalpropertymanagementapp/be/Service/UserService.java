@@ -20,5 +20,4 @@ public interface UserService {
     public void deleteUserById(UUID id);
     public UserTenantResponse updateUserByID(UUID id, UserUpdateRequest request);
     public UserTenantResponse updateUserProfile(UUID id, UserProfileUpdateRequest request);
-
 }

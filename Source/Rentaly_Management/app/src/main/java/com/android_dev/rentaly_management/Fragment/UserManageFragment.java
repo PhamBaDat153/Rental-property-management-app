@@ -6,11 +6,9 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,7 +21,6 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.android_dev.rentaly_management.Adapter.UserListAdapter;
 import com.android_dev.rentaly_management.Apis.ApiClient;
 import com.android_dev.rentaly_management.DTO.User;
-import com.android_dev.rentaly_management.DTO.UserRoleUpdateRequest;
 import com.android_dev.rentaly_management.DTO.UserTenant;
 import com.android_dev.rentaly_management.R;
 
@@ -44,9 +41,6 @@ public class UserManageFragment extends Fragment {
 
     private static final String ARG_USER_ID = "user_id";
 
-    private static final String ROLE_TENANT = "TENANT";
-    private static final String ROLE_LANDLORD = "LANDLORD";
-
     private static final String MESSAGE_CONNECTION_FAILED =
             "Không thể kết nối đến máy chủ";
 
@@ -57,8 +51,6 @@ public class UserManageFragment extends Fragment {
     private final List<UserTenant> users = new ArrayList<>();
 
     private UserListAdapter adapter;
-    private UserTenant selectedUser;
-
     // -------------------------------------------------------------------------
     // Views
     // -------------------------------------------------------------------------
@@ -67,8 +59,10 @@ public class UserManageFragment extends Fragment {
 
     private EditText searchInput;
     private ProgressBar loadingIndicator;
-    private View detailForm;
-    private Spinner roleSpinner;
+    private View stateView;
+    private TextView stateMessage;
+    private TextView resultCount;
+    private android.widget.Button stateAction;
 
     // -------------------------------------------------------------------------
     // Request tracking
@@ -98,7 +92,6 @@ public class UserManageFragment extends Fragment {
         );
 
         bindViews();
-        setupRoleSpinner();
         setupUserList();
         setupClickListeners();
         setupSearchListener();
@@ -117,59 +110,15 @@ public class UserManageFragment extends Fragment {
                 R.id.user_loading
         );
 
-        detailForm = rootView.findViewById(
-                R.id.user_detail_form
-        );
-
-        roleSpinner = rootView.findViewById(
-                R.id.user_role
-        );
+        stateView = rootView.findViewById(R.id.user_state);
+        stateMessage = rootView.findViewById(R.id.user_state_message);
+        resultCount = rootView.findViewById(R.id.user_result_count);
+        stateAction = rootView.findViewById(R.id.user_state_action);
     }
 
     // -------------------------------------------------------------------------
     // Role spinner
     // -------------------------------------------------------------------------
-
-    private void setupRoleSpinner() {
-        String[] roles = {
-                ROLE_TENANT,
-                ROLE_LANDLORD
-        };
-
-        ArrayAdapter<String> roleAdapter = new ArrayAdapter<>(
-                requireContext(),
-                android.R.layout.simple_spinner_dropdown_item,
-                roles
-        );
-
-        roleSpinner.setAdapter(roleAdapter);
-    }
-
-    @Nullable
-    private String getSelectedRole() {
-        if (roleSpinner == null
-                || roleSpinner.getSelectedItem() == null) {
-            return null;
-        }
-
-        return roleSpinner.getSelectedItem().toString();
-    }
-
-    private void selectRole(@Nullable String selectedRole) {
-        if (roleSpinner == null || selectedRole == null) {
-            return;
-        }
-
-        for (int index = 0; index < roleSpinner.getCount(); index++) {
-            Object item = roleSpinner.getItemAtPosition(index);
-
-            if (item != null
-                    && selectedRole.equalsIgnoreCase(item.toString())) {
-                roleSpinner.setSelection(index);
-                return;
-            }
-        }
-    }
 
     // -------------------------------------------------------------------------
     // User list
@@ -209,25 +158,6 @@ public class UserManageFragment extends Fragment {
     // -------------------------------------------------------------------------
 
     private void setupClickListeners() {
-        rootView.findViewById(R.id.user_role_update)
-                .setOnClickListener(
-                        view -> {
-                            String selectedRole = getSelectedRole();
-
-                            if (selectedRole == null) {
-                                showMessage("Vui lòng chọn role");
-                                return;
-                            }
-
-                            updateRole(selectedUser, selectedRole);
-                        }
-                );
-
-        rootView.findViewById(R.id.user_delete)
-                .setOnClickListener(
-                        view -> confirmDelete(selectedUser)
-                );
-
         rootView.findViewById(R.id.button3)
                 .setOnClickListener(
                         view -> showCreateDialog()
@@ -316,7 +246,7 @@ public class UserManageFragment extends Fragment {
 
                 if (!response.isSuccessful()
                         || response.body() == null) {
-                    showMessage("Không thể tải danh sách người thuê");
+                    showListState("Không thể tải danh sách người dùng.", "Thử lại");
                     return;
                 }
 
@@ -324,6 +254,18 @@ public class UserManageFragment extends Fragment {
                 users.addAll(response.body());
 
                 refreshUserList();
+                showListState(normalizedTerm.isEmpty() && users.isEmpty()
+                        ? "Chưa có người dùng\nTạo tài khoản người dùng đầu tiên để bắt đầu quản lý."
+                        : users.isEmpty()
+                        ? "Không tìm thấy người dùng phù hợp."
+                        : null,
+                        users.isEmpty() && normalizedTerm.isEmpty()
+                                ? "Thêm người dùng"
+                                : users.isEmpty() ? "Xóa tìm kiếm" : null);
+                if (resultCount != null && !users.isEmpty()) {
+                    resultCount.setVisibility(View.VISIBLE);
+                    resultCount.setText(users.size() + " người dùng");
+                }
             }
 
             @Override
@@ -336,7 +278,7 @@ public class UserManageFragment extends Fragment {
                 }
 
                 setLoading(false);
-                showMessage(MESSAGE_CONNECTION_FAILED);
+                showListState("Không thể kết nối đến máy chủ.", "Thử lại");
             }
         });
     }
@@ -355,6 +297,32 @@ public class UserManageFragment extends Fragment {
         loadingIndicator.setVisibility(
                 isLoading ? View.VISIBLE : View.GONE
         );
+        if (isLoading && stateView != null) {
+            stateView.setVisibility(View.GONE);
+        }
+    }
+
+    private void showListState(@Nullable String message, @Nullable String action) {
+        if (stateView == null || stateMessage == null || stateAction == null) {
+            return;
+        }
+
+        boolean visible = message != null;
+        stateView.setVisibility(visible ? View.VISIBLE : View.GONE);
+        stateMessage.setText(visible ? message : "");
+        stateAction.setVisibility(action == null ? View.GONE : View.VISIBLE);
+        if (action != null) {
+            stateAction.setText(action);
+            stateAction.setOnClickListener(view -> {
+                if ("Xóa tìm kiếm".contentEquals(action)) {
+                    searchInput.setText("");
+                } else if ("Thêm người dùng".contentEquals(action)) {
+                    showCreateDialog();
+                } else {
+                    loadUsers(getSearchTerm());
+                }
+            });
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -376,17 +344,36 @@ public class UserManageFragment extends Fragment {
         );
 
         AlertDialog dialog = new AlertDialog.Builder(requireContext())
-                .setTitle("Thêm người thuê")
+                .setTitle("Thêm người dùng")
                 .setView(form)
                 .setNegativeButton("Hủy", null)
-                .setPositiveButton(
-                        "Tạo",
-                        (ignored, which) -> createUser(
-                                usernameInput.getText().toString(),
-                                passwordInput.getText().toString()
-                        )
-                )
+                .setPositiveButton("Tạo", null)
                 .create();
+
+        dialog.setOnShowListener(ignored -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
+                String username = usernameInput.getText().toString().trim();
+                String password = passwordInput.getText().toString();
+
+                usernameInput.setError(null);
+                passwordInput.setError(null);
+                if (username.isEmpty()) {
+                    usernameInput.setError("Nhập tên đăng nhập");
+                    usernameInput.requestFocus();
+                    return;
+                }
+                if (password.trim().isEmpty()) {
+                    passwordInput.setError("Nhập mật khẩu");
+                    passwordInput.requestFocus();
+                    return;
+                }
+
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(false);
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setText("Đang tạo...");
+                createUser(username, password, dialog);
+            });
+        });
 
         dialog.show();
 
@@ -412,7 +399,8 @@ public class UserManageFragment extends Fragment {
 
     private void createUser(
             @NonNull String username,
-            @NonNull String password
+            @NonNull String password,
+            @NonNull AlertDialog dialog
     ) {
         String normalizedUsername = username.trim();
 
@@ -440,12 +428,13 @@ public class UserManageFragment extends Fragment {
                         }
 
                         if (!response.isSuccessful()) {
-                            showMessage("Không thể tạo người thuê");
+                            resetCreateDialog(dialog);
+                            showMessage("Không thể tạo người dùng");
                             return;
                         }
 
+                        dialog.dismiss();
                         showMessage("Đã tạo người dùng");
-
                         loadUsers(getSearchTerm());
                     }
 
@@ -458,57 +447,17 @@ public class UserManageFragment extends Fragment {
                             return;
                         }
 
+                        resetCreateDialog(dialog);
                         showMessage(MESSAGE_CONNECTION_FAILED);
                     }
                 }
         );
     }
 
-    // -------------------------------------------------------------------------
-    // Display user details in the inline form
-    // -------------------------------------------------------------------------
-
-    private void showDetails(@NonNull UserTenant user) {
-        if (rootView == null) {
-            return;
-        }
-
-        selectedUser = user;
-
-        TextView detailsView = rootView.findViewById(
-                R.id.user_detail
-        );
-
-        if (detailsView != null) {
-            detailsView.setText(buildUserDetails(user));
-        }
-
-        selectRole(user.getRole());
-
-        if (detailForm != null) {
-            detailForm.setVisibility(View.VISIBLE);
-        }
-    }
-
-    @NonNull
-    private String buildUserDetails(@NonNull UserTenant user) {
-        return "Tên đăng nhập: " + value(user.getUser_name())
-                + "\nRole: " + value(user.getRole())
-                + "\nHọ tên: " + value(user.getFull_name())
-                + "\nSố điện thoại: " + value(user.getPhone())
-                + "\nEmail: " + value(user.getEmail())
-                + "\nẢnh đại diện: " + value(user.getAvatar_url())
-                + "\nLoại giấy tờ: " + value(user.getIdentityType())
-                + "\nSố giấy tờ: " + value(user.getIdentity_number())
-                + "\nNgày cấp: " + value(user.getIdentity_issued_date())
-                + "\nNơi cấp: " + value(user.getIdentity_issued_place())
-                + "\nNgày sinh: " + value(user.getDate_of_birth())
-                + "\nGiới tính: " + value(user.getGender())
-                + "\nĐịa chỉ: " + value(user.getPermanent_address())
-                + "\nLiên hệ khẩn cấp: "
-                + value(user.getEmergency_contact_name())
-                + " - " + value(user.getEmergency_contact_phone())
-                + "\nGhi chú: " + value(user.getAdditional_note());
+    private void resetCreateDialog(@NonNull AlertDialog dialog) {
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setEnabled(true);
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setText("Tạo");
     }
 
     // -------------------------------------------------------------------------
@@ -535,74 +484,10 @@ public class UserManageFragment extends Fragment {
     }
 
     // -------------------------------------------------------------------------
-    // Update user role
-    // -------------------------------------------------------------------------
-
-    private void updateRole(
-            @Nullable UserTenant user,
-            @NonNull String selectedRole
-    ) {
-        if (user == null || user.getUser_id() == null) {
-            showMessage("Vui lòng chọn người dùng");
-            return;
-        }
-
-        if (!ROLE_TENANT.equals(selectedRole)
-                && !ROLE_LANDLORD.equals(selectedRole)) {
-            showMessage("Vai trò không hợp lệ");
-            return;
-        }
-
-        UserRoleUpdateRequest request = new UserRoleUpdateRequest(
-                selectedRole
-        );
-
-        ApiClient.api.updateManagedUserRole(
-                user.getUser_id().toString(),
-                request
-        ).enqueue(new Callback<UserTenant>() {
-
-            @Override
-            public void onResponse(
-                    @NonNull Call<UserTenant> call,
-                    @NonNull Response<UserTenant> response
-            ) {
-                if (!isAdded()) {
-                    return;
-                }
-
-                if (!response.isSuccessful()) {
-                    showMessage(
-                            errorMessage(
-                                    response,
-                                    "Không thể cập nhật role"
-                            )
-                    );
-                    return;
-                }
-
-                showMessage("Đã cập nhật role");
-                loadUsers(getSearchTerm());
-            }
-
-            @Override
-            public void onFailure(
-                    @NonNull Call<UserTenant> call,
-                    @NonNull Throwable throwable
-            ) {
-                if (!isAdded()) {
-                    return;
-                }
-
-                showMessage(MESSAGE_CONNECTION_FAILED);
-            }
-        });
-    }
-
-    // -------------------------------------------------------------------------
     // Delete user
     // -------------------------------------------------------------------------
 
+    /* Delete is handled from UserDetailFragment. */
     private void confirmDelete(@Nullable UserTenant user) {
         if (user == null || user.getUser_id() == null) {
             showMessage("Vui lòng chọn người dùng");
@@ -647,8 +532,6 @@ public class UserManageFragment extends Fragment {
                     showMessage(errorMessage(response, fallback));
                     return;
                 }
-
-                selectedUser = null;
 
                 showMessage("Đã xóa người dùng");
                 loadUsers(getSearchTerm());
@@ -739,11 +622,11 @@ public class UserManageFragment extends Fragment {
         rootView = null;
         searchInput = null;
         loadingIndicator = null;
-        detailForm = null;
-        roleSpinner = null;
+        stateView = null;
+        stateMessage = null;
+        resultCount = null;
+        stateAction = null;
         adapter = null;
-        selectedUser = null;
-
         super.onDestroyView();
     }
 }

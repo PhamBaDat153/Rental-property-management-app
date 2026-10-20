@@ -197,6 +197,16 @@ public class UserDetailFragment extends Fragment {
         );
 
         setText(
+                R.id.user_username,
+                "Tên đăng nhập: " + value(user.getUser_name())
+        );
+
+        setText(
+                R.id.user_account_summary,
+                value(user.getRole()) + " · " + value(user.getStatus())
+        );
+
+        setText(
                 R.id.user_address,
                 "Địa chỉ: " + value(user.getPermanent_address())
         );

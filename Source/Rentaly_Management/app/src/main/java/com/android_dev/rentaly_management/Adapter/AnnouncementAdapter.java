@@ -10,6 +10,8 @@ import android.widget.TextView;
 import com.android_dev.rentaly_management.DTO.Announcement;
 import com.android_dev.rentaly_management.R;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /** Adapter hiển thị nội dung và trạng thái của thông báo. */
@@ -36,13 +38,16 @@ public class AnnouncementAdapter extends ArrayAdapter<Announcement> {
 
         TextView contentText = row.findViewById(R.id.announcement_item_content);
         TextView metaText = row.findViewById(R.id.announcement_item_meta);
+        TextView dateText = row.findViewById(R.id.announcement_item_date);
 
         contentText.setText(value(announcement.content));
         metaText.setText(
                 ("SENTED".equalsIgnoreCase(announcement.status)
                         ? "Đã gửi" : "Bản nháp")
-                        + " | Người nhận: " + recipientCount(announcement)
+                        + " · Người nhận: " + recipientCount(announcement)
+                        + " · " + value(announcement.announcement_type)
         );
+        dateText.setText("Tạo lúc: " + formatDate(announcement.created_at));
 
         return row;
     }
@@ -55,5 +60,11 @@ public class AnnouncementAdapter extends ArrayAdapter<Announcement> {
 
     private static String value(Object value) {
         return value == null ? "Chưa cập nhật" : String.valueOf(value);
+    }
+
+    private static String formatDate(LocalDateTime date) {
+        return date == null
+                ? "Ngày tạo: Chưa cập nhật"
+                : "Ngày tạo: " + date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
     }
 }

@@ -34,12 +34,13 @@ public class UserListAdapter extends ArrayAdapter<UserTenant> {
         ImageView avatar = view.findViewById(R.id.user_avatar);
         TextView name = view.findViewById(R.id.user_name);
         TextView username = view.findViewById(R.id.user_username);
+        TextView contact = view.findViewById(R.id.user_contact);
         TextView status = view.findViewById(R.id.user_status);
 
         name.setText(user.displayName());
-        username.setText("Tên đăng nhập: " + (user.getUser_name() == null || user.getUser_name().isBlank()
-                ? "Chưa cập nhật" : user.getUser_name()));
-        status.setText("Trạng thái: " + ("ACTIVE".equalsIgnoreCase(user.getStatus())
+        username.setText("Tên đăng nhập: " + value(user.getUser_name()));
+        contact.setText(value(user.getPhone(), user.getEmail()));
+        status.setText(value(user.getRole()) + " · " + ("ACTIVE".equalsIgnoreCase(user.getStatus())
                 ? "Đang hoạt động" : "Không hoạt động"));
         // Đặt ảnh mặc định trước để tránh hiển thị ảnh của item khác
         // khi ListView tái sử dụng convertView.
@@ -58,5 +59,16 @@ public class UserListAdapter extends ArrayAdapter<UserTenant> {
             }).start();
         }
         return view;
+    }
+
+    private String value(String value) {
+        return value == null || value.isBlank() ? "Chưa cập nhật" : value;
+    }
+
+    private String value(String primary, String secondary) {
+        if (primary != null && !primary.isBlank()) {
+            return primary;
+        }
+        return value(secondary);
     }
 }

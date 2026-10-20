@@ -2,10 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="10px"
-    android:layout_marginBottom="8dp"
     android:background="@drawable/user_item_background"
-    android:elevation="2dp"
     android:gravity="center_vertical"
     android:minHeight="80dp"
     android:orientation="horizontal"
@@ -15,7 +12,7 @@
         android:id="@+id/user_avatar"
         android:layout_width="52dp"
         android:layout_height="52dp"
-        android:contentDescription="Avatar người dùng"
+        android:contentDescription="Ảnh đại diện người dùng"
         android:src="@drawable/profile_icon" />
 
     <LinearLayout
@@ -39,14 +36,31 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:textColor="@color/secondary"
-            android:textSize="13sp" />
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/user_contact"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/secondary"
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/user_status"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="2dp"
             android:textColor="@color/secondary"
             android:textSize="14sp" />
     </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:gravity="center"
+        android:text="›"
+        android:textColor="@color/secondary"
+        android:textSize="28sp"
+        android:contentDescription="Mở chi tiết người dùng" />
 </LinearLayout>

@@ -55,6 +55,15 @@
     <fragment android:id="@+id/announcementFragment" android:name="com.android_dev.rentaly_management.Fragment.AnnouncementFragment" android:label="Quản lý thông báo" />
 
     <fragment
+        android:id="@+id/announcementDetailFragment"
+        android:name="com.android_dev.rentaly_management.Fragment.AnnouncementDetailFragment"
+        android:label="Chi tiết thông báo">
+        <argument
+            android:name="announcement_id"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
         android:id="@+id/locationDetailFragment"
         android:name="com.android_dev.rentaly_management.Fragment.LocationDetailFragment"
         android:label="Chi tiết địa điểm">
