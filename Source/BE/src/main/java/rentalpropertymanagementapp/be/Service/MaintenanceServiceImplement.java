@@ -18,7 +18,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 @Service
-public class MaintenanceServiceImplement {
+public class MaintenanceServiceImplement implements MaintenanceService {
 
     private final MaintenanceRequestRepository requests;
     private final UserRepository users;
