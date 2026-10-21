@@ -2,8 +2,9 @@ package com.android_dev.rentaly_management.DTO;
 
 import java.math.BigDecimal;
 import java.util.UUID;
+import java.io.Serializable;
 
-public class InvoiceItem {
+public class InvoiceItem implements Serializable {
 
     public UUID item_id;
     public UUID service_id;

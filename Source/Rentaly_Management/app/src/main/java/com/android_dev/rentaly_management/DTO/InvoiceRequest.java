@@ -45,4 +45,9 @@ public class InvoiceRequest {
         this.note = note;
         this.status = status;
     }
+
+    public InvoiceRequest withItems(List<InvoiceItemRequest> invoiceItems) {
+        this.items = invoiceItems;
+        return this;
+    }
 }

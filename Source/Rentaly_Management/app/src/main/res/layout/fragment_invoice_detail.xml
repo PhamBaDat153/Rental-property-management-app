@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:fillViewport="true">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical">
+            <Button
+                android:id="@+id/invoice_detail_back"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:backgroundTint="@color/primary"
+                android:text="Quay lại"
+                android:textColor="@color/white" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_weight="1"
+                android:text="Chi tiết hóa đơn"
+                android:textColor="@color/dark_navy"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/user_detail_card"
+            android:orientation="vertical"
+            android:padding="16dp">
+            <TextView android:id="@+id/invoice_detail_number" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/dark_navy" android:textSize="20sp" android:textStyle="bold" />
+            <TextView android:id="@+id/invoice_detail_room" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:textColor="@color/secondary" android:textSize="15sp" />
+            <TextView android:id="@+id/invoice_detail_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/primary" android:textSize="15sp" />
+            <TextView android:id="@+id/invoice_detail_due" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/secondary" android:textSize="15sp" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/user_detail_card"
+            android:orientation="vertical"
+            android:padding="16dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Các khoản trong hóa đơn" android:textColor="@color/primary" android:textSize="16sp" android:textStyle="bold" />
+            <LinearLayout android:id="@+id/invoice_detail_items" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:orientation="vertical" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/user_detail_card"
+            android:orientation="vertical"
+            android:padding="16dp">
+            <TextView android:id="@+id/invoice_detail_subtotal" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/secondary" android:textSize="15sp" />
+            <TextView android:id="@+id/invoice_detail_discount" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/secondary" android:textSize="15sp" />
+            <TextView android:id="@+id/invoice_detail_tax" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/secondary" android:textSize="15sp" />
+            <TextView android:id="@+id/invoice_detail_total" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textColor="@color/dark_navy" android:textSize="18sp" android:textStyle="bold" />
+        </LinearLayout>
+        <Button android:id="@+id/invoice_detail_edit" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="16dp" android:backgroundTint="@color/primary" android:text="Chỉnh sửa hóa đơn" android:textColor="@color/white" />
+        <Button android:id="@+id/invoice_detail_delete" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="8dp" android:layout_marginBottom="8dp" android:backgroundTint="@color/secondary" android:text="Xóa hóa đơn" android:textColor="@color/white" />
+    </LinearLayout>
+</ScrollView>

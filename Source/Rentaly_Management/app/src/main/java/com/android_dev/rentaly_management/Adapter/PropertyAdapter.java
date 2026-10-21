@@ -54,6 +54,7 @@ public class PropertyAdapter extends ArrayAdapter<Object> {
             Room r = (Room) item;
             primary.setText(formatter.roomName(r));
             secondary.setText("Mã phòng: " + value(r.room_code)
+                    + " · " + formatter.location(r.location_id));
             meta.setText(value(r.rent_price) + " VND/tháng · " + formatter.status(r.status));
         }
 

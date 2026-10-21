@@ -20,6 +20,7 @@ public class InvoiceAdapter extends ArrayAdapter<Invoice> {
     /** Cho phép Fragment cung cấp cách dịch trạng thái hóa đơn. */
     public interface Formatter {
         String status(String value);
+        String room(Invoice invoice);
     }
 
     private final Formatter formatter;
@@ -49,7 +50,7 @@ public class InvoiceAdapter extends ArrayAdapter<Invoice> {
 
         numberText.setText(value(invoice.invoice_number));
         metaText.setText(
-                value(invoice.total_amount)
+                formatter.room(invoice) + " · " + value(invoice.total_amount)
                         + " | " + formatter.status(invoice.status)
                         + " | Hạn: " + value(invoice.due_date)
         );

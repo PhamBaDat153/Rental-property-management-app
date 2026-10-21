@@ -24,6 +24,7 @@
         android:label="Tiện ích" />
 
     <fragment android:id="@+id/invoiceFragment" android:name="com.android_dev.rentaly_management.Fragment.InvoiceFragment" android:label="Hóa đơn" />
+    <fragment android:id="@+id/invoiceDetailFragment" android:name="com.android_dev.rentaly_management.Fragment.InvoiceDetailFragment" android:label="Chi tiết hóa đơn" />
     <fragment android:id="@+id/maintenanceFragment" android:name="com.android_dev.rentaly_management.Fragment.MaintenanceFragment" android:label="Bảo trì" />
 
     <fragment

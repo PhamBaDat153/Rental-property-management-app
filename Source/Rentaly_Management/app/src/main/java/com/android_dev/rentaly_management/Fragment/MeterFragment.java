@@ -956,6 +956,10 @@ public class MeterFragment extends Fragment {
                 try {
                     BigDecimal previous = new BigDecimal(form.previousValueInput.getText().toString().trim());
                     BigDecimal current = new BigDecimal(s.toString().trim());
+                    if (previous.stripTrailingZeros().scale() > 0 || current.stripTrailingZeros().scale() > 0) {
+                        form.quantityInput.setText("");
+                        return;
+                    }
                     form.quantityInput.setText(current.compareTo(previous) >= 0
                             ? current.subtract(previous).toPlainString() : "");
                 } catch (Exception ignored) {
@@ -1005,11 +1009,11 @@ public class MeterFragment extends Fragment {
                             .trim()
             );
 
-            BigDecimal currentValue = parseRequiredDecimal(
+            BigDecimal currentValue = parseRequiredInteger(
                     form.currentValueInput.getText().toString()
             );
 
-            BigDecimal previousValue = parseRequiredDecimal(form.previousValueInput.getText().toString());
+            BigDecimal previousValue = parseRequiredInteger(form.previousValueInput.getText().toString());
             BigDecimal quantity = currentValue.subtract(previousValue);
 
             if (!validReadingValues(
@@ -1336,6 +1340,14 @@ public class MeterFragment extends Fragment {
         }
 
         return new BigDecimal(value);
+    }
+
+    private BigDecimal parseRequiredInteger(@NonNull String text) {
+        BigDecimal value = parseRequiredDecimal(text);
+        if (value.stripTrailingZeros().scale() > 0) {
+            throw new IllegalArgumentException("Chỉ số phải là số nguyên");
+        }
+        return value;
     }
 
     private String getValue(@Nullable Object value) {

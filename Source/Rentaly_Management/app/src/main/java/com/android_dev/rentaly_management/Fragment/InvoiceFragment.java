@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -25,11 +26,17 @@ import com.android_dev.rentaly_management.Adapter.InvoiceAdapter;
 import com.android_dev.rentaly_management.Apis.ApiClient;
 import com.android_dev.rentaly_management.DTO.Invoice;
 import com.android_dev.rentaly_management.DTO.InvoiceRequest;
+import com.android_dev.rentaly_management.DTO.InvoiceItemRequest;
+import com.android_dev.rentaly_management.DTO.RoomService;
 import com.android_dev.rentaly_management.DTO.RentalContract;
 import com.android_dev.rentaly_management.DTO.Room;
+import com.android_dev.rentaly_management.DTO.Service;
+import com.android_dev.rentaly_management.DTO.Meter;
+import com.android_dev.rentaly_management.DTO.MeterReading;
 import com.android_dev.rentaly_management.R;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -97,14 +104,76 @@ public class InvoiceFragment extends Fragment {
         setupInvoiceList();
         setupClickListeners();
 
+        loadInvoiceLookups();
         loadInvoices();
 
         if (getArguments() != null
-                && getArguments().getBoolean(ARG_CREATE_INVOICE, false)) {
-            rootView.post(() -> loadFormData(null));
+            && getArguments().getBoolean(ARG_CREATE_INVOICE, false)) {
+            Invoice invoice = (Invoice) getArguments().getSerializable("invoice");
+            rootView.post(() -> {
+                if (invoice == null) {
+                    loadFormData(null);
+                } else {
+                    showInvoiceForm(invoice);
+                }
+            });
         }
 
         return rootView;
+    }
+
+    private void loadInvoiceLookups() {
+        ApiClient.api.contracts().enqueue(new Callback<List<RentalContract>>() {
+            @Override
+            public void onResponse(
+                    @NonNull Call<List<RentalContract>> call,
+                    @NonNull Response<List<RentalContract>> response
+            ) {
+                if (!isAdded() || !response.isSuccessful() || response.body() == null) {
+                    return;
+                }
+
+                contracts.clear();
+                contracts.addAll(response.body());
+                loadInvoiceRooms();
+            }
+
+            @Override
+            public void onFailure(
+                    @NonNull Call<List<RentalContract>> call,
+                    @NonNull Throwable throwable
+            ) {
+                // Invoice list remains usable without room metadata.
+            }
+        });
+    }
+
+    private void loadInvoiceRooms() {
+        ApiClient.api.rooms().enqueue(new Callback<List<Room>>() {
+            @Override
+            public void onResponse(
+                    @NonNull Call<List<Room>> call,
+                    @NonNull Response<List<Room>> response
+            ) {
+                if (!isAdded() || !response.isSuccessful() || response.body() == null) {
+                    return;
+                }
+
+                rooms.clear();
+                rooms.addAll(response.body());
+                if (invoiceAdapter != null) {
+                    invoiceAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onFailure(
+                    @NonNull Call<List<Room>> call,
+                    @NonNull Throwable throwable
+            ) {
+                // Invoice list remains usable without room metadata.
+            }
+        });
     }
 
     private void bindViews() {
@@ -125,7 +194,10 @@ public class InvoiceFragment extends Fragment {
         invoiceAdapter = new InvoiceAdapter(
                 requireContext(),
                 invoices,
-                this::getStatusLabel
+                new InvoiceAdapter.Formatter() {
+                    @Override public String status(String value) { return getStatusLabel(value); }
+                    @Override public String room(Invoice invoice) { return getInvoiceRoomLabel(invoice); }
+                }
         );
 
         invoiceList.setAdapter(invoiceAdapter);
@@ -133,7 +205,10 @@ public class InvoiceFragment extends Fragment {
         invoiceList.setOnItemClickListener(
                 (parent, row, position, id) -> {
                     if (position >= 0 && position < invoices.size()) {
-                        showInvoiceActions(invoices.get(position));
+                        Bundle args = new Bundle();
+                        args.putSerializable("invoice", invoices.get(position));
+                        args.putString("room_name", getInvoiceRoomLabel(invoices.get(position)));
+                        NavHostFragment.findNavController(this).navigate(R.id.invoiceDetailFragment, args);
                     }
                 }
         );
@@ -373,13 +448,25 @@ public class InvoiceFragment extends Fragment {
 
         InvoiceForm form = new InvoiceForm(formView);
 
-        setupContractSpinner(
-                form.contractSpinner,
-                invoiceToEdit
-        );
+        if (invoiceToEdit == null) {
+            setupContractSpinner(form.contractSpinner, null);
+        } else {
+            form.createFields.setVisibility(View.GONE);
+        }
 
         populateInvoiceForm(form, invoiceToEdit);
         setupDatePicker(form.dueDateInput);
+        if (invoiceToEdit == null) {
+            setupInvoiceCalculation(form);
+            form.contractSpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+                @Override public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                    if (position >= 0 && position < contracts.size()) {
+                        loadGeneratedItems(form, contracts.get(position));
+                    }
+                }
+                @Override public void onNothingSelected(android.widget.AdapterView<?> parent) { }
+            });
+        }
 
         AlertDialog dialog = new AlertDialog.Builder(requireContext())
                 .setTitle(
@@ -413,14 +500,23 @@ public class InvoiceFragment extends Fragment {
     private static final class InvoiceForm {
 
         final Spinner contractSpinner;
+        final LinearLayout createFields;
 
         final EditText invoiceNumberInput;
         final EditText dueDateInput;
-        final EditText totalAmountInput;
+        final TextView totalAmountView;
+        final TextView subtotalView;
+        final EditText discountInput;
+        final Spinner taxRateSpinner;
+        final TextView taxAmountView;
+        final LinearLayout itemsView;
+        final List<InvoiceItemRequest> items = new ArrayList<>();
+        UUID rentServiceId;
 
-        final TextView statusView;
+        final Spinner statusView;
 
         InvoiceForm(View root) {
+            createFields = root.findViewById(R.id.invoice_form_create_fields);
             contractSpinner = root.findViewById(
                     R.id.invoice_form_contract
             );
@@ -433,9 +529,14 @@ public class InvoiceFragment extends Fragment {
                     R.id.invoice_form_due
             );
 
-            totalAmountInput = root.findViewById(
+            totalAmountView = root.findViewById(
                     R.id.invoice_form_total
             );
+            subtotalView = root.findViewById(R.id.invoice_form_subtotal);
+            discountInput = root.findViewById(R.id.invoice_form_discount);
+            taxRateSpinner = root.findViewById(R.id.invoice_form_tax_rate);
+            taxAmountView = root.findViewById(R.id.invoice_form_tax_amount);
+            itemsView = root.findViewById(R.id.invoice_form_items);
 
             statusView = root.findViewById(
                     R.id.invoice_form_status
@@ -501,8 +602,10 @@ public class InvoiceFragment extends Fragment {
         if (invoice == null) {
             form.invoiceNumberInput.setText("");
             form.dueDateInput.setText("");
-            form.totalAmountInput.setText("");
-            form.statusView.setText("Đã gửi");
+            form.subtotalView.setText(formatMoney(BigDecimal.ZERO));
+            form.discountInput.setText("0");
+            form.taxRateSpinner.setSelection(0);
+            setStatusOptions(form, STATUS_SENT);
             return;
         }
 
@@ -514,13 +617,225 @@ public class InvoiceFragment extends Fragment {
                 getValue(invoice.due_date)
         );
 
-        form.totalAmountInput.setText(
-                getValue(invoice.total_amount)
+        form.totalAmountView.setText(
+                formatMoney(invoice.total_amount == null ? BigDecimal.ZERO : invoice.total_amount)
         );
+        form.subtotalView.setText(formatMoney(invoice.subtotal == null ? BigDecimal.ZERO : invoice.subtotal));
+        form.discountInput.setText(formatMoney(invoice.discount_amount == null ? BigDecimal.ZERO : invoice.discount_amount));
 
-        form.statusView.setText(
-                getStatusLabel(invoice.status)
+        setStatusOptions(form, invoice.status);
+        List<InvoiceItemRequest> existingItems = new ArrayList<>();
+        if (invoice.items != null) {
+            for (com.android_dev.rentaly_management.DTO.InvoiceItem item : invoice.items) {
+                existingItems.add(new InvoiceItemRequest(item.service_id, item.description,
+                        item.unit_price, item.amount).withUnit(item.unit));
+            }
+        }
+        renderInvoiceItems(form, existingItems);
+    }
+
+    private void renderInvoiceItems(@NonNull InvoiceForm form, @NonNull List<InvoiceItemRequest> items) {
+        form.items.clear();
+        form.items.addAll(items);
+        form.itemsView.removeAllViews();
+        BigDecimal subtotal = BigDecimal.ZERO;
+        for (InvoiceItemRequest item : items) {
+            subtotal = subtotal.add(item.amount == null ? BigDecimal.ZERO : item.amount);
+            TextView row = new TextView(requireContext());
+            row.setText(item.description + "\n" + (item.unit == null ? "" : item.unit)
+                    + " · " + formatMoney(item.amount == null ? BigDecimal.ZERO : item.amount));
+            row.setTextColor(getResources().getColor(R.color.dark_navy));
+            row.setTextSize(14);
+            row.setPadding(0, 8, 0, 8);
+            form.itemsView.addView(row);
+        }
+        if (items.isEmpty()) {
+            TextView empty = new TextView(requireContext());
+            empty.setText("Chưa có khoản dịch vụ bổ sung");
+            empty.setTextColor(getResources().getColor(R.color.secondary));
+            form.itemsView.addView(empty);
+        }
+        form.subtotalView.setText(formatMoney(subtotal));
+    }
+
+    private void setStatusOptions(@NonNull InvoiceForm form, @Nullable String current) {
+        form.statusView.setAdapter(new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_dropdown_item,
+                new String[]{"Đã gửi", "Đã nhận"}));
+        form.statusView.setSelection("RECEIVED".equalsIgnoreCase(current) ? 1 : 0);
+        form.statusView.setEnabled(!"RECEIVED".equalsIgnoreCase(current));
+    }
+
+    private void setupInvoiceCalculation(@NonNull InvoiceForm form) {
+        ArrayAdapter<String> taxAdapter = new ArrayAdapter<>(
+                requireContext(),
+                android.R.layout.simple_spinner_dropdown_item,
+                new String[]{"0%", "5%", "10%", "15%", "20%", "25%", "30%"}
         );
+        form.taxRateSpinner.setAdapter(taxAdapter);
+        form.taxRateSpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                recalculateInvoice(form);
+            }
+            @Override public void onNothingSelected(android.widget.AdapterView<?> parent) {
+                recalculateInvoice(form);
+            }
+        });
+        form.discountInput.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { recalculateInvoice(form); }
+            @Override public void afterTextChanged(Editable s) { }
+        });
+        if (form.discountInput.getText().toString().isEmpty()) {
+            form.discountInput.setText("0");
+        }
+        recalculateInvoice(form);
+    }
+
+    private void loadGeneratedItems(@NonNull InvoiceForm form, @Nullable RentalContract contract) {
+        if (contract == null || contract.room_id == null) return;
+        ApiClient.api.services().enqueue(new Callback<List<Service>>() {
+            @Override public void onResponse(@NonNull Call<List<Service>> call, @NonNull Response<List<Service>> response) {
+                UUID rentServiceId = null;
+                if (response.isSuccessful() && response.body() != null) {
+                    for (Service service : response.body()) {
+                        if (service != null && "Rent".equalsIgnoreCase(service.name)) {
+                            rentServiceId = service.service_id;
+                            break;
+                        }
+                    }
+                }
+                loadRoomServiceItems(form, contract, rentServiceId);
+            }
+            @Override public void onFailure(@NonNull Call<List<Service>> call, @NonNull Throwable throwable) {
+                loadRoomServiceItems(form, contract, null);
+            }
+        });
+    }
+
+    private void loadRoomServiceItems(@NonNull InvoiceForm form, @NonNull RentalContract contract,
+                                      @Nullable UUID rentServiceId) {
+        ApiClient.api.roomServices(contract.room_id.toString()).enqueue(new Callback<List<RoomService>>() {
+            @Override public void onResponse(@NonNull Call<List<RoomService>> call, @NonNull Response<List<RoomService>> response) {
+                List<RoomService> services = response.isSuccessful() && response.body() != null
+                        ? response.body() : new ArrayList<>();
+                loadMeterPreview(form, contract.room_id, contract.rent_amount, services, rentServiceId);
+            }
+            @Override public void onFailure(@NonNull Call<List<RoomService>> call, @NonNull Throwable throwable) {
+                loadMeterPreview(form, contract.room_id, contract.rent_amount, new ArrayList<>(), rentServiceId);
+            }
+        });
+    }
+
+    private void loadMeterPreview(@NonNull InvoiceForm form, @NonNull UUID roomId,
+                                  @Nullable BigDecimal rent, @NonNull List<RoomService> services,
+                                  @Nullable UUID rentServiceId) {
+        ApiClient.api.meters(roomId.toString()).enqueue(new Callback<List<Meter>>() {
+            @Override public void onResponse(@NonNull Call<List<Meter>> call, @NonNull Response<List<Meter>> response) {
+                List<Meter> meters = response.isSuccessful() && response.body() != null
+                        ? response.body() : new ArrayList<>();
+                loadMeterItems(form, rent, services, meters, rentServiceId, 0, new ArrayList<>());
+            }
+            @Override public void onFailure(@NonNull Call<List<Meter>> call, @NonNull Throwable throwable) {
+                loadMeterItems(form, rent, services, new ArrayList<>(), rentServiceId, 0, new ArrayList<>());
+            }
+        });
+    }
+
+    private void loadMeterItems(@NonNull InvoiceForm form, @Nullable BigDecimal rent,
+                                @NonNull List<RoomService> services, @NonNull List<Meter> meters,
+                                @Nullable UUID rentServiceId, int index,
+                                @NonNull List<InvoiceItemRequest> items) {
+        if (index == 0 && rent != null) {
+            items.add(new InvoiceItemRequest(rentServiceId, "Tiền thuê phòng", rent, rent)
+                    .withUnit("tháng · theo hợp đồng"));
+        }
+        if (index >= services.size()) {
+            renderInvoiceItems(form, items);
+            recalculateInvoice(form);
+            return;
+        }
+
+        RoomService service = services.get(index);
+        if (service == null || Boolean.FALSE.equals(service.is_active)
+                || service.default_unit_price == null || service.service_id == null) {
+            loadMeterItems(form, rent, services, meters, rentServiceId, index + 1, items);
+            return;
+        }
+
+        if (!"METER".equalsIgnoreCase(service.calculation_method)) {
+            items.add(new InvoiceItemRequest(service.service_id, service.name,
+                    service.default_unit_price, service.default_unit_price).withUnit(service.unit));
+            loadMeterItems(form, rent, services, meters, rentServiceId, index + 1, items);
+            return;
+        }
+
+        Meter meter = findMeter(meters, service.name);
+        if (meter == null || meter.meter_id == null) {
+            loadMeterItems(form, rent, services, meters, rentServiceId, index + 1, items);
+            return;
+        }
+
+        ApiClient.api.meterReadings(meter.meter_id.toString()).enqueue(new Callback<List<MeterReading>>() {
+            @Override public void onResponse(@NonNull Call<List<MeterReading>> call, @NonNull Response<List<MeterReading>> response) {
+                MeterReading reading = latestReading(response.body());
+                if (reading != null && reading.quantity != null) {
+                    BigDecimal amount = reading.quantity.multiply(service.default_unit_price);
+                    items.add(new InvoiceItemRequest(service.service_id, service.name,
+                            service.default_unit_price, amount).withUnit(service.unit + " · " + reading.quantity));
+                }
+                loadMeterItems(form, rent, services, meters, rentServiceId, index + 1, items);
+            }
+            @Override public void onFailure(@NonNull Call<List<MeterReading>> call, @NonNull Throwable throwable) {
+                loadMeterItems(form, rent, services, meters, rentServiceId, index + 1, items);
+            }
+        });
+    }
+
+    @Nullable
+    private Meter findMeter(@NonNull List<Meter> meters, @Nullable String serviceName) {
+        String normalized = serviceName == null ? "" : serviceName.toLowerCase(Locale.ROOT);
+        String type = normalized.contains("water") || normalized.contains("nước")
+                ? "WATER" : "ELECTRICITY";
+        for (Meter meter : meters) {
+            if (meter != null && type.equalsIgnoreCase(meter.meter_type)) return meter;
+        }
+        return null;
+    }
+
+    @Nullable
+    private MeterReading latestReading(@Nullable List<MeterReading> readings) {
+        MeterReading latest = null;
+        if (readings == null) return null;
+        for (MeterReading reading : readings) {
+            if (reading == null || reading.reading_at == null) continue;
+            if (latest == null || reading.reading_at.isAfter(latest.reading_at)) latest = reading;
+        }
+        return latest;
+    }
+
+    private void recalculateInvoice(@NonNull InvoiceForm form) {
+        BigDecimal subtotal = parseMoney(form.subtotalView.getText().toString());
+        BigDecimal discount = parseMoney(form.discountInput.getText().toString());
+        BigDecimal taxRate = BigDecimal.valueOf(form.taxRateSpinner.getSelectedItemPosition() * 5L);
+        BigDecimal tax = subtotal.multiply(taxRate)
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        BigDecimal total = subtotal.add(tax).subtract(discount).max(BigDecimal.ZERO);
+        form.taxAmountView.setText(formatMoney(tax));
+        form.totalAmountView.setText(formatMoney(total));
+    }
+
+    private BigDecimal parseMoney(@Nullable String value) {
+        try {
+            String normalized = value == null ? "" : value.replace(" VND", "").trim();
+            return normalized.isEmpty() ? BigDecimal.ZERO : new BigDecimal(normalized);
+        } catch (Exception ignored) {
+            return BigDecimal.ZERO;
+        }
+    }
+
+    private String formatMoney(@NonNull BigDecimal value) {
+        return value.setScale(2, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString() + " VND";
     }
 
     // -------------------------------------------------------------------------
@@ -533,6 +848,11 @@ public class InvoiceFragment extends Fragment {
             @NonNull AlertDialog dialog
     ) {
         try {
+            if (invoiceToEdit != null) {
+                saveInvoiceMetadataOnly(form, invoiceToEdit, dialog);
+                return;
+            }
+
             int selectedPosition =
                     form.contractSpinner.getSelectedItemPosition();
 
@@ -563,10 +883,6 @@ public class InvoiceFragment extends Fragment {
                     .toString()
                     .trim();
 
-            String totalAmountText = form.totalAmountInput
-                    .getText()
-                    .toString()
-                    .trim();
 
             if (invoiceNumber.isEmpty()) {
                 throw new IllegalArgumentException(
@@ -574,41 +890,46 @@ public class InvoiceFragment extends Fragment {
                 );
             }
 
-            if (totalAmountText.isEmpty()) {
-                throw new IllegalArgumentException(
-                        "Vui lòng nhập tổng tiền hóa đơn"
-                );
-            }
-
             LocalDate dueDate = dueDateText.isEmpty()
                     ? null
                     : LocalDate.parse(dueDateText);
 
-            BigDecimal totalAmount = new BigDecimal(
-                    totalAmountText
-            );
-
-            if (totalAmount.signum() < 0) {
-                throw new IllegalArgumentException(
-                        "Tổng tiền không được âm"
-                );
+            if (dueDate != null && dueDate.isBefore(LocalDate.now())) {
+                form.dueDateInput.setError("Hạn thanh toán phải từ hôm nay trở đi");
+                form.dueDateInput.requestFocus();
+                return;
             }
 
             String currentStatus = invoiceToEdit == null
                     ? STATUS_SENT
-                    : invoiceToEdit.status;
+                    : (form.statusView.getSelectedItemPosition() == 1 ? STATUS_RECEIVED : STATUS_SENT);
+            if (invoiceToEdit != null && STATUS_RECEIVED.equalsIgnoreCase(invoiceToEdit.status)
+                    && !STATUS_RECEIVED.equalsIgnoreCase(currentStatus)) {
+                throw new IllegalArgumentException("Hóa đơn đã nhận không thể chuyển lại trạng thái đã gửi");
+            }
 
+            BigDecimal subtotal = parseMoney(form.subtotalView.getText().toString());
+            BigDecimal discount = parseMoney(form.discountInput.getText().toString());
+            BigDecimal taxRate = BigDecimal.valueOf(form.taxRateSpinner.getSelectedItemPosition() * 5L);
+            BigDecimal tax = subtotal.multiply(taxRate)
+                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+            BigDecimal total = subtotal.add(tax).subtract(discount).max(BigDecimal.ZERO);
+            if (discount.compareTo(subtotal.add(tax)) > 0) {
+                form.discountInput.setError("Giảm giá không được lớn hơn tổng tiền");
+                form.discountInput.requestFocus();
+                return;
+            }
+            List<InvoiceItemRequest> items = new ArrayList<>();
+            for (InvoiceItemRequest item : form.items) {
+                boolean rentPreview = "Tiền thuê phòng".equals(item.description);
+                if (!rentPreview) {
+                    items.add(item);
+                }
+            }
             InvoiceRequest request = new InvoiceRequest(
-                    selectedContract.contract_id,
-                    invoiceNumber,
-                    dueDate,
-                    BigDecimal.ZERO,
-                    BigDecimal.ZERO,
-                    BigDecimal.ZERO,
-                    totalAmount,
-                    null,
-                    currentStatus
-            );
+                    selectedContract.contract_id, invoiceNumber, dueDate,
+                    subtotal, discount, tax, total, null, currentStatus
+            ).withItems(items);
 
             submitInvoice(
                     request,
@@ -625,6 +946,49 @@ public class InvoiceFragment extends Fragment {
                             : message
             );
         }
+    }
+
+    private void saveInvoiceMetadataOnly(
+            @NonNull InvoiceForm form,
+            @NonNull Invoice invoice,
+            @NonNull AlertDialog dialog
+    ) {
+        String dueDateText = form.dueDateInput.getText().toString().trim();
+        if (dueDateText.isEmpty()) {
+            form.dueDateInput.setError("Vui lòng chọn hạn thanh toán");
+            form.dueDateInput.requestFocus();
+            return;
+        }
+        LocalDate dueDate = LocalDate.parse(dueDateText);
+
+        if (dueDate != null
+                && !dueDate.equals(invoice.due_date)
+                && dueDate.isBefore(LocalDate.now())) {
+            form.dueDateInput.setError("Hạn thanh toán phải từ hôm nay trở đi");
+            form.dueDateInput.requestFocus();
+            return;
+        }
+
+        String status = form.statusView.getSelectedItemPosition() == 1
+                ? STATUS_RECEIVED
+                : STATUS_SENT;
+        if (STATUS_RECEIVED.equalsIgnoreCase(invoice.status)
+                && !STATUS_RECEIVED.equalsIgnoreCase(status)) {
+            throw new IllegalArgumentException("Hóa đơn đã nhận không thể chuyển lại trạng thái đã gửi");
+        }
+
+        InvoiceRequest request = new InvoiceRequest(
+                invoice.contract_id,
+                invoice.invoice_number,
+                dueDate,
+                invoice.subtotal == null ? BigDecimal.ZERO : invoice.subtotal,
+                invoice.discount_amount == null ? BigDecimal.ZERO : invoice.discount_amount,
+                invoice.tax_amount == null ? BigDecimal.ZERO : invoice.tax_amount,
+                invoice.total_amount == null ? BigDecimal.ZERO : invoice.total_amount,
+                invoice.note,
+                status
+        );
+        submitInvoice(request, invoice, dialog);
     }
 
     private void submitInvoice(
@@ -699,9 +1063,9 @@ public class InvoiceFragment extends Fragment {
     }
 
     private void chooseDate(@NonNull EditText targetInput) {
-        Calendar calendar = Calendar.getInstance();
+            Calendar calendar = Calendar.getInstance();
 
-        new DatePickerDialog(
+        DatePickerDialog picker = new DatePickerDialog(
                 requireContext(),
                 (dialog, year, month, day) -> {
                     String selectedDate = String.format(
@@ -717,7 +1081,9 @@ public class InvoiceFragment extends Fragment {
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
                 calendar.get(Calendar.DAY_OF_MONTH)
-        ).show();
+        );
+        picker.getDatePicker().setMinDate(System.currentTimeMillis());
+        picker.show();
     }
 
     // -------------------------------------------------------------------------
@@ -753,6 +1119,21 @@ public class InvoiceFragment extends Fragment {
             return roomCode.isEmpty()
                     ? roomName
                     : roomName + " (" + roomCode + ")";
+        }
+
+        return UNKNOWN_ROOM;
+    }
+
+    private String getInvoiceRoomLabel(@Nullable Invoice invoice) {
+        if (invoice == null || invoice.contract_id == null) {
+            return UNKNOWN_ROOM;
+        }
+
+        for (RentalContract contract : contracts) {
+            if (contract != null
+                    && invoice.contract_id.equals(contract.contract_id)) {
+                return getRoomLabel(contract.room_id);
+            }
         }
 
         return UNKNOWN_ROOM;

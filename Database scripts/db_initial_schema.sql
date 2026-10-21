@@ -345,9 +345,9 @@ CREATE TABLE IF NOT EXISTS `meter_reading` (
     `reading_id` BINARY(16) NOT NULL,
     `meter_id` BINARY(16) NOT NULL,
     `reading_at` DATETIME(3) NOT NULL,
-    `current_value` DECIMAL(15,3) NOT NULL DEFAULT 0,
-    `previous_value` DECIMAL(15,3) NOT NULL DEFAULT 0,
-    `quantity` DECIMAL(15,3) NOT NULL DEFAULT 0,
+    `current_value` BIGINT NOT NULL DEFAULT 0,
+    `previous_value` BIGINT NOT NULL DEFAULT 0,
+    `quantity` BIGINT NOT NULL DEFAULT 0,
     `evidence_url` TEXT NULL,
     `note` VARCHAR(500) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -562,7 +562,8 @@ VALUES
     (UUID_TO_BIN('00000000-0000-4000-8000-000000000012'), 'Nước', 'm3', 'METER', 0),
     (UUID_TO_BIN('00000000-0000-4000-8000-000000000013'), 'Internet', 'tháng', 'FIXED', 0),
     (UUID_TO_BIN('00000000-0000-4000-8000-000000000014'), 'Phí vệ sinh', 'tháng', 'FIXED', 0),
-    (UUID_TO_BIN('00000000-0000-4000-8000-000000000015'), 'Phí giữ xe', 'xe/tháng', 'FIXED', 0)
+    (UUID_TO_BIN('00000000-0000-4000-8000-000000000015'), 'Phí giữ xe', 'xe/tháng', 'FIXED', 0),
+    (UUID_TO_BIN('00000000-0000-4000-8000-000000000016'), 'Rent', 'tháng', 'FIXED', 0)
 ON DUPLICATE KEY UPDATE
     `unit` = VALUES(`unit`),
     `calculation_method` = VALUES(`calculation_method`),

@@ -5,8 +5,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.io.Serializable;
 
-public class Invoice {
+public class Invoice implements Serializable {
 
     public UUID invoice_id;
     public UUID contract_id;

@@ -25,4 +25,9 @@ public class InvoiceItemRequest {
         this.unit_price = price;
         this.amount = amount;
     }
+
+    public InvoiceItemRequest withUnit(String value) {
+        this.unit = value;
+        return this;
+    }
 }

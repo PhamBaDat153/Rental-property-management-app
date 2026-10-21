@@ -3,7 +3,6 @@ package rentalpropertymanagementapp.be.Model.Meter;
 import com.fasterxml.uuid.Generators;
 import jakarta.persistence.*;
 import lombok.*;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -24,9 +23,9 @@ public class MeterReading {
     @JoinColumn(name = "meter_id", nullable = false)
     private Meter meter;
     @Column(nullable = false) private LocalDateTime reading_at;
-    @Column(nullable = false, precision = 15, scale = 3) private BigDecimal current_value;
-    @Column(nullable = false, precision = 15, scale = 3) private BigDecimal previous_value;
-    @Column(nullable = false, precision = 15, scale = 3) private BigDecimal quantity;
+    @Column(nullable = false) private Long current_value;
+    @Column(nullable = false) private Long previous_value;
+    @Column(nullable = false) private Long quantity;
     @Column(columnDefinition = "TEXT") private String evidence_url;
     @Column(length = 500) private String note;
     @Column(nullable = false) private LocalDateTime created_at;
