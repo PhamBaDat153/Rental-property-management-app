@@ -17,6 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import rentalpropertymanagementapp.be.Repository.RentalContractRepository;
 import rentalpropertymanagementapp.be.Repository.RoomRepository;
 import rentalpropertymanagementapp.be.Repository.LocationRepository;
+import rentalpropertymanagementapp.be.Repository.ContractTenantRepository;
+import rentalpropertymanagementapp.be.Model.Contract.RentalContract;
 import rentalpropertymanagementapp.be.Service.RoomServiceImplement;
 import rentalpropertymanagementapp.be.Model.Room.Room;
 
@@ -37,6 +39,47 @@ class RentalResourceCrudTest {
         assertThrows(ResourceConflictException.class, () -> service.create(new ContractTenantRequest(
                 UUID.randomUUID(), UUID.randomUUID(), false,
                 LocalDate.of(2026, 2, 1), LocalDate.of(2026, 1, 1))));
+    }
+
+    @Test
+    void rejectsAssignmentBeyondRoomCapacity() {
+        UUID contractId = UUID.randomUUID();
+        ContractTenantRepository assignments = mock(ContractTenantRepository.class);
+        RentalContractRepository contracts = mock(RentalContractRepository.class);
+        RentalContract contract = RentalContract.builder()
+                .room(Room.builder().max_occupants(1).build())
+                .start_date(LocalDate.of(2026, 1, 1))
+                .build();
+        when(contracts.findById(contractId)).thenReturn(java.util.Optional.of(contract));
+        when(assignments.countByContractId(contractId)).thenReturn(1L);
+
+        ContractTenantServiceImplement service = new ContractTenantServiceImplement(
+                assignments, contracts, mock(rentalpropertymanagementapp.be.Repository.TenantRepository.class)
+        );
+
+        assertThrows(ResourceConflictException.class, () -> service.create(new ContractTenantRequest(
+                contractId, UUID.randomUUID(), false,
+                LocalDate.of(2026, 2, 1), null)));
+    }
+
+    @Test
+    void rejectsAssignmentMoveInBeforeContractStart() {
+        UUID contractId = UUID.randomUUID();
+        ContractTenantRepository assignments = mock(ContractTenantRepository.class);
+        RentalContractRepository contracts = mock(RentalContractRepository.class);
+        RentalContract contract = RentalContract.builder()
+                .room(Room.builder().max_occupants(3).build())
+                .start_date(LocalDate.of(2026, 1, 1))
+                .build();
+        when(contracts.findById(contractId)).thenReturn(java.util.Optional.of(contract));
+
+        ContractTenantServiceImplement service = new ContractTenantServiceImplement(
+                assignments, contracts, mock(rentalpropertymanagementapp.be.Repository.TenantRepository.class)
+        );
+
+        assertThrows(ResourceConflictException.class, () -> service.create(new ContractTenantRequest(
+                contractId, UUID.randomUUID(), false,
+                LocalDate.of(2025, 12, 31), null)));
     }
 
     @Test

@@ -332,7 +332,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
-            android:backgroundTint="@color/secondary"
+            android:backgroundTint="#F44336"
             android:minHeight="48dp"
             android:text="Xóa người dùng"
             android:textColor="@color/white" />

@@ -15,7 +15,7 @@
     <string name="dashboard_payment_legend">%1$s\n%2$d hóa đơn · %3$s VND</string>
     <string name="dashboard_payment_empty">Chưa có dữ liệu hóa đơn</string>
     <string name="dashboard_kpi_occupied">Đang thuê</string>
-    <string name="dashboard_kpi_available">Phòng trống</string>
+    <string name="dashboard_kpi_available">Có thể cho thuê</string>
     <string name="dashboard_kpi_overdue">Hóa đơn quá hạn</string>
     <string name="dashboard_kpi_maintenance">Bảo trì đang mở</string>
     <string name="dashboard_occupancy_rate">Tỷ lệ lấp đầy: %1$d%%</string>
@@ -30,10 +30,10 @@
     <string name="dashboard_expiring_period">Trong vòng 30 ngày</string>
     <string name="dashboard_no_attention">Không có công việc cần xử lý</string>
     <string name="dashboard_all_clear">Mọi hoạt động đang ổn định.</string>
-    <string name="dashboard_total_rooms">Tổng số: %1$d</string>
+    <string name="dashboard_total_rooms">Tổng số phòng: %1$d</string>
     <string name="dashboard_occupied_rooms">Đang thuê: %1$d</string>
-    <string name="dashboard_available_rooms">Còn trống: %1$d</string>
-    <string name="dashboard_unavailable_rooms">Không khả dụng: %1$d</string>
+    <string name="dashboard_available_rooms">Trống - có thể cho thuê: %1$d</string>
+    <string name="dashboard_unavailable_rooms">Trống - không khả dụng: %1$d</string>
     <string name="dashboard_add_room">Thêm phòng</string>
     <string name="dashboard_add_contract">Thêm hợp đồng</string>
     <string name="dashboard_add_invoice">Tạo hóa đơn</string>

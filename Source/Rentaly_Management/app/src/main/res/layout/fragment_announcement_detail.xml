@@ -143,7 +143,7 @@
             android:layout_height="48dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
-            android:backgroundTint="@color/secondary"
+            android:backgroundTint="#F44336"
             android:text="Xóa thông báo"
             android:textColor="@color/white" />
     </LinearLayout>

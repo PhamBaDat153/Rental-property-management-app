@@ -704,7 +704,11 @@ public class ContractDetailFragment extends Fragment {
                     moveOutInput.getText().toString()
             );
 
-            validateTenantDates(moveInDate, moveOutDate);
+            validateTenantDates(
+                    moveInDate,
+                    moveOutDate,
+                    currentAssignment
+            );
 
             UUID tenantId;
 
@@ -745,6 +749,8 @@ public class ContractDetailFragment extends Fragment {
                     request
             );
 
+        } catch (IllegalArgumentException exception) {
+            showMessage(exception.getMessage());
         } catch (Exception exception) {
             showMessage(
                     "Vui lòng chọn ngày vào ở và ngày rời đi hợp lệ"
@@ -754,13 +760,56 @@ public class ContractDetailFragment extends Fragment {
 
     private void validateTenantDates(
             @NonNull LocalDate moveInDate,
-            @Nullable LocalDate moveOutDate
+            @Nullable LocalDate moveOutDate,
+            @Nullable ContractTenant currentAssignment
     ) {
         if (moveOutDate != null && moveOutDate.isBefore(moveInDate)) {
             throw new IllegalArgumentException(
                     "Ngày rời đi không được trước ngày vào ở"
             );
         }
+
+        if (contract != null && contract.start_date != null
+                && moveInDate.isBefore(contract.start_date)) {
+            throw new IllegalArgumentException(
+                    "Ngày vào ở không được trước ngày bắt đầu hợp đồng"
+            );
+        }
+
+        if (contract != null && contract.end_date != null
+                && (moveOutDate == null
+                || moveOutDate.isAfter(contract.end_date))) {
+            throw new IllegalArgumentException(
+                    "Ngày rời đi không được sau ngày kết thúc hợp đồng"
+            );
+        }
+
+        if (currentAssignment == null) {
+            Room room = findContractRoom();
+            if (room != null && room.max_occupants != null
+                    && assignments.size() >= room.max_occupants) {
+                throw new IllegalArgumentException(
+                        "Phòng chỉ cho phép tối đa "
+                                + room.max_occupants
+                                + " người thuê"
+                );
+            }
+        }
+    }
+
+    @Nullable
+    private Room findContractRoom() {
+        if (contract == null || contract.room_id == null) {
+            return null;
+        }
+
+        for (Room room : rooms) {
+            if (room != null && contract.room_id.equals(room.room_id)) {
+                return room;
+            }
+        }
+
+        return null;
     }
 
     private void saveTenantRequest(
@@ -791,7 +840,7 @@ public class ContractDetailFragment extends Fragment {
                 if (!response.isSuccessful()) {
                     showMessage(
                             response.code() == 409
-                                    ? "Người thuê đã có trong hợp đồng"
+                                    ? "Người thuê đã có trong hợp đồng hoặc phòng đã đủ người"
                                     : "Không thể lưu người thuê"
                     );
                     return;

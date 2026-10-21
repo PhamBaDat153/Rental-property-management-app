@@ -33,6 +33,9 @@ public interface ContractTenantRepository
             @Param("tenantId") UUID tenantId
     );
 
+    @Query("select count(ct) from ContractTenant ct where ct.id.contract_id = :contractId")
+    long countByContractId(@Param("contractId") UUID contractId);
+
     // Lấy danh sách người thuê được đánh dấu là đại diện của một hợp đồng.
     @Query("""
             select ct

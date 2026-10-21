@@ -107,6 +107,23 @@ public class ContractTenantServiceImplement implements ContractTenantService {
                 )
         );
 
+        validateContractDates(
+                contract,
+                request.move_in_date(),
+                request.move_out_date()
+        );
+
+        Integer maxOccupants = contract.getRoom().getMax_occupants();
+        if (maxOccupants != null
+                && repository.countByContractId(request.contract_id())
+                >= maxOccupants) {
+            throw new ResourceConflictException(
+                    "Room allows a maximum of "
+                            + maxOccupants
+                            + " tenants"
+            );
+        }
+
         Tenant tenant = tenantRepository.findById(
                 request.tenant_id()
         ).orElseThrow(
@@ -157,6 +174,12 @@ public class ContractTenantServiceImplement implements ContractTenantService {
         );
 
         ContractTenant assignment = get(contractId, tenantId);
+
+        validateContractDates(
+                assignment.getRentalContract(),
+                request.move_in_date(),
+                request.move_out_date()
+        );
 
         clearRepresentative(
                 contractId,
@@ -236,6 +259,28 @@ public class ContractTenantServiceImplement implements ContractTenantService {
                 && end.isBefore(start)) {
             throw new ResourceConflictException(
                     "Move-out date must not precede move-in date"
+            );
+        }
+    }
+
+    private void validateContractDates(
+            RentalContract contract,
+            LocalDate moveIn,
+            LocalDate moveOut
+    ) {
+        if (moveIn != null
+                && contract.getStart_date() != null
+                && moveIn.isBefore(contract.getStart_date())) {
+            throw new ResourceConflictException(
+                    "Move-in date must not precede contract start date"
+            );
+        }
+
+        if (contract.getEnd_date() != null
+                && (moveOut == null
+                || moveOut.isAfter(contract.getEnd_date()))) {
+            throw new ResourceConflictException(
+                    "Move-out date must not exceed contract end date"
             );
         }
     }

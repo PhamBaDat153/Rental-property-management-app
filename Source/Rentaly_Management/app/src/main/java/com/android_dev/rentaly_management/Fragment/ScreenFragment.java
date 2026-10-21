@@ -502,7 +502,7 @@ public class ScreenFragment extends Fragment {
         Set<UUID> occupiedRoomIds = getOccupiedRoomIds(validRooms);
         int availableCount = 0;
         for (Room room : validRooms) {
-            if (!occupiedRoomIds.contains(room.room_id)
+            if (!isRoomOccupied(room)
                     && STATUS_AVAILABLE.equalsIgnoreCase(room.status)) {
                 availableCount++;
             }
@@ -873,7 +873,7 @@ public class ScreenFragment extends Fragment {
         int unavailableCount = 0;
 
         for (Room room : validRooms) {
-            if (occupiedRoomIds.contains(room.room_id)) {
+            if (isRoomOccupied(room)) {
                 continue;
             }
 
@@ -927,21 +927,34 @@ public class ScreenFragment extends Fragment {
     }
 
     private Set<UUID> getOccupiedRoomIds(@NonNull List<Room> validRooms) {
-        Set<UUID> roomIds = new HashSet<>();
-        for (Room room : validRooms) {
-            roomIds.add(room.room_id);
-        }
-
         Set<UUID> occupiedRoomIds = new HashSet<>();
-        for (RentalContract contract : contracts) {
-            if (contract != null
-                    && contract.room_id != null
-                    && roomIds.contains(contract.room_id)
-                    && STATUS_ACTIVE.equalsIgnoreCase(contract.status)) {
-                occupiedRoomIds.add(contract.room_id);
+        for (Room room : validRooms) {
+            if (isRoomOccupied(room)) {
+                occupiedRoomIds.add(room.room_id);
             }
         }
         return occupiedRoomIds;
+    }
+
+    private boolean isRoomOccupied(@NonNull Room room) {
+        LocalDate today = LocalDate.now();
+        for (RentalContract contract : contracts) {
+            if (contract == null
+                    || contract.room_id == null
+                    || !contract.room_id.equals(room.room_id)
+                    || !STATUS_ACTIVE.equalsIgnoreCase(contract.status)) {
+                continue;
+            }
+
+            if (contract.start_date != null && contract.start_date.isAfter(today)) {
+                continue;
+            }
+
+            if (contract.end_date == null || !contract.end_date.isBefore(today)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Bundle createRoomsBundle() {
