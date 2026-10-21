@@ -3,8 +3,9 @@ package com.android_dev.rentaly_management.DTO;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.io.Serializable;
 
-public class Maintenance {
+public class Maintenance implements Serializable {
 
     public UUID request_id;
     public UUID user_id;

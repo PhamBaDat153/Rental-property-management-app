@@ -5,10 +5,14 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import rentalpropertymanagementapp.be.DTO.MaintenanceResponse;
+import rentalpropertymanagementapp.be.Exception.ResourceConflictException;
 import rentalpropertymanagementapp.be.Exception.ResourceNotFoundException;
 import rentalpropertymanagementapp.be.Model.Enum.MaintenanceStatus;
 import rentalpropertymanagementapp.be.Model.Maintenance.MaintenanceRequest;
+import rentalpropertymanagementapp.be.Model.Maintenance.RequestImage;
 import rentalpropertymanagementapp.be.Repository.MaintenanceRequestRepository;
+import rentalpropertymanagementapp.be.Ultilities.CloudinaryFileUploader;
+import org.springframework.web.multipart.MultipartFile;
 import rentalpropertymanagementapp.be.Repository.RoomRepository;
 import rentalpropertymanagementapp.be.Repository.UserRepository;
 
@@ -23,6 +27,7 @@ public class MaintenanceServiceImplement implements MaintenanceService {
     private final MaintenanceRequestRepository requests;
     private final UserRepository users;
     private final RoomRepository rooms;
+    private final CloudinaryFileUploader fileUploader;
 
     /**
      * Khởi tạo service và tiêm các Repository cần thiết.
@@ -31,11 +36,13 @@ public class MaintenanceServiceImplement implements MaintenanceService {
     public MaintenanceServiceImplement(
             MaintenanceRequestRepository requests,
             UserRepository users,
-            RoomRepository rooms
+            RoomRepository rooms,
+            CloudinaryFileUploader fileUploader
     ) {
         this.requests = requests;
         this.users = users;
         this.rooms = rooms;
+        this.fileUploader = fileUploader;
     }
 
     /**
@@ -114,6 +121,44 @@ public class MaintenanceServiceImplement implements MaintenanceService {
         );
 
         return requests.save(value);
+    }
+
+    @Transactional
+    public MaintenanceRequest updateWithImages(
+            UUID id,
+            rentalpropertymanagementapp.be.DTO.MaintenanceRequest request,
+            List<MultipartFile> images
+    ) {
+        MaintenanceRequest value = get(id);
+        value.setStatus(request.status());
+        value.setCompleted_at(
+                request.status() == MaintenanceStatus.COMPLETED
+                        ? (value.getCompleted_at() == null ? LocalDateTime.now() : value.getCompleted_at())
+                        : null
+        );
+        uploadImages(value, images);
+        return requests.save(value);
+    }
+
+    private void uploadImages(MaintenanceRequest request, List<MultipartFile> images) {
+        if (images == null) return;
+        for (MultipartFile image : images) {
+            if (image == null || image.isEmpty()
+                    || image.getContentType() == null
+                    || !image.getContentType().startsWith("image/")) {
+                throw new ResourceConflictException("Only image files are accepted");
+            }
+            try {
+                String url = String.valueOf(fileUploader.uploadImage(image, "rental/maintenance").get("secure_url"));
+                request.getImages().add(RequestImage.builder()
+                        .request(request)
+                        .file_url(url)
+                        .image_type(image.getContentType())
+                        .build());
+            } catch (Exception exception) {
+                throw new ResourceConflictException("Maintenance image upload failed");
+            }
+        }
     }
 
     /**

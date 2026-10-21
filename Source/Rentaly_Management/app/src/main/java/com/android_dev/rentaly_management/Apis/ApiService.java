@@ -387,6 +387,11 @@ public interface ApiService {
     // Maintenance requests
     // -------------------------------------------------------------------------
 
+    @GET("be/maintenance/{id}")
+    Call<Maintenance> maintenance(
+            @Path("id") String id
+    );
+
     @GET("be/maintenance")
     Call<List<Maintenance>> maintenance(
             @Query("roomId") String roomId,
@@ -403,6 +408,14 @@ public interface ApiService {
     Call<Maintenance> updateMaintenance(
             @Path("id") String id,
             @Body MaintenanceRequest request
+    );
+
+    @Multipart
+    @PUT("be/maintenance/{id}")
+    Call<Maintenance> updateMaintenanceWithImages(
+            @Path("id") String id,
+            @Part MultipartBody.Part request,
+            @Part List<MultipartBody.Part> images
     );
 
     @DELETE("be/maintenance/{id}")

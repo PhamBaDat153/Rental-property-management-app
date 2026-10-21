@@ -115,6 +115,13 @@ public class MaintenanceFragment extends Fragment {
         );
 
         maintenanceList.setAdapter(maintenanceAdapter);
+        maintenanceList.setOnItemClickListener((parent, view, position, id) -> {
+            if (position < 0 || position >= maintenanceRequests.size()) return;
+            Bundle args = new Bundle();
+            args.putSerializable("maintenance", maintenanceRequests.get(position));
+            NavHostFragment.findNavController(this)
+                    .navigate(R.id.maintenanceDetailFragment, args);
+        });
     }
 
     private void renderMaintenanceRequests() {

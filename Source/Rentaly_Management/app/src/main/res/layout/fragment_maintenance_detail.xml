@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+        <Button
+            android:id="@+id/maintenance_detail_back"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:backgroundTint="@color/primary"
+            android:text="Quay lại"
+            android:textColor="@color/white" />
+        <TextView
+            android:id="@+id/maintenance_detail_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textColor="@color/dark_navy"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/maintenance_detail_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/secondary"
+            android:textSize="15sp" />
+        <TextView android:id="@+id/maintenance_detail_priority" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:textColor="@color/dark_navy" />
+        <TextView android:id="@+id/maintenance_detail_room" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/dark_navy" />
+        <TextView android:id="@+id/maintenance_detail_created" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/secondary" />
+        <TextView android:id="@+id/maintenance_detail_completed" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textColor="@color/secondary" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:text="Trạng thái" android:textColor="@color/dark_navy" android:textStyle="bold" />
+        <Spinner android:id="@+id/maintenance_detail_status" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="6dp" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:text="Hình ảnh" android:textColor="@color/dark_navy" android:textStyle="bold" />
+        <LinearLayout android:id="@+id/maintenance_detail_images" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:orientation="vertical" android:background="@drawable/user_detail_card" android:padding="12dp" />
+        <Button android:id="@+id/maintenance_detail_choose_image" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="10dp" android:backgroundTint="@color/secondary" android:text="Chọn hình ảnh" android:textColor="@color/white" />
+        <Button android:id="@+id/maintenance_detail_save" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="12dp" android:backgroundTint="@color/primary" android:text="Lưu trạng thái và hình ảnh" android:textColor="@color/white" />
+    </LinearLayout>
+</ScrollView>

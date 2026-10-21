@@ -3,6 +3,7 @@ package rentalpropertymanagementapp.be.Service;
 import rentalpropertymanagementapp.be.DTO.MaintenanceResponse;
 import rentalpropertymanagementapp.be.Model.Enum.MaintenanceStatus;
 import rentalpropertymanagementapp.be.Model.Maintenance.MaintenanceRequest;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,6 +24,12 @@ public interface MaintenanceService {
     MaintenanceRequest save(
             UUID id,
             rentalpropertymanagementapp.be.DTO.MaintenanceRequest request
+    );
+
+    MaintenanceRequest updateWithImages(
+            UUID id,
+            rentalpropertymanagementapp.be.DTO.MaintenanceRequest request,
+            List<MultipartFile> images
     );
 
     // Xóa yêu cầu bảo trì theo UUID.
