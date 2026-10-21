@@ -11,6 +11,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.android_dev.rentaly_management.View.DonutChartView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -23,6 +25,8 @@ import com.android_dev.rentaly_management.DTO.RentalContract;
 import com.android_dev.rentaly_management.DTO.Room;
 import com.android_dev.rentaly_management.R;
 
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -89,6 +93,9 @@ public class ScreenFragment extends Fragment {
 
     private ProgressBar loadingIndicator;
 
+    private LinearLayout kpiContainer;
+    private DonutChartView paymentChart;
+    private LinearLayout paymentLegend;
     private LinearLayout attentionContainer;
     private LinearLayout roomSummaryContainer;
     private LinearLayout actionsContainer;
@@ -132,6 +139,10 @@ public class ScreenFragment extends Fragment {
         loadingIndicator = rootView.findViewById(
                 R.id.dashboard_loading
         );
+
+        kpiContainer = rootView.findViewById(R.id.dashboard_kpis);
+        paymentChart = rootView.findViewById(R.id.dashboard_payment_chart);
+        paymentLegend = rootView.findViewById(R.id.dashboard_payment_legend);
 
         attentionContainer = rootView.findViewById(
                 R.id.dashboard_attention
@@ -473,9 +484,160 @@ public class ScreenFragment extends Fragment {
             return;
         }
 
+        renderKpis();
+        renderPaymentChart();
         renderAttention();
         renderRoomSummary();
         renderPriorityItems();
+    }
+
+    // -------------------------------------------------------------------------
+    // KPI section
+    // -------------------------------------------------------------------------
+
+    private void renderKpis() {
+        kpiContainer.removeAllViews();
+
+        List<Room> validRooms = getValidRooms();
+        Set<UUID> occupiedRoomIds = getOccupiedRoomIds(validRooms);
+        int availableCount = 0;
+        for (Room room : validRooms) {
+            if (!occupiedRoomIds.contains(room.room_id)
+                    && STATUS_AVAILABLE.equalsIgnoreCase(room.status)) {
+                availableCount++;
+            }
+        }
+
+        List<Invoice> overdueInvoices = getOverdueInvoices();
+        List<Maintenance> openMaintenance = getOpenMaintenance();
+
+        addKpiRow(
+                createKpiCard(
+                        getString(R.string.dashboard_kpi_occupied),
+                        String.valueOf(occupiedRoomIds.size()),
+                        view -> navigate(R.id.propertiesFragment, createRoomsBundle())
+                ),
+                createKpiCard(
+                        getString(R.string.dashboard_kpi_available),
+                        String.valueOf(availableCount),
+                        view -> navigate(R.id.propertiesFragment, createRoomsBundle())
+                )
+        );
+        addKpiRow(
+                createKpiCard(
+                        getString(R.string.dashboard_kpi_overdue),
+                        String.valueOf(overdueInvoices.size()),
+                        view -> navigate(R.id.invoiceFragment, null)
+                ),
+                createKpiCard(
+                        getString(R.string.dashboard_kpi_maintenance),
+                        String.valueOf(openMaintenance.size()),
+                        view -> navigate(R.id.maintenanceFragment, null)
+                )
+        );
+    }
+
+    private Button createKpiCard(
+            @NonNull String label,
+            @NonNull String value,
+            @NonNull View.OnClickListener listener
+    ) {
+        Button card = new Button(requireContext());
+        card.setText(label + "\n" + value);
+        card.setAllCaps(false);
+        card.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+        card.setTextSize(15);
+        card.setTextColor(requireContext().getResources().getColor(R.color.dark_navy));
+        card.setMinHeight(76);
+        card.setPadding(16, 8, 16, 8);
+        card.setBackgroundResource(com.android_dev.rentaly_management.R.drawable.user_detail_card);
+        card.setStateListAnimator(null);
+        card.setOnClickListener(listener);
+        return card;
+    }
+
+    private void addKpiRow(@NonNull Button left, @NonNull Button right) {
+        LinearLayout row = new LinearLayout(requireContext());
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.addView(left, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        LinearLayout.LayoutParams rightParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        rightParams.setMargins(8, 0, 0, 8);
+        row.addView(right, rightParams);
+        kpiContainer.addView(row);
+    }
+
+    private void renderPaymentChart() {
+        if (paymentChart == null || paymentLegend == null) return;
+
+        paymentLegend.removeAllViews();
+        int paidCount = 0;
+        int unpaidCount = 0;
+        int overdueCount = 0;
+        BigDecimal paidAmount = BigDecimal.ZERO;
+        BigDecimal unpaidAmount = BigDecimal.ZERO;
+        BigDecimal overdueAmount = BigDecimal.ZERO;
+        LocalDate today = LocalDate.now();
+
+        for (Invoice invoice : invoices) {
+            if (invoice == null) continue;
+            BigDecimal amount = invoice.total_amount == null ? BigDecimal.ZERO : invoice.total_amount;
+            if (STATUS_RECEIVED.equalsIgnoreCase(invoice.status)) {
+                paidCount++;
+                paidAmount = paidAmount.add(amount);
+            } else if (invoice.due_date != null && invoice.due_date.isBefore(today)) {
+                overdueCount++;
+                overdueAmount = overdueAmount.add(amount);
+            } else {
+                unpaidCount++;
+                unpaidAmount = unpaidAmount.add(amount);
+            }
+        }
+
+        int total = paidCount + unpaidCount + overdueCount;
+        if (total == 0) {
+            paymentChart.setData(new float[0], new int[0], "");
+            paymentLegend.addView(createLegendText(getString(R.string.dashboard_payment_empty), false));
+            return;
+        }
+
+        paymentChart.setData(
+                new float[]{paidAmount.floatValue(), unpaidAmount.floatValue(), overdueAmount.floatValue()},
+                new int[]{0xFF3B8D6B, 0xFF548CA8, 0xFFC66A3D},
+                getString(R.string.dashboard_payment_total, total)
+        );
+
+        addPaymentLegend(paymentLegend, "Đã thanh toán", paidCount, paidAmount, 0xFF3B8D6B);
+        addPaymentLegend(paymentLegend, "Chưa thanh toán", unpaidCount, unpaidAmount, 0xFF548CA8);
+        addPaymentLegend(paymentLegend, "Quá hạn", overdueCount, overdueAmount, 0xFFC66A3D);
+    }
+
+    private void addPaymentLegend(@NonNull LinearLayout parent, @NonNull String label, int count, @NonNull BigDecimal amount, int color) {
+        if (count == 0) return;
+        TextView legend = createLegendText(getString(R.string.dashboard_payment_legend, label, count, formatMoney(amount)), true);
+        legend.setCompoundDrawablesWithIntrinsicBounds(createLegendDot(color), null, null, null);
+        legend.setCompoundDrawablePadding(12);
+        parent.addView(legend);
+    }
+
+    private TextView createLegendText(@NonNull String text, boolean important) {
+        TextView view = new TextView(requireContext());
+        view.setText(text);
+        view.setTextColor(requireContext().getResources().getColor(important ? R.color.dark_navy : R.color.secondary));
+        view.setTextSize(14);
+        view.setPadding(0, 8, 0, 8);
+        return view;
+    }
+
+    private android.graphics.drawable.Drawable createLegendDot(int color) {
+        android.graphics.drawable.GradientDrawable dot = new android.graphics.drawable.GradientDrawable();
+        dot.setColor(color);
+        dot.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+        dot.setSize(18, 18);
+        return dot;
+    }
+
+    private String formatMoney(@NonNull BigDecimal amount) {
+        return NumberFormat.getNumberInstance(java.util.Locale.US).format(amount.setScale(0, java.math.RoundingMode.HALF_UP));
     }
 
     // -------------------------------------------------------------------------
@@ -704,16 +866,13 @@ public class ScreenFragment extends Fragment {
             return;
         }
 
-        Set<UUID> occupiedRoomIds = getOccupiedRoomIds();
+        List<Room> validRooms = getValidRooms();
+        Set<UUID> occupiedRoomIds = getOccupiedRoomIds(validRooms);
 
         int availableCount = 0;
         int unavailableCount = 0;
 
-        for (Room room : rooms) {
-            if (room == null || room.room_id == null) {
-                continue;
-            }
-
+        for (Room room : validRooms) {
             if (occupiedRoomIds.contains(room.room_id)) {
                 continue;
             }
@@ -728,7 +887,7 @@ public class ScreenFragment extends Fragment {
         String summaryText =
                 getString(
                         R.string.dashboard_total_rooms,
-                        rooms.size()
+                        validRooms.size()
                 )
                         + "\n"
                         + getString(
@@ -757,19 +916,31 @@ public class ScreenFragment extends Fragment {
         );
     }
 
-    private Set<UUID> getOccupiedRoomIds() {
-        Set<UUID> occupiedRoomIds = new HashSet<>();
-
-        for (RentalContract contract : contracts) {
-            if (contract == null || contract.room_id == null) {
-                continue;
+    private List<Room> getValidRooms() {
+        List<Room> validRooms = new ArrayList<>();
+        for (Room room : rooms) {
+            if (room != null && room.room_id != null) {
+                validRooms.add(room);
             }
+        }
+        return validRooms;
+    }
 
-            if (STATUS_ACTIVE.equalsIgnoreCase(contract.status)) {
+    private Set<UUID> getOccupiedRoomIds(@NonNull List<Room> validRooms) {
+        Set<UUID> roomIds = new HashSet<>();
+        for (Room room : validRooms) {
+            roomIds.add(room.room_id);
+        }
+
+        Set<UUID> occupiedRoomIds = new HashSet<>();
+        for (RentalContract contract : contracts) {
+            if (contract != null
+                    && contract.room_id != null
+                    && roomIds.contains(contract.room_id)
+                    && STATUS_ACTIVE.equalsIgnoreCase(contract.status)) {
                 occupiedRoomIds.add(contract.room_id);
             }
         }
-
         return occupiedRoomIds;
     }
 
@@ -814,6 +985,7 @@ public class ScreenFragment extends Fragment {
                     ),
                     getString(
                             R.string.dashboard_maintenance_priority,
+                            getPriorityLabel(item.priority),
                             getMaintenanceStatusLabel(item.status)
                     ),
                     view -> navigate(
@@ -1180,6 +1352,12 @@ public class ScreenFragment extends Fragment {
         return value.toString();
     }
 
+    private String getPriorityLabel(@Nullable String priority) {
+        if ("HIGH".equalsIgnoreCase(priority)) return "Cao";
+        if ("LOW".equalsIgnoreCase(priority)) return "Thấp";
+        return "Bình thường";
+    }
+
     private String getMaintenanceStatusLabel(
             @Nullable String status
     ) {
@@ -1220,6 +1398,9 @@ public class ScreenFragment extends Fragment {
         attentionContainer = null;
         roomSummaryContainer = null;
         actionsContainer = null;
+        kpiContainer = null;
+        paymentChart = null;
+        paymentLegend = null;
         priorityContainer = null;
 
         super.onDestroyView();

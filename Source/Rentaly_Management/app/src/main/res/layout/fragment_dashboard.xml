@@ -69,6 +69,54 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp"
+            android:text="@string/dashboard_kpis_title"
+            android:textColor="@color/primary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/dashboard_kpis"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="vertical" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:text="@string/dashboard_payment_title"
+            android:textColor="@color/primary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/dashboard_payment_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/user_detail_card"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <com.android_dev.rentaly_management.View.DonutChartView
+                android:id="@+id/dashboard_payment_chart"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:contentDescription="@string/dashboard_payment_chart_description" />
+
+            <LinearLayout
+                android:id="@+id/dashboard_payment_legend"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="vertical" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
             android:text="@string/dashboard_attention_title"
             android:textColor="@color/primary"
             android:textSize="16sp"

@@ -8,6 +8,17 @@
     <string name="dashboard_header_label">TỔNG QUAN VẬN HÀNH</string>
     <string name="dashboard_all_locations">Tổng quan tất cả địa điểm</string>
     <string name="dashboard_loading">Đang tải tổng quan</string>
+    <string name="dashboard_kpis_title">Tổng quan hôm nay</string>
+    <string name="dashboard_payment_title">Tình trạng thanh toán</string>
+    <string name="dashboard_payment_chart_description">Biểu đồ tình trạng thanh toán hóa đơn</string>
+    <string name="dashboard_payment_total">%1$d hóa đơn</string>
+    <string name="dashboard_payment_legend">%1$s\n%2$d hóa đơn · %3$s VND</string>
+    <string name="dashboard_payment_empty">Chưa có dữ liệu hóa đơn</string>
+    <string name="dashboard_kpi_occupied">Đang thuê</string>
+    <string name="dashboard_kpi_available">Phòng trống</string>
+    <string name="dashboard_kpi_overdue">Hóa đơn quá hạn</string>
+    <string name="dashboard_kpi_maintenance">Bảo trì đang mở</string>
+    <string name="dashboard_occupancy_rate">Tỷ lệ lấp đầy: %1$d%%</string>
     <string name="dashboard_attention_title">Cần xử lý</string>
     <string name="dashboard_rooms_title">Tình trạng phòng</string>
     <string name="dashboard_quick_actions_title">Thao tác nhanh</string>
@@ -34,7 +45,7 @@
     <string name="dashboard_contracts_unavailable">Không thể tải hợp đồng. Chạm để thử lại.</string>
     <string name="dashboard_invoices_unavailable">Không thể tải hóa đơn. Chạm để thử lại.</string>
     <string name="dashboard_maintenance_unavailable">Không thể tải yêu cầu bảo trì. Chạm để thử lại.</string>
-    <string name="dashboard_maintenance_priority">Ưu tiên cao · %1$s</string>
+    <string name="dashboard_maintenance_priority">%1$s · %2$s</string>
     <string name="dashboard_maintenance_item">%1$s · Phòng %2$s</string>
     <string name="dashboard_invoice_item">Hóa đơn %1$s</string>
     <string name="dashboard_invoice_status">Quá hạn · Hợp đồng %1$s</string>
