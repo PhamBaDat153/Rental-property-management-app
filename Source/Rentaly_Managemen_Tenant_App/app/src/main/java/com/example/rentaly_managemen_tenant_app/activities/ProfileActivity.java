@@ -1,5 +1,6 @@
 package com.example.rentaly_managemen_tenant_app.activities;
 
+import android.content.Intent;
 import android.text.InputType;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -37,7 +38,10 @@ public class ProfileActivity extends TenantBaseActivity {
             }
 
             @Override
-            public void onError(String error) { showFailure(error); }
+            public void onError(String error) {
+                showFailure(error);
+                addButton("Đăng xuất", v -> logout());
+            }
         });
     }
 
@@ -50,6 +54,7 @@ public class ProfileActivity extends TenantBaseActivity {
         addSection("Tài khoản");
         addLine("Tên đăng nhập: " + value(currentProfile.user_name));
         addLine("Trạng thái: " + value(currentProfile.status));
+        addButton("Đăng xuất", v -> logout());
 
         addSection("Thông tin cá nhân");
         addLine("Điện thoại: " + value(currentProfile.phone));
@@ -70,6 +75,14 @@ public class ProfileActivity extends TenantBaseActivity {
         if (currentProfile.additional_note != null && !currentProfile.additional_note.trim().isEmpty()) {
             addLine("Ghi chú: " + currentProfile.additional_note);
         }
+    }
+
+    private void logout() {
+        session.clear();
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     private void renderEditor() {
