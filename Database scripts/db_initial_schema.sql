@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS `tenant` (
     `gender` ENUM('MALE', 'FEMALE', 'OTHER') NULL,
     `avatar_url` TEXT NULL,
 
-    `identity_type` ENUM('CCCD', 'PASSPORT', 'OTHER') NULL,
+    `identity_type` ENUM('ID', 'PASSPORT', 'OTHER') NULL,
     `identity_number` VARCHAR(30) NULL,
     `identity_issued_date` DATE NULL,
     `identity_issued_place` VARCHAR(255) NULL,
