@@ -27,7 +27,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Rentaly"
-                android:textColor="@color/primary"
+                android:textColor="@color/dark_navy"
                 android:textSize="34sp"
                 android:textStyle="bold" />
 
@@ -109,7 +109,7 @@
                 android:background="@drawable/tenant_primary_button"
                 android:text="Đăng nhập"
                 android:textAllCaps="false"
-                android:textColor="@color/white"
+                android:textColor="@color/dark_navy"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 

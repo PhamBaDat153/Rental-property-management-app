@@ -12,6 +12,10 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -43,6 +47,7 @@ public abstract class TenantBaseActivity extends AppCompatActivity {
     }
 
     protected void createScreen(String title, boolean showBack) {
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         ScrollView scroll = new ScrollView(this);
         scroll.setFillViewport(true);
         scroll.setBackgroundColor(getColor(com.example.rentaly_managemen_tenant_app.R.color.background));
@@ -57,17 +62,17 @@ public abstract class TenantBaseActivity extends AppCompatActivity {
         hero.setBackgroundResource(com.example.rentaly_managemen_tenant_app.R.drawable.tenant_header_background);
 
         TextView eyebrow = text("RENTALY  •  KHU VỰC NGƯỜI THUÊ", 11, true);
-        eyebrow.setTextColor(getColor(com.example.rentaly_managemen_tenant_app.R.color.primary));
+        eyebrow.setTextColor(getColor(com.example.rentaly_managemen_tenant_app.R.color.dark_navy));
         hero.addView(eyebrow, matchWrap());
 
         TextView heading = text(title, 24, true);
-        heading.setTextColor(getColor(com.example.rentaly_managemen_tenant_app.R.color.white));
+        heading.setTextColor(getColor(com.example.rentaly_managemen_tenant_app.R.color.dark_navy));
         LinearLayout.LayoutParams headingParams = matchWrap();
         headingParams.topMargin = dp(7);
         hero.addView(heading, headingParams);
 
         TextView subtitle = text("Thông tin thuê nhà và tiện ích của bạn", 14, false);
-        subtitle.setTextColor(0xffe7edf0);
+        subtitle.setTextColor(getColor(com.example.rentaly_managemen_tenant_app.R.color.dark_navy));
         LinearLayout.LayoutParams subtitleParams = matchWrap();
         subtitleParams.topMargin = dp(4);
         hero.addView(subtitle, subtitleParams);
@@ -75,7 +80,7 @@ public abstract class TenantBaseActivity extends AppCompatActivity {
 
         if (showBack) {
             TextView back = text("‹   Quay lại", 14, true);
-            back.setTextColor(getColor(com.example.rentaly_managemen_tenant_app.R.color.primary));
+            back.setTextColor(getColor(com.example.rentaly_managemen_tenant_app.R.color.dark_navy));
             back.setGravity(Gravity.CENTER_VERTICAL);
             back.setPadding(dp(2), dp(14), dp(2), dp(8));
             back.setOnClickListener(v -> finish());
@@ -85,7 +90,7 @@ public abstract class TenantBaseActivity extends AppCompatActivity {
         message = text("Đang tải dữ liệu...", 15, false);
         message.setPadding(dp(16), dp(14), dp(16), dp(14));
         message.setBackgroundResource(com.example.rentaly_managemen_tenant_app.R.drawable.tenant_surface_card);
-        message.setElevation(dp(1));
+        message.setElevation(0);
         LinearLayout.LayoutParams messageParams = matchWrap();
         messageParams.topMargin = dp(showBack ? 4 : 18);
         page.addView(message, messageParams);
@@ -101,14 +106,14 @@ public abstract class TenantBaseActivity extends AppCompatActivity {
                 LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
 
         BottomNavigationView navigation = new BottomNavigationView(this);
-        navigation.setBackgroundColor(getColor(com.example.rentaly_managemen_tenant_app.R.color.white));
+        navigation.setBackgroundColor(getColor(com.example.rentaly_managemen_tenant_app.R.color.surface));
         navigation.setLabelVisibilityMode(BottomNavigationView.LABEL_VISIBILITY_LABELED);
         navigation.setItemHorizontalTranslationEnabled(false);
         navigation.setItemIconTintList(getColorStateList(
                 com.example.rentaly_managemen_tenant_app.R.color.tenant_navigation_tint));
         navigation.setItemTextColor(getColorStateList(
                 com.example.rentaly_managemen_tenant_app.R.color.tenant_navigation_tint));
-        navigation.setElevation(dp(8));
+        navigation.setElevation(dp(4));
         navigation.inflateMenu(com.example.rentaly_managemen_tenant_app.R.menu.tenant_bottom_navigation);
         navigation.setSelectedItemId(selectedNavigationItem());
         navigation.setOnItemSelectedListener(item -> {
@@ -126,9 +131,27 @@ public abstract class TenantBaseActivity extends AppCompatActivity {
             }
             return true;
         });
-        root.addView(navigation, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, dp(68)));
+        LinearLayout navigationContainer = new LinearLayout(this);
+        navigationContainer.setOrientation(LinearLayout.VERTICAL);
+        navigationContainer.setBackgroundColor(getColor(
+                com.example.rentaly_managemen_tenant_app.R.color.surface));
+        navigationContainer.addView(navigation, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, dp(80)));
+        root.addView(navigationContainer, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         setContentView(root);
+        ViewCompat.setOnApplyWindowInsetsListener(root, (view, windowInsets) -> {
+            Insets safeInsets = windowInsets.getInsets(
+                    WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.displayCutout());
+            root.setPadding(safeInsets.left, safeInsets.top, safeInsets.right, 0);
+            navigationContainer.setPadding(0, 0, 0, safeInsets.bottom);
+            return new WindowInsetsCompat.Builder(windowInsets)
+                    .setInsets(WindowInsetsCompat.Type.systemBars()
+                                    | WindowInsetsCompat.Type.displayCutout(),
+                            Insets.NONE)
+                    .build();
+        });
+        ViewCompat.requestApplyInsets(root);
     }
 
     private int selectedNavigationItem() {
@@ -255,7 +278,7 @@ public abstract class TenantBaseActivity extends AppCompatActivity {
 
     protected void addSection(String value) {
         TextView row = text(value, 18, true);
-        row.setTextColor(getColor(com.example.rentaly_managemen_tenant_app.R.color.primary));
+        row.setTextColor(getColor(com.example.rentaly_managemen_tenant_app.R.color.dark_navy));
         LinearLayout.LayoutParams params = matchWrap();
         params.topMargin = dp(16);
         params.bottomMargin = dp(8);
@@ -286,7 +309,7 @@ public abstract class TenantBaseActivity extends AppCompatActivity {
         button.setAllCaps(false);
         button.setTextSize(15);
         button.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-        button.setTextColor(getColor(com.example.rentaly_managemen_tenant_app.R.color.white));
+        button.setTextColor(getColor(com.example.rentaly_managemen_tenant_app.R.color.dark_navy));
         button.setGravity(Gravity.CENTER);
         button.setMinHeight(dp(54));
         button.setBackgroundResource(com.example.rentaly_managemen_tenant_app.R.drawable.tenant_primary_button);
